@@ -62,6 +62,10 @@ export async function getArticleBySlug(slug: string) {
   return fetchAPI(`/articles/slug/${slug}`);
 }
 
+export async function getSystemDesignArticles() {
+  return fetchAPI("/articles/system-design");
+}
+
 // =====================
 // Challenges
 // =====================
