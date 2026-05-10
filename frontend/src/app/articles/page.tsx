@@ -1,5 +1,5 @@
-import Link from "next/link";
 import type { Metadata } from "next";
+import ArticlesClient from "@/components/ArticlesClient";
 
 export const metadata: Metadata = {
   title: "Articles — Prompt Dairy",
@@ -68,10 +68,6 @@ const articles = [
 
 const categories = ["all", "fundamentals", "techniques", "architecture"];
 
-function getBadgeClass(difficulty: string) {
-  return `badge badge-${difficulty}`;
-}
-
 export default function ArticlesPage() {
   return (
     <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "48px 24px" }}>
@@ -99,146 +95,8 @@ export default function ArticlesPage() {
         </p>
       </div>
 
-      {/* Category Filter */}
-      <div
-        style={{
-          display: "flex",
-          gap: "8px",
-          marginBottom: "32px",
-          flexWrap: "wrap",
-        }}
-      >
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            style={{
-              padding: "8px 18px",
-              borderRadius: "10px",
-              border: "1px solid var(--border-medium)",
-              background:
-                cat === "all"
-                  ? "rgba(124, 58, 237, 0.15)"
-                  : "transparent",
-              color:
-                cat === "all" ? "#a78bfa" : "var(--text-secondary)",
-              fontSize: "0.85rem",
-              fontWeight: 500,
-              cursor: "pointer",
-              textTransform: "capitalize",
-              transition: "all 0.2s ease",
-            }}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
-
-      {/* Article Cards */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-        {articles.map((article, index) => (
-          <Link
-            key={article.id}
-            href={`/articles/${article.slug}`}
-            id={`article-${article.slug}`}
-            className="glass-card animate-fade-in-up"
-            style={{
-              padding: "28px 32px",
-              textDecoration: "none",
-              color: "inherit",
-              opacity: 0,
-              animationDelay: `${index * 0.1}s`,
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "start",
-                justifyContent: "space-between",
-                gap: "16px",
-                flexWrap: "wrap",
-              }}
-            >
-              <div style={{ flex: 1 }}>
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "8px",
-                    marginBottom: "10px",
-                    flexWrap: "wrap",
-                  }}
-                >
-                  <span className={getBadgeClass(article.difficulty)}>
-                    {article.difficulty}
-                  </span>
-                  <span
-                    style={{
-                      fontSize: "0.75rem",
-                      padding: "4px 12px",
-                      borderRadius: "20px",
-                      background: "rgba(255,255,255,0.05)",
-                      color: "var(--text-muted)",
-                      textTransform: "capitalize",
-                    }}
-                  >
-                    {article.category}
-                  </span>
-                </div>
-                <h3
-                  style={{
-                    fontSize: "1.15rem",
-                    fontWeight: 600,
-                    marginBottom: "8px",
-                  }}
-                >
-                  {article.title}
-                </h3>
-                <p
-                  style={{
-                    color: "var(--text-secondary)",
-                    fontSize: "0.9rem",
-                    lineHeight: 1.6,
-                  }}
-                >
-                  {article.excerpt}
-                </p>
-              </div>
-              <span
-                style={{
-                  color: "var(--text-muted)",
-                  fontSize: "1.25rem",
-                  flexShrink: 0,
-                  marginTop: "4px",
-                }}
-              >
-                →
-              </span>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                gap: "8px",
-                marginTop: "14px",
-                flexWrap: "wrap",
-              }}
-            >
-              {article.tags.map((tag) => (
-                <span
-                  key={tag}
-                  style={{
-                    fontSize: "0.7rem",
-                    padding: "2px 10px",
-                    borderRadius: "8px",
-                    background: "rgba(255,255,255,0.04)",
-                    color: "var(--text-muted)",
-                  }}
-                >
-                  #{tag}
-                </span>
-              ))}
-            </div>
-          </Link>
-        ))}
-      </div>
+      {/* Interactive filter + article list (Client Component) */}
+      <ArticlesClient articles={articles} categories={categories} />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+// Challenges list — "Start Challenge" now links to /challenges/[id]
 
 export const metadata: Metadata = {
   title: "Challenges — Prompt Dairy",
@@ -212,16 +213,19 @@ export default function ChallengesPage() {
             </div>
 
             <div style={{ marginTop: "16px" }}>
-              <button
+              <Link
+                href={`/challenges/${challenge.id}`}
                 className="btn-secondary"
                 style={{
                   padding: "8px 20px",
                   fontSize: "0.85rem",
-                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
                 }}
               >
                 Start Challenge →
-              </button>
+              </Link>
             </div>
           </div>
         ))}
