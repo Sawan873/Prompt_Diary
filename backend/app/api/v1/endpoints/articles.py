@@ -30,6 +30,12 @@ async def list_articles(
     return result
 
 
+@router.get("/system-design")
+async def list_system_design_articles():
+    """List architecture-focused articles for the System Design module."""
+    return get_all_articles(category="architecture")
+
+
 @router.get("/{article_id}")
 async def get_article(article_id: str):
     """Get a single article by its ID."""

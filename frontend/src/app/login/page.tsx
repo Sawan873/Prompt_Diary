@@ -2,22 +2,37 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { login } from "@/lib/api";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
+    setIsError(false);
 
-    // Phase 1 stub — simulated login
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    setMessage("Login successful! (Phase 1 stub — Supabase Auth coming in Phase 2)");
-    setLoading(false);
+    try {
+      const response = await login({ email, password });
+      localStorage.setItem(
+        "promptDiarySession",
+        JSON.stringify({ email, loggedInAt: new Date().toISOString() })
+      );
+      setMessage(response.message || "Login successful!");
+      router.push("/dashboard");
+    } catch (error) {
+      setIsError(true);
+      setMessage(error instanceof Error ? error.message : "Login failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -125,9 +140,13 @@ export default function LoginPage() {
             style={{
               padding: "12px 16px",
               borderRadius: "10px",
-              background: "rgba(16, 185, 129, 0.1)",
-              border: "1px solid rgba(16, 185, 129, 0.2)",
-              color: "#34d399",
+              background: isError
+                ? "rgba(239, 68, 68, 0.1)"
+                : "rgba(16, 185, 129, 0.1)",
+              border: isError
+                ? "1px solid rgba(239, 68, 68, 0.25)"
+                : "1px solid rgba(16, 185, 129, 0.2)",
+              color: isError ? "#f87171" : "#34d399",
               fontSize: "0.85rem",
               marginBottom: "20px",
             }}

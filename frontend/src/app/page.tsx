@@ -146,7 +146,7 @@ export default function Home() {
               icon="🏛️"
               title="System Design"
               description="AI architecture and enterprise workflow guides"
-              href="/articles?category=architecture"
+              href="/system-design"
               status="active"
               itemCount={2}
             />

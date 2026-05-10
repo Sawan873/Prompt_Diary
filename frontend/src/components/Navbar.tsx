@@ -11,6 +11,7 @@ export default function Navbar() {
     { href: "/challenges", label: "Challenges", icon: "🎯" },
     { href: "/roadmaps", label: "Roadmaps", icon: "🗺️" },
     { href: "/playground", label: "Playground", icon: "🧪" },
+    { href: "/system-design", label: "System Design", icon: "🏛️" },
   ];
 
   return (
