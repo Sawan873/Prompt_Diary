@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { AuthProvider } from "@/lib/AuthContext";
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -51,6 +52,18 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         {/* Noise texture overlay */}
         <div className="noise-overlay" aria-hidden="true" />
+        <div
+          aria-hidden="true"
+          style={{
+            position: "fixed",
+            inset: 0,
+            pointerEvents: "none",
+            zIndex: 45,
+            opacity: 0.08,
+            backgroundImage:
+              "repeating-linear-gradient(to bottom, rgba(0,229,255,0.08) 0px, rgba(0,229,255,0.08) 1px, transparent 2px, transparent 4px)",
+          }}
+        />
 
         {/* Background orbs */}
         <div
@@ -89,9 +102,11 @@ export default function RootLayout({
           aria-hidden="true"
         />
 
-        <Navbar />
-        <main className="flex-1 relative z-10">{children}</main>
-        <Footer />
+        <AuthProvider>
+          <Navbar />
+          <main className="flex-1 relative z-10">{children}</main>
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );

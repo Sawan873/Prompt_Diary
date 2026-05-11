@@ -6,7 +6,7 @@ import Link from "next/link";
 export default function Home() {
   return (
     <>
-      {/* Hero Section */}
+      {/* Hero Section — with full-screen video background */}
       <Hero />
 
       {/* Features Section */}
