@@ -60,5 +60,8 @@ async def app_info():
             "challenges": "/api/v1/challenges",
             "roadmaps": "/api/v1/roadmaps",
             "auth": "/api/v1/auth",
+            "user_progress": "/api/v1/user-progress",
+            "search": "/api/v1/search",
+            "playground": "/api/v1/playground",
         },
     }

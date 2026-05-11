@@ -16,6 +16,7 @@ export default function Navbar() {
     { href: "/roadmaps", label: "Roadmaps", icon: "🗺️" },
     { href: "/playground", label: "Playground", icon: "🧪" },
     { href: "/system-design", label: "System Design", icon: "🏛️" },
+    { href: "/search", label: "Search", icon: "🔍" },
   ];
 
   const handleSignOut = async () => {

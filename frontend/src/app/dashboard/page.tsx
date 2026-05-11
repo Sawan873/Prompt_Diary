@@ -3,18 +3,48 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/AuthContext";
+import { useState, useEffect } from "react";
+import { getUserStats } from "@/lib/api";
 
 const modules = [
-  { title: "Learning Articles", href: "/articles", icon: "📚" },
-  { title: "Prompt Challenges", href: "/challenges", icon: "🎯" },
-  { title: "Prompt Playground", href: "/playground", icon: "🧪" },
-  { title: "Learning Roadmaps", href: "/roadmaps", icon: "🗺️" },
-  { title: "System Design", href: "/system-design", icon: "🏛️" },
+  { title: "Learning Articles", href: "/articles", icon: "📚", desc: "Read in-depth guides" },
+  { title: "Prompt Challenges", href: "/challenges", icon: "🎯", desc: "Practice prompts" },
+  { title: "Prompt Playground", href: "/playground", icon: "🧪", desc: "Test your prompts" },
+  { title: "Learning Roadmaps", href: "/roadmaps", icon: "🗺️", desc: "Structured paths" },
+  { title: "System Design", href: "/system-design", icon: "🏛️", desc: "AI architectures" },
 ];
+
+interface UserStatsData {
+  articles_completed: number;
+  challenges_completed: number;
+  total_points: number;
+  level: string;
+}
 
 export default function DashboardPage() {
   const router = useRouter();
   const { user, loading, signOut } = useAuth();
+  const [stats, setStats] = useState<UserStatsData | null>(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadStats() {
+      try {
+        const data = await getUserStats();
+        if (data?.success && data.stats) {
+          setStats(data.stats);
+        }
+      } catch {
+        // Stats fetch failed — show defaults
+      } finally {
+        setStatsLoading(false);
+      }
+    }
+
+    if (user) {
+      loadStats();
+    }
+  }, [user]);
 
   // Show loading state while checking auth
   if (loading) {
@@ -57,8 +87,13 @@ export default function DashboardPage() {
   }
 
   // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace("/login");
+    }
+  }, [loading, user, router]);
+
   if (!user) {
-    router.replace("/login");
     return null;
   }
 
@@ -76,6 +111,17 @@ export default function DashboardPage() {
     await signOut();
     router.push("/");
   };
+
+  const levelColors: Record<string, string> = {
+    Newcomer: "#6b7280",
+    Beginner: "#10b981",
+    Intermediate: "#3b82f6",
+    Advanced: "#a855f6",
+    Expert: "#f59e0b",
+  };
+
+  const currentLevel = stats?.level || "Newcomer";
+  const levelColor = levelColors[currentLevel] || "#6b7280";
 
   return (
     <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "48px 24px" }}>
@@ -97,28 +143,27 @@ export default function DashboardPage() {
               src={avatarUrl}
               alt="Avatar"
               style={{
-                width: "48px",
-                height: "48px",
+                width: "56px",
+                height: "56px",
                 borderRadius: "50%",
-                border: "2px solid rgba(0,229,255,0.3)",
+                border: `3px solid ${levelColor}`,
                 objectFit: "cover",
               }}
             />
           ) : (
             <div
               style={{
-                width: "48px",
-                height: "48px",
+                width: "56px",
+                height: "56px",
                 borderRadius: "50%",
-                background:
-                  "linear-gradient(135deg, rgba(0,229,255,0.2), rgba(176,38,255,0.2))",
-                border: "2px solid rgba(0,229,255,0.3)",
+                background: `linear-gradient(135deg, ${levelColor}33, rgba(176,38,255,0.2))`,
+                border: `3px solid ${levelColor}`,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: "20px",
+                fontSize: "22px",
                 fontWeight: 700,
-                color: "#00e5ff",
+                color: levelColor,
               }}
             >
               {displayName.charAt(0).toUpperCase()}
@@ -134,14 +179,31 @@ export default function DashboardPage() {
             >
               Welcome, <span className="gradient-text">{displayName}</span>
             </h1>
-            <p
-              style={{
-                color: "var(--text-muted)",
-                fontSize: "0.85rem",
-              }}
-            >
-              {user.email}
-            </p>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <p
+                style={{
+                  color: "var(--text-muted)",
+                  fontSize: "0.85rem",
+                }}
+              >
+                {user.email}
+              </p>
+              <span
+                style={{
+                  padding: "2px 10px",
+                  borderRadius: "12px",
+                  fontSize: "0.7rem",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em",
+                  background: `${levelColor}20`,
+                  color: levelColor,
+                  border: `1px solid ${levelColor}40`,
+                }}
+              >
+                {currentLevel}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -158,11 +220,73 @@ export default function DashboardPage() {
         </button>
       </div>
 
+      {/* Stats Grid */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+          gap: "14px",
+          marginBottom: "36px",
+        }}
+      >
+        {[
+          {
+            label: "Articles Read",
+            value: statsLoading ? "—" : (stats?.articles_completed ?? 0),
+            icon: "📚",
+            gradient: "linear-gradient(135deg, #7c3aed, #a78bfa)",
+          },
+          {
+            label: "Challenges Solved",
+            value: statsLoading ? "—" : (stats?.challenges_completed ?? 0),
+            icon: "🎯",
+            gradient: "linear-gradient(135deg, #3b82f6, #60a5fa)",
+          },
+          {
+            label: "Total Points",
+            value: statsLoading ? "—" : (stats?.total_points ?? 0),
+            icon: "⭐",
+            gradient: "linear-gradient(135deg, #f59e0b, #fbbf24)",
+          },
+          {
+            label: "Level",
+            value: statsLoading ? "—" : currentLevel,
+            icon: "🏆",
+            gradient: `linear-gradient(135deg, ${levelColor}, ${levelColor}99)`,
+          },
+        ].map((stat) => (
+          <div
+            key={stat.label}
+            className="glass-card"
+            style={{
+              padding: "20px",
+              textAlign: "center",
+              borderTop: `2px solid ${stat.gradient.includes("#") ? stat.gradient.match(/#[0-9a-fA-F]{6}/)?.[0] || "transparent" : "transparent"}`,
+            }}
+          >
+            <div style={{ fontSize: "24px", marginBottom: "8px" }}>{stat.icon}</div>
+            <div
+              style={{
+                fontSize: "1.5rem",
+                fontWeight: 700,
+                marginBottom: "4px",
+              }}
+              className="gradient-text"
+            >
+              {stat.value}
+            </div>
+            <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", fontWeight: 500 }}>
+              {stat.label}
+            </div>
+          </div>
+        ))}
+      </div>
+
       <p
         style={{
           color: "var(--text-secondary)",
           fontSize: "1.05rem",
-          marginBottom: "36px",
+          marginBottom: "24px",
         }}
       >
         Choose a module to continue your learning journey.
@@ -183,14 +307,15 @@ export default function DashboardPage() {
             style={{
               textDecoration: "none",
               color: "inherit",
-              padding: "20px 18px",
+              padding: "24px 20px",
               display: "flex",
               flexDirection: "column",
-              gap: "6px",
+              gap: "8px",
             }}
           >
-            <span style={{ fontSize: "1.4rem" }}>{module.icon}</span>
-            <span style={{ fontWeight: 600 }}>{module.title}</span>
+            <span style={{ fontSize: "1.6rem" }}>{module.icon}</span>
+            <span style={{ fontWeight: 600, fontSize: "0.95rem" }}>{module.title}</span>
+            <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>{module.desc}</span>
           </Link>
         ))}
       </div>
