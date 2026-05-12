@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Logo from "@/components/Logo";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -74,13 +75,7 @@ export default function Footer() {
                 marginBottom: "16px",
               }}
             >
-              <span style={{ fontSize: "24px" }}>🧠</span>
-              <span
-                style={{ fontSize: "1.15rem", fontWeight: 700 }}
-                className="gradient-text"
-              >
-                Prompt Dairy
-              </span>
+              <Logo size={28} showText={true} textSize="1.15rem" />
             </Link>
             <p
               style={{

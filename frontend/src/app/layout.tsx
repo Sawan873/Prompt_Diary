@@ -36,6 +36,11 @@ export const metadata: Metadata = {
     description:
       "Master prompt engineering, AI system design, and LLM workflows.",
     type: "website",
+    images: [{ url: "/logo.svg", width: 512, height: 512, alt: "Prompt Dairy Logo" }],
+  },
+  icons: {
+    icon: "/logo.svg",
+    apple: "/logo.svg",
   },
 };
 

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useAuth } from "@/lib/AuthContext";
 import { useRouter } from "next/navigation";
+import Logo from "@/components/Logo";
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -71,24 +72,7 @@ export default function Navbar() {
             color: "inherit",
           }}
         >
-          <span
-            style={{
-              fontSize: "28px",
-              lineHeight: 1,
-            }}
-          >
-            🧠
-          </span>
-          <span
-            style={{
-              fontSize: "1.25rem",
-              fontWeight: 700,
-              letterSpacing: "-0.02em",
-            }}
-            className="gradient-text"
-          >
-            Prompt Dairy
-          </span>
+          <Logo size={34} showText={true} textSize="1.25rem" />
         </Link>
 
         {/* Desktop Navigation */}
