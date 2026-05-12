@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { useTheme } from "next-themes";
 import { useRef, useState, useEffect } from "react";
 
 export default function Hero() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isMuted, setIsMuted] = useState(true);
   const [isLoaded, setIsLoaded] = useState(false);
-
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -16,7 +18,7 @@ export default function Hero() {
     video.addEventListener("canplay", handleCanPlay);
 
     // Ensure autoplay works
-    video.play().catch(() => {});
+    video.play().catch(() => { });
 
     return () => video.removeEventListener("canplay", handleCanPlay);
   }, []);
@@ -44,91 +46,98 @@ export default function Hero() {
       }}
     >
       {/* === FULL-SCREEN VIDEO BACKGROUND === */}
-      <video
-        ref={videoRef}
-        autoPlay
-        loop
-        muted
-        playsInline
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          zIndex: 0,
-          opacity: isLoaded ? 1 : 0,
-          transition: "opacity 1.5s ease",
-        }}
-      >
-        <source src="/demo/demo1.mp4" type="video/mp4" />
-      </video>
+      {isDark && (
+        <video
+          ref={videoRef}
+          autoPlay
+          loop
+          muted
+          playsInline
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            zIndex: 0,
+            opacity: isLoaded ? 1 : 0,
+            transition: "opacity 1.5s ease",
+          }}
+        >
+          <source src="/demo/demo1.mp4" type="video/mp4" />
+        </video>
+      )}
 
       {/* === CINEMATIC OVERLAYS === */}
       {/* Dark gradient overlay for text readability */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background:
-            "linear-gradient(180deg, rgba(6,7,13,0.75) 0%, rgba(6,7,13,0.5) 35%, rgba(6,7,13,0.45) 55%, rgba(6,7,13,0.85) 100%)",
-          zIndex: 1,
-        }}
-      />
+      {/* === CINEMATIC OVERLAYS === */}
+      {isDark && (
+        <>
+          {/* Dark gradient overlay for text readability */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background:
+                "linear-gradient(180deg, rgba(6,7,13,0.75) 0%, rgba(6,7,13,0.5) 35%, rgba(6,7,13,0.45) 55%, rgba(6,7,13,0.85) 100%)",
+              zIndex: 1,
+            }}
+          />
 
-      {/* Side vignette */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background:
-            "radial-gradient(ellipse at center, transparent 40%, rgba(6,7,13,0.7) 100%)",
-          zIndex: 1,
-        }}
-      />
+          {/* Side vignette */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background:
+                "radial-gradient(ellipse at center, transparent 40%, rgba(6,7,13,0.7) 100%)",
+              zIndex: 1,
+            }}
+          />
 
-      {/* Color tint overlay — adds the purple/cyan brand feel */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background:
-            "linear-gradient(135deg, rgba(77,124,255,0.08) 0%, transparent 40%, rgba(176,38,255,0.06) 70%, rgba(0,229,255,0.05) 100%)",
-          zIndex: 1,
-        }}
-      />
+          {/* Color tint overlay */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background:
+                "linear-gradient(135deg, rgba(77,124,255,0.08) 0%, transparent 40%, rgba(176,38,255,0.06) 70%, rgba(0,229,255,0.05) 100%)",
+              zIndex: 1,
+            }}
+          />
 
-      {/* Scan line effect */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background:
-            "repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,229,255,0.012) 3px, transparent 4px)",
-          zIndex: 2,
-          pointerEvents: "none",
-        }}
-      />
+          {/* Scan line effect */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background:
+                "repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,229,255,0.012) 3px, transparent 4px)",
+              zIndex: 2,
+              pointerEvents: "none",
+            }}
+          />
 
-      {/* Decorative grid */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px)",
-          backgroundSize: "60px 60px",
-          maskImage:
-            "radial-gradient(ellipse at center, black 20%, transparent 70%)",
-          WebkitMaskImage:
-            "radial-gradient(ellipse at center, black 20%, transparent 70%)",
-          zIndex: 2,
-          pointerEvents: "none",
-        }}
-        aria-hidden="true"
-      />
-
+          {/* Decorative grid */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              backgroundImage:
+                "linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px)",
+              backgroundSize: "60px 60px",
+              maskImage:
+                "radial-gradient(ellipse at center, black 20%, transparent 70%)",
+              WebkitMaskImage:
+                "radial-gradient(ellipse at center, black 20%, transparent 70%)",
+              zIndex: 2,
+              pointerEvents: "none",
+            }}
+            aria-hidden="true"
+          />
+        </>
+      )}
       {/* HUD corner brackets */}
       {[
         { top: "24px", left: "24px", borderTopWidth: "2px", borderTopStyle: "solid" as const, borderTopColor: "rgba(0,229,255,0.3)", borderLeftWidth: "2px", borderLeftStyle: "solid" as const, borderLeftColor: "rgba(0,229,255,0.3)" },
@@ -394,14 +403,13 @@ export default function Hero() {
 
       {/* Bottom fade to rest of page */}
       <div
+        className="hero-bottom-fade"
         style={{
           position: "absolute",
           bottom: 0,
           left: 0,
           right: 0,
-          height: "120px",
-          background:
-            "linear-gradient(to bottom, transparent, var(--bg-primary))",
+          height: "40px",
           zIndex: 3,
           pointerEvents: "none",
         }}
