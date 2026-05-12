@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useAuth } from "@/lib/AuthContext";
 import { useRouter } from "next/navigation";
+import ThemeToggle from "./ThemeToggle"
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -36,15 +37,16 @@ export default function Navbar() {
 
   return (
     <nav
+     className="navbar-glass"
       id="main-navigation"
       style={{
         position: "sticky",
         top: 0,
         zIndex: 40,
-        background: "rgba(10, 10, 15, 0.8)",
+        background: "var(--glass-bg)",
         backdropFilter: "blur(20px)",
         WebkitBackdropFilter: "blur(20px)",
-        borderBottom: "1px solid rgba(255,255,255,0.06)",
+        borderBottom: "1px solid var(--border-subtle)",
       }}
     >
       <div
@@ -138,6 +140,7 @@ export default function Navbar() {
               margin: "0 8px",
             }}
           />
+          <ThemeToggle />
 
           {/* Auth buttons — conditional on login state */}
           {loading ? (

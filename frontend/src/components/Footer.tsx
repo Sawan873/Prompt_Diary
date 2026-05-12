@@ -40,7 +40,9 @@ export default function Footer() {
       id="main-footer"
       style={{
         borderTop: "1px solid var(--border-subtle)",
-        background: "rgba(10, 10, 15, 0.9)",
+        background: "var(--glass-bg)",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
         position: "relative",
         zIndex: 10,
       }}
