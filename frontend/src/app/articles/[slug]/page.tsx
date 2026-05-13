@@ -594,7 +594,6 @@ export default async function ArticleDetailPage({
         {related.length > 0 && (
           <section style={{ marginBottom: "40px" }}>
             <h2 style={{
-              fontSize: "1.1rem",
               fontWeight: 700,
               marginBottom: "16px",
               color: "var(--text-secondary)",
