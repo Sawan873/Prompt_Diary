@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { AuthProvider } from "@/lib/AuthContext";
+import ClientProviders from "@/components/ClientProviders";
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -36,7 +37,13 @@ export const metadata: Metadata = {
     description:
       "Master prompt engineering, AI system design, and LLM workflows.",
     type: "website",
-    images: [{ url: "/logo.svg", width: 512, height: 512, alt: "Prompt Dairy Logo" }],
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Prompt Dairy — AI Learning Platform" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Prompt Dairy — Learn Prompt Engineering & AI Systems",
+    description: "Master prompt engineering, AI system design, and LLM workflows.",
+    images: ["/og-image.png"],
   },
   icons: {
     icon: "/logo.svg",
@@ -52,6 +59,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      data-theme="dark"
       className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
@@ -108,9 +116,13 @@ export default function RootLayout({
         />
 
         <AuthProvider>
-          <Navbar />
-          <main className="flex-1 relative z-10">{children}</main>
-          <Footer />
+          <ClientProviders>
+            <Navbar />
+            <main className="flex-1 relative z-10 page-transition-enter">
+              {children}
+            </main>
+            <Footer />
+          </ClientProviders>
         </AuthProvider>
       </body>
     </html>
