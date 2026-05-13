@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useAuth } from "@/lib/AuthContext";
 import { useRouter } from "next/navigation";
 import Logo from "@/components/Logo";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -89,6 +90,7 @@ export default function Navbar() {
               key={link.href}
               href={link.href}
               id={`nav-${link.label.toLowerCase()}`}
+              className="nav-link-hover"
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -115,12 +117,44 @@ export default function Navbar() {
             </Link>
           ))}
 
+          {/* Cmd+K shortcut button */}
+          <button
+            onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "6px 12px",
+              borderRadius: "8px",
+              border: "1px solid var(--border-subtle)",
+              background: "transparent",
+              color: "var(--text-muted)",
+              fontSize: "0.78rem",
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+              fontFamily: "var(--font-geist-mono), monospace",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "rgba(0,229,255,0.4)";
+              e.currentTarget.style.color = "var(--text-secondary)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "var(--border-subtle)";
+              e.currentTarget.style.color = "var(--text-muted)";
+            }}
+            aria-label="Open command palette"
+          >
+            🔍 <span style={{ opacity: 0.6 }}>Ctrl+K</span>
+          </button>
+
+          <ThemeToggle />
+
           <div
             style={{
               width: "1px",
               height: "24px",
               background: "var(--border-subtle)",
-              margin: "0 8px",
+              margin: "0 4px",
             }}
           />
 
