@@ -82,6 +82,18 @@ export default function ModuleCard({
           {description}
         </p>
       </div>
+      {status === "active" && (
+        <span
+          className="module-arrow"
+          style={{
+            fontSize: "1.1rem",
+            color: "var(--text-muted)",
+            flexShrink: 0,
+          }}
+        >
+          →
+        </span>
+      )}
       {itemCount !== undefined && (
         <span
           style={{
