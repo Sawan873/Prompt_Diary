@@ -1,10 +1,11 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import ChallengeAttempt from "@/components/ChallengeAttempt";
+import { serverGetChallenge, type ApiChallenge } from "@/lib/server-api";
 
-// ─── Static Data ─────────────────────────────────────────────────────────────
+// ─── Offline fallback (short ids / demo without API) ─────────────────────────
 
-const challenges: Record<string, {
+const LEGACY_CHALLENGES: Record<string, {
   title: string;
   description: string;
   difficulty: "easy" | "medium" | "hard";
@@ -91,6 +92,51 @@ const challenges: Record<string, {
   },
 };
 
+type UiChallenge = {
+  title: string;
+  description: string;
+  difficulty: "easy" | "medium" | "hard";
+  category: string;
+  points: number;
+  exampleContext: string;
+  expectedOutput: string;
+  hints: { text: string }[];
+};
+
+function mapApiChallenge(c: ApiChallenge): UiChallenge {
+  const d = c.difficulty;
+  const difficulty =
+    d === "easy" || d === "medium" || d === "hard" ? d : "medium";
+  const rawHints = c.hints ?? [];
+  const hints =
+    rawHints.length > 0
+      ? rawHints.map((h) => ({ text: typeof h === "string" ? h : String(h) }))
+      : [{ text: "Use the challenge description to shape your prompt." }];
+  return {
+    title: c.title,
+    description: c.description,
+    difficulty,
+    category: c.category?.trim() || "general",
+    points: c.points ?? 10,
+    exampleContext: (
+      c.starter_prompt?.trim() ||
+      c.description ||
+      "Use the description above as context for your prompt."
+    ).slice(0, 12000),
+    expectedOutput: (
+      c.expected_output?.trim() ||
+      "Produce output that satisfies the constraints implied by the challenge description."
+    ),
+    hints,
+  };
+}
+
+async function resolveChallenge(id: string): Promise<UiChallenge | null> {
+  const api = await serverGetChallenge(id);
+  if (api?.title) return mapApiChallenge(api);
+  return LEGACY_CHALLENGES[id] ?? null;
+}
+
 // ─── Metadata ─────────────────────────────────────────────────────────────────
 
 export async function generateMetadata({
@@ -99,7 +145,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const challenge = challenges[id];
+  const challenge = await resolveChallenge(id);
   if (!challenge) return { title: "Challenge Not Found — Prompt Dairy" };
   return {
     title: `${challenge.title} — Prompt Dairy`,
@@ -123,7 +169,7 @@ export default async function ChallengeDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const challenge = challenges[id];
+  const challenge = await resolveChallenge(id);
 
   // 404
   if (!challenge) {

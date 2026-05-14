@@ -1,10 +1,11 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import ArticleReadingProgress from "@/components/ArticleReadingProgress";
+import { serverGetArticleBySlug, serverListArticles } from "@/lib/server-api";
 
-// ─── Static Data (Phase 1) ────────────────────────────────────────────────────
+// ─── Offline fallback (when API is down) ─────────────────────────────────────
 
-const articles: Record<string, {
+const FALLBACK_BY_SLUG: Record<string, {
   title: string;
   category: string;
   difficulty: string;
@@ -244,14 +245,62 @@ Multiple specialized agents collaborate — one plans, one researches, one write
   },
 };
 
-// Related articles list (flat, for sidebar)
-const allArticlesMeta = [
+// Related articles when API list is empty
+const STATIC_RELATED_META = [
   { slug: "intro-to-prompt-engineering", title: "Introduction to Prompt Engineering", category: "fundamentals" },
   { slug: "zero-shot-vs-few-shot", title: "Zero-Shot vs Few-Shot Prompting", category: "techniques" },
   { slug: "chain-of-thought-prompting", title: "Chain-of-Thought Prompting", category: "techniques" },
   { slug: "rag-architecture-deep-dive", title: "RAG Architecture Deep Dive", category: "architecture" },
   { slug: "building-ai-agent-systems", title: "Building AI Agent Systems", category: "architecture" },
 ];
+
+type DisplayArticle = {
+  title: string;
+  category: string;
+  difficulty: string;
+  content: string;
+  tags: string[];
+  created_at: string;
+};
+
+function formatArticleDate(iso?: string): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (!Number.isNaN(d.getTime())) {
+    return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  }
+  return iso;
+}
+
+async function resolveDisplayArticle(slug: string): Promise<DisplayArticle | null> {
+  const api = await serverGetArticleBySlug(slug);
+  if (api?.title) {
+    const body =
+      api.content?.trim() ||
+      (api.excerpt ? `# ${api.title}\n\n${api.excerpt}` : "");
+    return {
+      title: api.title,
+      category: api.category,
+      difficulty: api.difficulty,
+      content: body,
+      tags: Array.isArray(api.tags) ? api.tags : [],
+      created_at: formatArticleDate(api.created_at),
+    };
+  }
+  const fb = FALLBACK_BY_SLUG[slug];
+  if (!fb) return null;
+  return { ...fb, tags: fb.tags };
+}
+
+async function buildRelated(slug: string, category: string) {
+  const list = await serverListArticles();
+  const fromApi = (list?.articles ?? [])
+    .map((a) => ({ slug: a.slug, title: a.title, category: a.category }))
+    .filter((a) => a.slug !== slug && a.category === category)
+    .slice(0, 3);
+  if (fromApi.length > 0) return fromApi;
+  return STATIC_RELATED_META.filter((a) => a.slug !== slug && a.category === category).slice(0, 3);
+}
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -456,7 +505,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const article = articles[slug];
+  const article = await resolveDisplayArticle(slug);
   if (!article) return { title: "Article Not Found — Prompt Dairy" };
   return {
     title: `${article.title} — Prompt Dairy`,
@@ -472,7 +521,7 @@ export default async function ArticleDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const article = articles[slug];
+  const article = await resolveDisplayArticle(slug);
 
   // ── 404 ──
   if (!article) {
@@ -488,9 +537,7 @@ export default async function ArticleDetailPage({
     );
   }
 
-  const related = allArticlesMeta
-    .filter((a) => a.slug !== slug && a.category === article.category)
-    .slice(0, 3);
+  const related = await buildRelated(slug, article.category);
 
   const readingTime = getReadingTime(article.content);
   const diffColor = getDifficultyColor(article.difficulty);

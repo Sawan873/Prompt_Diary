@@ -346,7 +346,7 @@ export default function SearchPage() {
                 {results.roadmaps.map((roadmap) => (
                   <Link
                     key={roadmap.id}
-                    href="/roadmaps"
+                    href={`/roadmaps#roadmap-${roadmap.id}`}
                     className="glass-card"
                     style={{
                       textDecoration: "none",

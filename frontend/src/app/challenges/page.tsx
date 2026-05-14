@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-// Challenges list — "Start Challenge" now links to /challenges/[id]
+import { serverListChallenges, type ApiChallenge } from "@/lib/server-api";
 
 export const metadata: Metadata = {
   title: "Challenges — Prompt Dairy",
@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     "Practice writing effective prompts with hands-on challenges. From summarization to multi-step reasoning.",
 };
 
-const challenges = [
+const FALLBACK: ApiChallenge[] = [
   {
     id: "ch-001",
     title: "Summarize an Article",
@@ -17,6 +17,9 @@ const challenges = [
     difficulty: "easy",
     category: "summarization",
     points: 10,
+    starter_prompt: "Summarize the following article...",
+    hints: [],
+    created_at: "",
   },
   {
     id: "ch-002",
@@ -26,6 +29,9 @@ const challenges = [
     difficulty: "medium",
     category: "extraction",
     points: 20,
+    starter_prompt: "Extract the following information...",
+    hints: [],
+    created_at: "",
   },
   {
     id: "ch-003",
@@ -35,6 +41,9 @@ const challenges = [
     difficulty: "medium",
     category: "reasoning",
     points: 20,
+    starter_prompt: "Solve the following problem step by step...",
+    hints: [],
+    created_at: "",
   },
   {
     id: "ch-004",
@@ -44,6 +53,9 @@ const challenges = [
     difficulty: "hard",
     category: "role-playing",
     points: 30,
+    starter_prompt: "You are a senior software engineer...",
+    hints: [],
+    created_at: "",
   },
   {
     id: "ch-005",
@@ -53,10 +65,22 @@ const challenges = [
     difficulty: "hard",
     category: "chaining",
     points: 40,
+    starter_prompt: "Step 1: Analyze the following...",
+    hints: [],
+    created_at: "",
   },
 ];
 
-export default function ChallengesPage() {
+export default async function ChallengesPage() {
+  const api = await serverListChallenges();
+  const challenges =
+    api?.challenges?.length && api.challenges.every((c) => c.id && c.title)
+      ? api.challenges
+      : FALLBACK;
+
+  const totalPoints = challenges.reduce((s, c) => s + (c.points || 0), 0);
+  const difficulties = new Set(challenges.map((c) => c.difficulty)).size;
+
   return (
     <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "48px 24px" }}>
       <div style={{ marginBottom: "48px" }}>
@@ -76,12 +100,10 @@ export default function ChallengesPage() {
             maxWidth: "600px",
           }}
         >
-          Practice writing effective prompts. Earn points and track your
-          progress.
+          Practice writing effective prompts. Earn points and track your progress.
         </p>
       </div>
 
-      {/* Stats bar */}
       <div
         className="glass-card"
         style={{
@@ -95,9 +117,9 @@ export default function ChallengesPage() {
         }}
       >
         {[
-          { label: "Total Challenges", value: "5" },
-          { label: "Total Points", value: "120" },
-          { label: "Difficulties", value: "3" },
+          { label: "Total Challenges", value: String(challenges.length) },
+          { label: "Total Points", value: String(totalPoints) },
+          { label: "Difficulties", value: String(difficulties) },
         ].map((stat) => (
           <div key={stat.label}>
             <div
@@ -113,7 +135,6 @@ export default function ChallengesPage() {
         ))}
       </div>
 
-      {/* Challenge Cards */}
       <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
         {challenges.map((challenge, index) => (
           <div
@@ -181,7 +202,6 @@ export default function ChallengesPage() {
                 </p>
               </div>
 
-              {/* Points */}
               <div
                 style={{
                   display: "flex",

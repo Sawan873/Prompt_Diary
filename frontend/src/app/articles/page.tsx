@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import ArticlesClient from "@/components/ArticlesClient";
+import { serverListArticles, type ApiArticle } from "@/lib/server-api";
 
 export const metadata: Metadata = {
   title: "Articles — Prompt Dairy",
@@ -7,8 +8,17 @@ export const metadata: Metadata = {
     "Learn prompt engineering, AI architectures, and LLM workflows through in-depth articles and tutorials.",
 };
 
-// Static article data for Phase 1 (will be fetched from API in Phase 2)
-const articles = [
+/** Used when the API is unreachable (backend down or misconfigured). */
+const ARTICLES_FALLBACK: Array<{
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  category: string;
+  difficulty: string;
+  tags: string[];
+  created_at: string;
+}> = [
   {
     id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     title: "Introduction to Prompt Engineering",
@@ -66,12 +76,31 @@ const articles = [
   },
 ];
 
-const categories = ["all", "fundamentals", "techniques", "architecture"];
+function normalizeListItem(a: ApiArticle) {
+  return {
+    id: a.id,
+    title: a.title,
+    slug: a.slug,
+    excerpt: a.excerpt || "",
+    category: a.category,
+    difficulty: a.difficulty,
+    tags: Array.isArray(a.tags) ? a.tags : [],
+    created_at: a.created_at || "",
+  };
+}
 
-export default function ArticlesPage() {
+export default async function ArticlesPage() {
+  const api = await serverListArticles();
+  const articles =
+    api?.articles?.length && api.articles.every((a) => a.slug && a.title)
+      ? api.articles.map(normalizeListItem)
+      : ARTICLES_FALLBACK;
+
+  const categorySet = new Set(articles.map((a) => a.category));
+  const categories = ["all", ...Array.from(categorySet).sort()];
+
   return (
     <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "48px 24px" }}>
-      {/* Header */}
       <div style={{ marginBottom: "48px" }}>
         <h1
           style={{
@@ -90,12 +119,10 @@ export default function ArticlesPage() {
             maxWidth: "600px",
           }}
         >
-          Dive deep into prompt engineering, AI architectures, and LLM
-          workflows.
+          Dive deep into prompt engineering, AI architectures, and LLM workflows.
         </p>
       </div>
 
-      {/* Interactive filter + article list (Client Component) */}
       <ArticlesClient articles={articles} categories={categories} />
     </div>
   );

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { getSystemDesignArticles } from "@/lib/api";
+import { serverListSystemDesignArticles } from "@/lib/server-api";
 
 export const metadata: Metadata = {
   title: "System Design — Prompt Dairy",
@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 export default async function SystemDesignPage() {
-  const data = await getSystemDesignArticles().catch(() => ({ articles: [] }));
+  const data = await serverListSystemDesignArticles();
   const articles = Array.isArray(data?.articles) ? data.articles : [];
 
   return (
