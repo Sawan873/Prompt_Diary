@@ -104,6 +104,9 @@ export default function Home() {
     <>
       <Hero />
 
+      {/* ── Section Divider ── */}
+      <div className="section-divider" style={{ marginTop: "0" }} />
+
       {/* Features Section */}
       <section id="features" style={{ padding: "40px 24px 100px", maxWidth: "1200px", margin: "0 auto" }}>
         <ScrollRevealSection>
@@ -134,6 +137,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Section Divider ── */}
+      <div className="section-divider" />
+
       {/* Modules Section */}
       <section id="modules" style={{ padding: "80px 24px", background: "linear-gradient(180deg, transparent 0%, rgba(124,58,237,0.03) 50%, transparent 100%)" }}>
         <div style={{ maxWidth: "800px", margin: "0 auto" }}>
@@ -160,6 +166,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Section Divider ── */}
+      <div className="section-divider" />
+
       {/* Topics Preview */}
       <section id="topics" style={{ padding: "80px 24px", maxWidth: "1200px", margin: "0 auto" }}>
         <ScrollRevealSection>
@@ -178,7 +187,32 @@ export default function Home() {
                 </div>
                 <div>
                   <div style={{ fontWeight: 600, fontSize: "0.9rem", marginBottom: "2px" }}>{item.topic}</div>
-                  <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", textTransform: "capitalize" }}>{item.tag}</div>
+                  <div style={{
+                    fontSize: "0.7rem",
+                    padding: "1px 8px",
+                    borderRadius: "10px",
+                    display: "inline-block",
+                    fontWeight: 500,
+                    letterSpacing: "0.03em",
+                    background: item.tag === "fundamentals"
+                      ? "rgba(16,185,129,0.12)"
+                      : item.tag === "techniques"
+                      ? "rgba(59,130,246,0.12)"
+                      : "rgba(176,38,255,0.12)",
+                    color: item.tag === "fundamentals"
+                      ? "#34d399"
+                      : item.tag === "techniques"
+                      ? "#60a5fa"
+                      : "#c084fc",
+                    border: `1px solid ${
+                      item.tag === "fundamentals"
+                        ? "rgba(16,185,129,0.2)"
+                        : item.tag === "techniques"
+                        ? "rgba(59,130,246,0.2)"
+                        : "rgba(176,38,255,0.2)"
+                    }`,
+                    textTransform: "capitalize" as const,
+                  }}>{item.tag}</div>
                 </div>
               </div>
             </ScrollRevealSection>
@@ -186,23 +220,165 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* ── Section Divider ── */}
+      <div className="section-divider" />
+
+      {/* Social Proof / Testimonials Section */}
+      <section id="testimonials" style={{ padding: "80px 24px", maxWidth: "1000px", margin: "0 auto" }}>
+        <ScrollRevealSection>
+          <div style={{ textAlign: "center", marginBottom: "48px" }}>
+            <h2 style={{ fontSize: "clamp(1.5rem, 3vw, 2rem)", fontWeight: 700, marginBottom: "12px" }}>
+              Loved by <span className="gradient-text">AI Learners</span>
+            </h2>
+            <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem" }}>
+              Join hundreds of developers leveling up their AI skills
+            </p>
+          </div>
+        </ScrollRevealSection>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "20px" }}>
+          {[
+            {
+              quote: "Prompt Dairy completely changed how I approach LLM workflows. The challenges are addictive and the roadmaps are incredibly well-structured.",
+              name: "Aisha Patel",
+              role: "ML Engineer",
+              avatar: "A",
+              color: "#7c3aed",
+            },
+            {
+              quote: "Finally a platform that goes beyond basics. The system design guides and RAG architecture articles are production-grade quality.",
+              name: "Marcus Chen",
+              role: "AI Developer",
+              avatar: "M",
+              color: "#3b82f6",
+            },
+            {
+              quote: "I went from zero prompt engineering knowledge to building complex agent systems in weeks. The playground is a game-changer.",
+              name: "Sara Kimura",
+              role: "Full-Stack Developer",
+              avatar: "S",
+              color: "#06b6d4",
+            },
+          ].map((testimonial, i) => (
+            <ScrollRevealSection key={testimonial.name} delay={i * 120}>
+              <div
+                className="glass-card"
+                style={{
+                  padding: "28px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "20px",
+                  height: "100%",
+                }}
+              >
+                {/* Stars */}
+                <div style={{ display: "flex", gap: "2px", color: "#fbbf24", fontSize: "14px" }}>
+                  {"★★★★★"}
+                </div>
+                {/* Quote */}
+                <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", lineHeight: 1.7, flex: 1 }}>
+                  &ldquo;{testimonial.quote}&rdquo;
+                </p>
+                {/* Author */}
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <div
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "50%",
+                      background: `linear-gradient(135deg, ${testimonial.color}40, ${testimonial.color}15)`,
+                      border: `2px solid ${testimonial.color}50`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "16px",
+                      fontWeight: 700,
+                      color: testimonial.color,
+                    }}
+                  >
+                    {testimonial.avatar}
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: "0.88rem" }}>{testimonial.name}</div>
+                    <div style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>{testimonial.role}</div>
+                  </div>
+                </div>
+              </div>
+            </ScrollRevealSection>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Section Divider ── */}
+      <div className="section-divider" />
+
+      {/* CTA Section — Enhanced with particles */}
       <section id="cta" style={{ padding: "80px 24px", textAlign: "center" }}>
         <ScrollRevealSection>
-          <div className="glass-card" style={{ maxWidth: "700px", margin: "0 auto", padding: "56px 40px", background: "linear-gradient(135deg, rgba(124,58,237,0.08), rgba(59,130,246,0.08), rgba(6,182,212,0.08))", border: "1px solid rgba(124,58,237,0.15)" }}>
-            <h2 style={{ fontSize: "clamp(1.5rem, 3vw, 2.25rem)", fontWeight: 700, marginBottom: "16px" }}>
-              Ready to{" "}<span className="gradient-text">Level Up</span>?
-            </h2>
-            <p style={{ color: "var(--text-secondary)", fontSize: "1.05rem", marginBottom: "32px", maxWidth: "460px", margin: "0 auto 32px" }}>
-              Join the community and start mastering prompt engineering today. It&apos;s completely free.
-            </p>
-            <div style={{ display: "flex", gap: "16px", justifyContent: "center", flexWrap: "wrap" }}>
-              <Link href="/signup" id="cta-get-started" className="btn-primary" style={{ padding: "14px 36px", fontSize: "1rem" }}>
-                Get Started Free →
-              </Link>
-              <Link href="/articles" id="cta-browse" className="btn-secondary" style={{ padding: "14px 36px", fontSize: "1rem" }}>
-                Browse Articles
-              </Link>
+          <div style={{ position: "relative", maxWidth: "700px", margin: "0 auto" }}>
+            {/* Floating ambient particles */}
+            {[...Array(8)].map((_, i) => (
+              <div
+                key={i}
+                style={{
+                  position: "absolute",
+                  width: `${4 + (i % 3) * 3}px`,
+                  height: `${4 + (i % 3) * 3}px`,
+                  borderRadius: "50%",
+                  background: ["#00e5ff", "#4d7cff", "#b026ff", "#ff4fd8"][i % 4],
+                  opacity: 0.3,
+                  top: `${10 + (i * 12) % 80}%`,
+                  left: `${5 + (i * 14) % 90}%`,
+                  animation: `float ${5 + i * 0.7}s ease-in-out infinite`,
+                  animationDelay: `${i * 0.4}s`,
+                  pointerEvents: "none",
+                  zIndex: 0,
+                }}
+              />
+            ))}
+
+            <div
+              className="glass-card"
+              style={{
+                position: "relative",
+                zIndex: 1,
+                padding: "56px 40px",
+                background: "linear-gradient(135deg, rgba(124,58,237,0.08), rgba(59,130,246,0.08), rgba(6,182,212,0.08))",
+                border: "1px solid rgba(124,58,237,0.15)",
+              }}
+            >
+              {/* Social proof line */}
+              <div style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "5px 16px",
+                borderRadius: "20px",
+                background: "rgba(16,185,129,0.1)",
+                border: "1px solid rgba(16,185,129,0.2)",
+                color: "#34d399",
+                fontSize: "0.78rem",
+                fontWeight: 600,
+                marginBottom: "24px",
+              }}>
+                <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#34d399", boxShadow: "0 0 8px rgba(52,211,153,0.6)", animation: "pulse-glow 2s ease-in-out infinite" }} />
+                500+ AI learners joined
+              </div>
+
+              <h2 style={{ fontSize: "clamp(1.5rem, 3vw, 2.25rem)", fontWeight: 700, marginBottom: "16px" }}>
+                Ready to{" "}<span className="gradient-text">Level Up</span>?
+              </h2>
+              <p style={{ color: "var(--text-secondary)", fontSize: "1.05rem", marginBottom: "32px", maxWidth: "460px", margin: "0 auto 32px" }}>
+                Join the community and start mastering prompt engineering today. It&apos;s completely free.
+              </p>
+              <div style={{ display: "flex", gap: "16px", justifyContent: "center", flexWrap: "wrap" }}>
+                <Link href="/signup" id="cta-get-started" className="btn-primary" style={{ padding: "14px 36px", fontSize: "1rem" }}>
+                  Get Started Free →
+                </Link>
+                <Link href="/articles" id="cta-browse" className="btn-secondary" style={{ padding: "14px 36px", fontSize: "1rem" }}>
+                  Browse Articles
+                </Link>
+              </div>
             </div>
           </div>
         </ScrollRevealSection>
@@ -210,3 +386,4 @@ export default function Home() {
     </>
   );
 }
+
