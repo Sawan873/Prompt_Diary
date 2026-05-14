@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BookOpen } from "lucide-react";
 import ArticlesClient from "@/components/ArticlesClient";
 
 export const metadata: Metadata = {
@@ -81,10 +82,25 @@ export default function ArticlesPage() {
             letterSpacing: "-0.02em",
             display: "flex",
             alignItems: "center",
-            gap: "12px",
+            gap: "14px",
           }}
         >
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <span
+            style={{
+              width: "46px",
+              height: "46px",
+              borderRadius: "14px",
+              background:
+                "linear-gradient(135deg, rgba(0,229,255,0.18), rgba(124,58,237,0.22))",
+              border: "1px solid rgba(0,229,255,0.22)",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 16px 40px rgba(0,229,255,0.08)",
+            }}
+          >
+            <BookOpen size={25} strokeWidth={1.8} color="#7dd3fc" />
+          </span>
           Articles
         </h1>
         <p
