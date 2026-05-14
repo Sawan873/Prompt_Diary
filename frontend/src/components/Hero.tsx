@@ -1,7 +1,73 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
+
+/* Animated count-up hook */
+function useCountUp(target: number, duration = 1800, startOnView = true) {
+  const [count, setCount] = useState(0);
+  const [started, setStarted] = useState(!startOnView);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!startOnView) return;
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setStarted(true); obs.disconnect(); } },
+      { threshold: 0.5 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [startOnView]);
+
+  useEffect(() => {
+    if (!started) return;
+    let start: number | null = null;
+    let raf: number;
+    const step = (ts: number) => {
+      if (!start) start = ts;
+      const progress = Math.min((ts - start) / duration, 1);
+      // easeOutQuart for a snappy feel
+      const eased = 1 - Math.pow(1 - progress, 4);
+      setCount(Math.round(eased * target));
+      if (progress < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [started, target, duration]);
+
+  return { count, ref };
+}
+
+/* Individual stat display with count-up */
+function AnimatedStat({ numericValue, suffix, label }: { numericValue: number; suffix: string; label: string }) {
+  const { count, ref } = useCountUp(numericValue, 1600);
+  return (
+    <div ref={ref} style={{ textAlign: "center" }}>
+      <div
+        style={{
+          fontSize: "1.75rem",
+          fontWeight: 700,
+          marginBottom: "4px",
+        }}
+        className="gradient-text"
+      >
+        {count}{suffix}
+      </div>
+      <div
+        style={{
+          fontSize: "0.85rem",
+          color: "var(--text-muted)",
+          fontWeight: 500,
+          textShadow: "0 1px 10px rgba(0,0,0,0.3)",
+        }}
+      >
+        {label}
+      </div>
+    </div>
+  );
+}
 
 export default function Hero() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -260,7 +326,7 @@ export default function Hero() {
           </Link>
         </div>
 
-        {/* Stats */}
+        {/* Stats — animated count-up */}
         <div
           className="animate-fade-in-up delay-400"
           style={{
@@ -271,35 +337,10 @@ export default function Hero() {
             opacity: 0,
           }}
         >
-          {[
-            { value: "50+", label: "Knowledge Drops" },
-            { value: "25+", label: "Mission Challenges" },
-            { value: "3", label: "Skill Paths" },
-            { value: "24/7", label: "Online Mode" },
-          ].map((stat) => (
-            <div key={stat.label} style={{ textAlign: "center" }}>
-              <div
-                style={{
-                  fontSize: "1.75rem",
-                  fontWeight: 700,
-                  marginBottom: "4px",
-                }}
-                className="gradient-text"
-              >
-                {stat.value}
-              </div>
-              <div
-                style={{
-                  fontSize: "0.85rem",
-                  color: "var(--text-muted)",
-                  fontWeight: 500,
-                  textShadow: "0 1px 10px rgba(0,0,0,0.3)",
-                }}
-              >
-                {stat.label}
-              </div>
-            </div>
-          ))}
+          <AnimatedStat numericValue={50} suffix="+" label="Knowledge Drops" />
+          <AnimatedStat numericValue={25} suffix="+" label="Mission Challenges" />
+          <AnimatedStat numericValue={3} suffix="" label="Skill Paths" />
+          <AnimatedStat numericValue={24} suffix="/7" label="Online Mode" />
         </div>
       </div>
 
