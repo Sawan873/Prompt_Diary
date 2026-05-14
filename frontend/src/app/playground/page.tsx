@@ -93,14 +93,9 @@ export default function PlaygroundPage() {
   return (
     <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "48px 24px" }}>
       <div style={{ marginBottom: "32px" }}>
-        <h1
-          style={{
-            fontSize: "clamp(2rem, 4vw, 2.75rem)",
-            fontWeight: 800,
-            marginBottom: "12px",
-          }}
-        >
-          🧪 Prompt Playground
+        <h1 style={{ fontSize: "clamp(2rem, 4vw, 2.75rem)", fontWeight: 800, marginBottom: "12px", display: "flex", alignItems: "center", gap: "12px" }}>
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          Prompt Playground
         </h1>
         <p style={{ color: "var(--text-secondary)", fontSize: "1.05rem" }}>
           Test and iterate on your prompts with instant feedback.
@@ -181,18 +176,10 @@ export default function PlaygroundPage() {
           {/* Settings toggle */}
           <button
             onClick={() => setShowSettings(!showSettings)}
-            style={{
-              padding: "6px 12px",
-              borderRadius: "8px",
-              border: "1px solid var(--border-subtle)",
-              background: showSettings ? "rgba(0,229,255,0.1)" : "transparent",
-              color: "var(--text-secondary)",
-              fontSize: "0.8rem",
-              cursor: "pointer",
-              transition: "all 0.2s ease",
-            }}
+            style={{ padding: "6px 12px", borderRadius: "8px", border: "1px solid var(--border-subtle)", background: showSettings ? "rgba(0,229,255,0.1)" : "transparent", color: "var(--text-secondary)", fontSize: "0.8rem", cursor: "pointer", transition: "all 0.2s ease", display: "flex", alignItems: "center", gap: "6px" }}
           >
-            ⚙️ System Prompt
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            System Prompt
           </button>
         </div>
 
@@ -216,7 +203,17 @@ export default function PlaygroundPage() {
               cursor: isRunning || !prompt.trim() ? "not-allowed" : "pointer",
             }}
           >
-            {isRunning ? "⏳ Running..." : "▶ Run"}
+            {isRunning ? (
+              <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Running...
+              </span>
+            ) : (
+              <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Run
+              </span>
+            )}
           </button>
         </div>
       </div>
@@ -280,8 +277,9 @@ export default function PlaygroundPage() {
             flexDirection: "column",
           }}
         >
-          <h3 style={{ fontSize: "0.85rem", fontWeight: 600, marginBottom: "12px", color: "var(--text-secondary)" }}>
-            ✏️ Prompt Input
+          <h3 style={{ fontSize: "0.85rem", fontWeight: 600, marginBottom: "12px", color: "var(--text-secondary)", display: "flex", alignItems: "center", gap: "7px" }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Prompt Input
           </h3>
 
           <textarea
@@ -334,15 +332,9 @@ export default function PlaygroundPage() {
             flexDirection: "column",
           }}
         >
-          <h3
-            style={{
-              fontSize: "0.85rem",
-              fontWeight: 600,
-              marginBottom: "12px",
-              color: "var(--text-secondary)",
-            }}
-          >
-            📤 Output
+          <h3 style={{ fontSize: "0.85rem", fontWeight: 600, marginBottom: "12px", color: "var(--text-secondary)", display: "flex", alignItems: "center", gap: "7px" }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+            Output
           </h3>
           <div
             id="prompt-output"
@@ -396,10 +388,22 @@ export default function PlaygroundPage() {
                 flexWrap: "wrap",
               }}
             >
-              <span>📥 {lastUsage.input_tokens} input</span>
-              <span>📤 {lastUsage.output_tokens} output</span>
-              <span>📊 {lastUsage.total_tokens} total tokens</span>
-              <span>⚡ {lastUsage.latency_ms}ms</span>
+              <span style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+                {lastUsage.input_tokens} in
+              </span>
+              <span style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="8 7 12 3 16 7"/><line x1="12" y1="21" x2="12" y2="3"/></svg>
+                {lastUsage.output_tokens} out
+              </span>
+              <span style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                {lastUsage.total_tokens} tokens
+              </span>
+              <span style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                {lastUsage.latency_ms}ms
+              </span>
             </div>
           )}
         </div>
@@ -418,7 +422,9 @@ export default function PlaygroundPage() {
           color: "var(--text-muted)",
         }}
       >
-        <span style={{ fontSize: "16px" }}>💡</span>
+        <span style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"/><path d="M12 18v4"/><path d="M8 22h8"/></svg>
+        </span>
         <span>
           <strong style={{ color: "var(--text-secondary)" }}>Smart Responses:</strong>{" "}
           The playground generates context-aware simulated responses. Try prompts about

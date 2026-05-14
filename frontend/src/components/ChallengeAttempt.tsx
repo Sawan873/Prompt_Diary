@@ -62,8 +62,12 @@ export default function ChallengeAttempt({
           letterSpacing: "0.08em",
           color: "var(--text-muted)",
           marginBottom: "14px",
+          display: "flex",
+          alignItems: "center",
+          gap: "7px",
         }}>
-          📄 Context / Input
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Context / Input
         </h2>
         <div style={{
           background: "rgba(0,0,0,0.3)",
@@ -89,8 +93,12 @@ export default function ChallengeAttempt({
           letterSpacing: "0.08em",
           color: "var(--text-muted)",
           marginBottom: "14px",
+          display: "flex",
+          alignItems: "center",
+          gap: "7px",
         }}>
-          ✅ Expected Output Format
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34d399" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Expected Output Format
         </h2>
         <div style={{
           background: "rgba(16,185,129,0.05)",
@@ -125,7 +133,10 @@ export default function ChallengeAttempt({
             fontSize: "0.9rem",
           }}
         >
-          <span>💡 Show Hints ({hints.length})</span>
+          <span style={{ display: "flex", alignItems: "center", gap: "7px" }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"/><path d="M12 18v4"/><path d="M8 22h8"/></svg>
+            Show Hints ({hints.length})
+          </span>
           <span style={{
             transition: "transform 0.2s ease",
             display: "inline-block",
@@ -178,8 +189,12 @@ export default function ChallengeAttempt({
             textTransform: "uppercase",
             letterSpacing: "0.08em",
             color: "var(--text-muted)",
+            display: "flex",
+            alignItems: "center",
+            gap: "7px",
           }}>
-            ✍️ Your Prompt
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Your Prompt
           </h2>
           <span style={{
             fontSize: "0.75rem",
@@ -192,7 +207,11 @@ export default function ChallengeAttempt({
         {submitted ? (
           /* ── Submitted State ── */
           <div style={{ textAlign: "center", padding: "40px 20px" }}>
-            <div style={{ fontSize: "3.5rem", marginBottom: "16px" }}>🎉</div>
+            <div style={{ marginBottom: "16px", display: "flex", justifyContent: "center" }}>
+              <div style={{ width: "64px", height: "64px", borderRadius: "50%", background: "linear-gradient(135deg, rgba(124,58,237,0.2), rgba(59,130,246,0.2))", border: "2px solid rgba(124,58,237,0.4)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+            </div>
             <h3 style={{ fontSize: "1.2rem", fontWeight: 700, marginBottom: "8px" }}>
               Prompt Submitted!
             </h3>
@@ -218,8 +237,13 @@ export default function ChallengeAttempt({
               background: "rgba(255,255,255,0.03)",
               borderRadius: "8px",
               border: "1px solid var(--border-subtle)",
+              display: "flex",
+              alignItems: "flex-start",
+              gap: "8px",
+              textAlign: "left",
             }}>
-              ⚠️ Auto-evaluation coming in Phase 4. A human reviewer or LLM will grade your prompt.
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: "1px" }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              Auto-evaluation coming in Phase 4. A human reviewer or LLM will grade your prompt.
             </p>
             <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
               <button onClick={handleReset} className="btn-secondary" style={{ fontSize: "0.85rem", padding: "10px 22px" }}>
