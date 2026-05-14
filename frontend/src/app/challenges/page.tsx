@@ -60,14 +60,9 @@ export default function ChallengesPage() {
   return (
     <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "48px 24px" }}>
       <div style={{ marginBottom: "48px" }}>
-        <h1
-          style={{
-            fontSize: "clamp(2rem, 4vw, 2.75rem)",
-            fontWeight: 800,
-            marginBottom: "12px",
-          }}
-        >
-          🎯 Prompt Challenges
+        <h1 style={{ fontSize: "clamp(2rem, 4vw, 2.75rem)", fontWeight: 800, marginBottom: "12px", display: "flex", alignItems: "center", gap: "12px" }}>
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+          Prompt Challenges
         </h1>
         <p
           style={{

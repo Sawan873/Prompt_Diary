@@ -68,14 +68,9 @@ export default function RoadmapsPage() {
   return (
     <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "48px 24px" }}>
       <div style={{ marginBottom: "48px" }}>
-        <h1
-          style={{
-            fontSize: "clamp(2rem, 4vw, 2.75rem)",
-            fontWeight: 800,
-            marginBottom: "12px",
-          }}
-        >
-          🗺️ Learning Roadmaps
+        <h1 style={{ fontSize: "clamp(2rem, 4vw, 2.75rem)", fontWeight: 800, marginBottom: "12px", display: "flex", alignItems: "center", gap: "12px" }}>
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 17l4-4 4 4 4-8 4 4"/><path d="M21 21H3"/></svg>
+          Learning Roadmaps
         </h1>
         <p
           style={{

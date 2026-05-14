@@ -72,14 +72,9 @@ export default function SearchPage() {
   return (
     <div style={{ maxWidth: "900px", margin: "0 auto", padding: "48px 24px" }}>
       <div style={{ marginBottom: "36px" }}>
-        <h1
-          style={{
-            fontSize: "clamp(2rem, 4vw, 2.75rem)",
-            fontWeight: 800,
-            marginBottom: "12px",
-          }}
-        >
-          🔍 Search
+        <h1 style={{ fontSize: "clamp(2rem, 4vw, 2.75rem)", fontWeight: 800, marginBottom: "12px", display: "flex", alignItems: "center", gap: "12px" }}>
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Search
         </h1>
         <p
           style={{
@@ -149,10 +144,10 @@ export default function SearchPage() {
       >
         {(
           [
-            { key: "all", label: "All", icon: "🔍" },
-            { key: "articles", label: "Articles", icon: "📚" },
-            { key: "challenges", label: "Challenges", icon: "🎯" },
-            { key: "roadmaps", label: "Roadmaps", icon: "🗺️" },
+            { key: "all",        label: "All",        icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> },
+            { key: "articles",   label: "Articles",   icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg> },
+            { key: "challenges", label: "Challenges", icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg> },
+            { key: "roadmaps",   label: "Roadmaps",   icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 17l4-4 4 4 4-8 4 4"/><path d="M21 21H3"/></svg> },
           ] as const
         ).map((tab) => (
           <button
@@ -161,19 +156,9 @@ export default function SearchPage() {
               setFilter(tab.key);
               if (searched) handleSearch();
             }}
-            style={{
-              padding: "8px 16px",
-              borderRadius: "10px",
-              border: `1px solid ${filter === tab.key ? "rgba(0,229,255,0.5)" : "var(--border-subtle)"}`,
-              background: filter === tab.key ? "rgba(0,229,255,0.1)" : "transparent",
-              color: filter === tab.key ? "#00e5ff" : "var(--text-secondary)",
-              fontSize: "0.82rem",
-              fontWeight: 600,
-              cursor: "pointer",
-              transition: "all 0.2s ease",
-            }}
+            style={{ padding: "8px 16px", borderRadius: "10px", border: `1px solid ${filter === tab.key ? "rgba(0,229,255,0.5)" : "var(--border-subtle)"}`, background: filter === tab.key ? "rgba(0,229,255,0.1)" : "transparent", color: filter === tab.key ? "#00e5ff" : "var(--text-secondary)", fontSize: "0.82rem", fontWeight: 600, cursor: "pointer", transition: "all 0.2s ease", display: "flex", alignItems: "center", gap: "6px" }}
           >
-            {tab.icon} {tab.label}
+            <span style={{ display: "flex" }}>{tab.icon}</span> {tab.label}
           </button>
         ))}
       </div>
@@ -211,17 +196,9 @@ export default function SearchPage() {
           {/* Articles Results */}
           {results.articles.length > 0 && (
             <div style={{ marginBottom: "28px" }}>
-              <h3
-                style={{
-                  fontSize: "0.9rem",
-                  fontWeight: 700,
-                  color: "var(--text-secondary)",
-                  marginBottom: "12px",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                }}
-              >
-                📚 Articles ({results.articles.length})
+              <h3 style={{ fontSize: "0.9rem", fontWeight: 700, color: "var(--text-secondary)", marginBottom: "12px", textTransform: "uppercase", letterSpacing: "0.05em", display: "flex", alignItems: "center", gap: "7px" }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+                Articles ({results.articles.length})
               </h3>
               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                 {results.articles.map((article) => (
@@ -271,17 +248,9 @@ export default function SearchPage() {
           {/* Challenges Results */}
           {results.challenges.length > 0 && (
             <div style={{ marginBottom: "28px" }}>
-              <h3
-                style={{
-                  fontSize: "0.9rem",
-                  fontWeight: 700,
-                  color: "var(--text-secondary)",
-                  marginBottom: "12px",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                }}
-              >
-                🎯 Challenges ({results.challenges.length})
+              <h3 style={{ fontSize: "0.9rem", fontWeight: 700, color: "var(--text-secondary)", marginBottom: "12px", textTransform: "uppercase", letterSpacing: "0.05em", display: "flex", alignItems: "center", gap: "7px" }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+                Challenges ({results.challenges.length})
               </h3>
               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                 {results.challenges.map((challenge) => (
@@ -330,17 +299,9 @@ export default function SearchPage() {
           {/* Roadmaps Results */}
           {results.roadmaps.length > 0 && (
             <div style={{ marginBottom: "28px" }}>
-              <h3
-                style={{
-                  fontSize: "0.9rem",
-                  fontWeight: 700,
-                  color: "var(--text-secondary)",
-                  marginBottom: "12px",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                }}
-              >
-                🗺️ Roadmaps ({results.roadmaps.length})
+              <h3 style={{ fontSize: "0.9rem", fontWeight: 700, color: "var(--text-secondary)", marginBottom: "12px", textTransform: "uppercase", letterSpacing: "0.05em", display: "flex", alignItems: "center", gap: "7px" }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 17l4-4 4 4 4-8 4 4"/><path d="M21 21H3"/></svg>
+                Roadmaps ({results.roadmaps.length})
               </h3>
               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                 {results.roadmaps.map((roadmap) => (
@@ -383,7 +344,9 @@ export default function SearchPage() {
                 padding: "48px 24px",
               }}
             >
-              <div style={{ fontSize: "48px", marginBottom: "16px" }}>🔍</div>
+              <div style={{ marginBottom: "16px", display: "flex", justifyContent: "center" }}>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.3 }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              </div>
               <h3 style={{ fontSize: "1.1rem", fontWeight: 600, marginBottom: "8px" }}>
                 No results found
               </h3>
@@ -408,7 +371,9 @@ export default function SearchPage() {
             padding: "60px 24px",
           }}
         >
-          <div style={{ fontSize: "56px", marginBottom: "16px" }}>🔍</div>
+          <div style={{ marginBottom: "16px", display: "flex", justifyContent: "center" }}>
+            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.3 }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
           <h3 style={{ fontSize: "1.2rem", fontWeight: 600, marginBottom: "12px" }}>
             Search the Platform
           </h3>

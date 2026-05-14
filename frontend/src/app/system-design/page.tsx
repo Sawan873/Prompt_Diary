@@ -14,8 +14,9 @@ export default async function SystemDesignPage() {
   return (
     <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "48px 24px" }}>
       <div style={{ marginBottom: "36px" }}>
-        <h1 style={{ fontSize: "clamp(2rem, 4vw, 2.75rem)", fontWeight: 800, marginBottom: "12px" }}>
-          🏛️ System Design
+        <h1 style={{ fontSize: "clamp(2rem, 4vw, 2.75rem)", fontWeight: 800, marginBottom: "12px", display: "flex", alignItems: "center", gap: "12px" }}>
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          System Design
         </h1>
         <p style={{ color: "var(--text-secondary)", fontSize: "1.05rem", maxWidth: "640px" }}>
           Learn how production AI systems are designed, evaluated, and scaled.

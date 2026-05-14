@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { AuthProvider } from "@/lib/AuthContext";
 import ClientProviders from "@/components/ClientProviders";
+import ConditionalShell from "@/components/ConditionalShell";
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -117,11 +116,7 @@ export default function RootLayout({
 
         <AuthProvider>
           <ClientProviders>
-            <Navbar />
-            <main className="flex-1 relative z-10 page-transition-enter">
-              {children}
-            </main>
-            <Footer />
+            <ConditionalShell>{children}</ConditionalShell>
           </ClientProviders>
         </AuthProvider>
       </body>
