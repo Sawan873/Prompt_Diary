@@ -41,7 +41,7 @@ export default function Footer() {
       id="main-footer"
       style={{
         borderTop: "1px solid var(--border-subtle)",
-        background: "rgba(10, 10, 15, 0.9)",
+        background: "rgba(8, 10, 18, 0.92)",
         position: "relative",
         zIndex: 10,
       }}
@@ -77,6 +77,7 @@ export default function Footer() {
             >
               <Logo size={28} showText={true} textSize="1.15rem" />
             </Link>
+
             <p
               style={{
                 color: "var(--text-muted)",
@@ -96,7 +97,7 @@ export default function Footer() {
               <h4
                 style={{
                   fontSize: "0.85rem",
-                  fontWeight: 600,
+                  fontWeight: 700,
                   textTransform: "uppercase",
                   letterSpacing: "0.08em",
                   color: "var(--text-secondary)",
@@ -105,6 +106,7 @@ export default function Footer() {
               >
                 {section.title}
               </h4>
+
               <ul style={{ listStyle: "none", padding: 0 }}>
                 {section.links.map((link) => (
                   <li key={link.label} style={{ marginBottom: "10px" }}>
@@ -144,13 +146,10 @@ export default function Footer() {
             gap: "16px",
           }}
         >
-          <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", display: "flex", alignItems: "center", gap: "5px", flexWrap: "wrap" }}>
-            © {currentYear} Prompt Dairy. Built with{" "}
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="#f87171" stroke="#f87171" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle" }}>
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-            </svg>
-            {" "}for the AI community.
+          <p style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
+            © {currentYear} Prompt Dairy. Built for the AI learning community.
           </p>
+
           <div style={{ display: "flex", gap: "20px" }}>
             <Link
               href="#"
@@ -158,17 +157,32 @@ export default function Footer() {
                 color: "var(--text-muted)",
                 textDecoration: "none",
                 fontSize: "0.85rem",
+                transition: "color 0.2s ease",
               }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.color = "var(--text-primary)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.color = "var(--text-muted)")
+              }
             >
               Privacy
             </Link>
+
             <Link
               href="#"
               style={{
                 color: "var(--text-muted)",
                 textDecoration: "none",
                 fontSize: "0.85rem",
+                transition: "color 0.2s ease",
               }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.color = "var(--text-primary)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.color = "var(--text-muted)")
+              }
             >
               Terms
             </Link>
