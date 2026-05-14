@@ -14,7 +14,6 @@ export default function LoginPage() {
   const [oauthLoading, setOauthLoading] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
-  const [focusedField, setFocusedField] = useState<string | null>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,21 +51,6 @@ export default function LoginPage() {
       setOauthLoading(null);
     }
   };
-
-  const inputStyle = (fieldName: string) => ({
-    width: "100%",
-    padding: "12px 16px",
-    borderRadius: "10px",
-    border: `1.5px solid ${focusedField === fieldName ? "rgba(0,229,255,0.6)" : "rgba(255,255,255,0.1)"}`,
-    background: focusedField === fieldName ? "rgba(0,229,255,0.03)" : "rgba(255,255,255,0.04)",
-    color: "#f0f0f5",
-    fontSize: "0.92rem",
-    fontFamily: "inherit",
-    outline: "none",
-    transition: "border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease",
-    boxShadow: focusedField === fieldName ? "0 0 0 3px rgba(0,229,255,0.08)" : "none",
-    boxSizing: "border-box" as const,
-  });
 
   return (
     <div
@@ -291,11 +275,9 @@ export default function LoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                onFocus={() => setFocusedField("email")}
-                onBlur={() => setFocusedField(null)}
                 required
                 placeholder="you@example.com"
-                style={inputStyle("email")}
+                className="form-input"
               />
             </div>
 
@@ -308,11 +290,9 @@ export default function LoginPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                onFocus={() => setFocusedField("password")}
-                onBlur={() => setFocusedField(null)}
                 required
                 placeholder="••••••••"
-                style={inputStyle("password")}
+                className="form-input"
               />
             </div>
 
