@@ -276,7 +276,7 @@ export default function VideoShowcase() {
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#28ca42" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
               </svg>
-              <span style={{ color: "rgba(255,255,255,0.3)" }}>prompt-dairy.ai</span>
+              <span style={{ color: "rgba(255,255,255,0.3)" }}>prompt-diary.ai</span>
               <span style={{ color: "rgba(255,255,255,0.15)" }}>/</span>
               <span style={{ color: "rgba(0,229,255,0.6)" }}>demo</span>
             </div>

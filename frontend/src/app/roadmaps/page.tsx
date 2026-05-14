@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Roadmaps — Prompt Dairy",
+  title: "Roadmaps — Prompt Diary",
   description:
     "Structured learning paths from beginner to advanced for prompt engineering and AI systems.",
 };

@@ -18,7 +18,7 @@ import {
 import { getSystemDesignArticles } from "@/lib/api";
 
 export const metadata: Metadata = {
-  title: "System Design — Prompt Dairy",
+  title: "System Design — Prompt Diary",
   description:
     "Architecture-focused learning articles for AI systems and LLM workflows.",
 };

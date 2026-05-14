@@ -143,7 +143,7 @@ export default function Logo({
           }}
           className="gradient-text"
         >
-          Prompt Dairy
+          Prompt Diary
         </span>
       )}
     </span>

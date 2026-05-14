@@ -19,7 +19,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("http://localhost:3000"),
-  title: "Prompt Dairy — Learn Prompt Engineering & AI Systems",
+  title: "Prompt Diary — Learn Prompt Engineering & AI Systems",
   description:
     "Master prompt engineering, AI system design, and LLM workflows. Practice prompt writing, explore AI architectures, and experiment in our interactive playground.",
   keywords: [
@@ -31,9 +31,9 @@ export const metadata: Metadata = {
     "RAG",
     "AI agents",
   ],
-  authors: [{ name: "Prompt Dairy Team" }],
+  authors: [{ name: "Prompt Diary Team" }],
   openGraph: {
-    title: "Prompt Dairy — Learn Prompt Engineering & AI Systems",
+    title: "Prompt Diary — Learn Prompt Engineering & AI Systems",
     description:
       "Master prompt engineering, AI system design, and LLM workflows.",
     type: "website",
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
         url: "/logo.svg",
         width: 512,
         height: 512,
-        alt: "Prompt Dairy Logo",
+        alt: "Prompt Diary Logo",
       },
     ],
   },

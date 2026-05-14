@@ -105,10 +105,10 @@ export async function generateMetadata({
   const { id } = await params;
   const challenge = challenges[id];
 
-  if (!challenge) return { title: "Challenge Not Found — Prompt Dairy" };
+  if (!challenge) return { title: "Challenge Not Found — Prompt Diary" };
 
   return {
-    title: `${challenge.title} — Prompt Dairy`,
+    title: `${challenge.title} — Prompt Diary`,
     description: challenge.description,
   };
 }

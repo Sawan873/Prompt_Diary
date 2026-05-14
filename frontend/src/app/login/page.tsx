@@ -146,7 +146,7 @@ export default function LoginPage() {
 
         {/* Footer credit */}
         <p style={{ color: "rgba(255,255,255,0.25)", fontSize: "0.78rem", position: "relative", zIndex: 1 }}>
-          © {new Date().getFullYear()} Prompt Dairy. All rights reserved.
+          © {new Date().getFullYear()} Prompt Diary. All rights reserved.
         </p>
       </div>
 

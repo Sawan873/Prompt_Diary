@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { ArrowRight, CheckCircle2, Layers3, Trophy } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Challenges — Prompt Dairy",
+  title: "Challenges — Prompt Diary",
   description:
     "Practice writing effective prompts with hands-on challenges. From summarization to multi-step reasoning.",
 };

@@ -147,7 +147,7 @@ export default function Footer() {
           }}
         >
           <p style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
-            © {currentYear} Prompt Dairy. Built for the AI learning community.
+            © {currentYear} Prompt Diary. Built for the AI learning community.
           </p>
 
           <div style={{ display: "flex", gap: "20px" }}>

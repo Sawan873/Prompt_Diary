@@ -3,7 +3,7 @@ import { BookOpen } from "lucide-react";
 import ArticlesClient from "@/components/ArticlesClient";
 
 export const metadata: Metadata = {
-  title: "Articles — Prompt Dairy",
+  title: "Articles — Prompt Diary",
   description:
     "Learn prompt engineering, AI architectures, and LLM workflows through in-depth articles and tutorials.",
 };
