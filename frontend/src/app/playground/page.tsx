@@ -2,6 +2,24 @@
 
 import { useState, useEffect } from "react";
 import { runPrompt, getPlaygroundModels } from "@/lib/api";
+import {
+  ArrowRight,
+  Bot,
+  BrainCircuit,
+  ChevronDown,
+  ClipboardList,
+  Clock3,
+  Eraser,
+  FileInput,
+  FileOutput,
+  Gauge,
+  Lightbulb,
+  Loader2,
+  Play,
+  Settings2,
+  SlidersHorizontal,
+  Sparkles,
+} from "lucide-react";
 
 interface ModelInfo {
   id: string;
@@ -35,14 +53,16 @@ export default function PlaygroundPage() {
           setModels(data.models);
         }
       } catch {
-        // Use defaults
+        // Use defaults when backend is not available
       }
     }
+
     loadModels();
   }, []);
 
   const handleRun = async () => {
     if (!prompt.trim()) return;
+
     setIsRunning(true);
     setOutput("");
     setLastUsage(null);
@@ -66,12 +86,16 @@ export default function PlaygroundPage() {
       } else {
         setOutput("Error: Failed to get response from the API.");
       }
-    } catch (error) {
+    } catch {
       // Fallback: simulate locally if backend is not available
       await new Promise((resolve) => setTimeout(resolve, 1000));
+
       setOutput(
-        `[Simulated Response from ${model}]\n\nThe backend API is not reachable. This is a local fallback response.\n\nYour prompt was:\n"${prompt}"\n\n---\nTokens used: ~${Math.floor(prompt.length / 4)} input + ~50 output\nModel: ${model}\nLatency: 1.0s (simulated)`
+        `[Simulated Response from ${model}]\n\nThe backend API is not reachable. This is a local fallback response.\n\nYour prompt was:\n"${prompt}"\n\n---\nTokens used: ~${Math.floor(
+          prompt.length / 4
+        )} input + ~50 output\nModel: ${model}\nLatency: 1.0s (simulated)`
       );
+
       setLastUsage({
         input_tokens: Math.floor(prompt.length / 4),
         output_tokens: 50,
@@ -92,73 +116,118 @@ export default function PlaygroundPage() {
 
   return (
     <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "48px 24px" }}>
-      <div style={{ marginBottom: "32px" }}>
-        <h1 style={{ fontSize: "clamp(2rem, 4vw, 2.75rem)", fontWeight: 800, marginBottom: "12px", display: "flex", alignItems: "center", gap: "12px" }}>
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      {/* Header */}
+      <div style={{ marginBottom: "34px" }}>
+        <h1
+          style={{
+            fontSize: "clamp(2rem, 4vw, 2.75rem)",
+            fontWeight: 800,
+            marginBottom: "12px",
+            letterSpacing: "-0.03em",
+          }}
+        >
           Prompt Playground
         </h1>
-        <p style={{ color: "var(--text-secondary)", fontSize: "1.05rem" }}>
-          Test and iterate on your prompts with instant feedback.
+
+        <p
+          style={{
+            color: "var(--text-secondary)",
+            fontSize: "1.05rem",
+            maxWidth: "680px",
+            lineHeight: 1.7,
+          }}
+        >
+          Test, refine, and compare prompts with model settings and instant
+          output preview.
         </p>
       </div>
 
       {/* Controls Bar */}
       <div
-        className="glass-card"
+        className="glass-card playground-control-card"
         style={{
-          padding: "16px 20px",
+          padding: "18px 20px",
           marginBottom: "20px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           flexWrap: "wrap",
-          gap: "12px",
+          gap: "14px",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "14px", flexWrap: "wrap" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "14px",
+            flexWrap: "wrap",
+          }}
+        >
           {/* Model Selector */}
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <label style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: 600 }}>
+            <label
+              style={{
+                fontSize: "0.8rem",
+                color: "var(--text-muted)",
+                fontWeight: 700,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+              }}
+            >
+              <Bot size={15} strokeWidth={1.8} />
               Model
             </label>
+
             <select
               id="model-selector"
               value={model}
               onChange={(e) => setModel(e.target.value)}
               style={{
-                padding: "6px 14px",
-                borderRadius: "8px",
-                border: "1px solid var(--border-medium)",
-                background: "var(--bg-tertiary)",
+                padding: "8px 34px 8px 14px",
+                borderRadius: "10px",
+                border: "1px solid rgba(0,229,255,0.18)",
+                background: "rgba(0,0,0,0.28)",
                 color: "var(--text-primary)",
                 fontSize: "0.85rem",
                 cursor: "pointer",
                 outline: "none",
               }}
             >
-              {models.length > 0
-                ? models.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.name} ({m.provider})
-                    </option>
-                  ))
-                : (
-                  <>
-                    <option value="gpt-4">GPT-4</option>
-                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-                    <option value="gemini-pro">Gemini Pro</option>
-                    <option value="claude-3">Claude 3</option>
-                    <option value="llama-3">Llama 3</option>
-                  </>
-                )}
+              {models.length > 0 ? (
+                models.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name} ({m.provider})
+                  </option>
+                ))
+              ) : (
+                <>
+                  <option value="gpt-4">GPT-4</option>
+                  <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                  <option value="gemini-pro">Gemini Pro</option>
+                  <option value="claude-3">Claude 3</option>
+                  <option value="llama-3">Llama 3</option>
+                </>
+              )}
             </select>
           </div>
 
           {/* Temperature */}
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <label style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: 600 }}>
+            <label
+              style={{
+                fontSize: "0.8rem",
+                color: "var(--text-muted)",
+                fontWeight: 700,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+              }}
+            >
+              <Gauge size={15} strokeWidth={1.8} />
               Temp
             </label>
+
             <input
               type="range"
               min="0"
@@ -166,9 +235,17 @@ export default function PlaygroundPage() {
               step="0.1"
               value={temperature}
               onChange={(e) => setTemperature(parseFloat(e.target.value))}
-              style={{ width: "80px", cursor: "pointer" }}
+              style={{ width: "90px", cursor: "pointer" }}
             />
-            <span style={{ fontSize: "0.8rem", color: "var(--text-secondary)", minWidth: "24px" }}>
+
+            <span
+              style={{
+                fontSize: "0.8rem",
+                color: "var(--text-secondary)",
+                minWidth: "26px",
+                fontWeight: 700,
+              }}
+            >
               {temperature}
             </span>
           </div>
@@ -176,83 +253,131 @@ export default function PlaygroundPage() {
           {/* Settings toggle */}
           <button
             onClick={() => setShowSettings(!showSettings)}
-            style={{ padding: "6px 12px", borderRadius: "8px", border: "1px solid var(--border-subtle)", background: showSettings ? "rgba(0,229,255,0.1)" : "transparent", color: "var(--text-secondary)", fontSize: "0.8rem", cursor: "pointer", transition: "all 0.2s ease", display: "flex", alignItems: "center", gap: "6px" }}
+            style={{
+              padding: "8px 13px",
+              borderRadius: "10px",
+              border: showSettings
+                ? "1px solid rgba(0,229,255,0.35)"
+                : "1px solid var(--border-subtle)",
+              background: showSettings ? "rgba(0,229,255,0.1)" : "transparent",
+              color: showSettings ? "#67e8f9" : "var(--text-secondary)",
+              fontSize: "0.8rem",
+              fontWeight: 700,
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+            }}
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <Settings2 size={15} strokeWidth={1.8} />
             System Prompt
+            <ChevronDown
+              size={15}
+              strokeWidth={1.8}
+              style={{
+                transition: "transform 0.2s ease",
+                transform: showSettings ? "rotate(180deg)" : "rotate(0deg)",
+              }}
+            />
           </button>
         </div>
 
-        <div style={{ display: "flex", gap: "8px" }}>
+        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
           <button
             onClick={handleClear}
             className="btn-secondary"
-            style={{ padding: "6px 16px", fontSize: "0.8rem" }}
+            style={{
+              padding: "8px 16px",
+              fontSize: "0.8rem",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+            }}
           >
+            <Eraser size={15} strokeWidth={1.8} />
             Clear
           </button>
+
           <button
             id="run-prompt"
             onClick={handleRun}
             disabled={isRunning || !prompt.trim()}
             className="btn-primary"
             style={{
-              padding: "6px 20px",
+              padding: "8px 20px",
               fontSize: "0.85rem",
               opacity: isRunning || !prompt.trim() ? 0.5 : 1,
               cursor: isRunning || !prompt.trim() ? "not-allowed" : "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
             }}
           >
             {isRunning ? (
-              <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                Running...
-              </span>
+              <>
+                <Loader2
+                  size={15}
+                  strokeWidth={1.8}
+                  style={{ animation: "orbit 0.8s linear infinite" }}
+                />
+                Running
+              </>
             ) : (
-              <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <>
+                <Play size={15} strokeWidth={1.8} />
                 Run
-              </span>
+              </>
             )}
           </button>
         </div>
       </div>
 
-      {/* System Prompt (collapsible) */}
+      {/* System Prompt */}
       {showSettings && (
         <div
-          className="glass-card animate-slide-down"
-          style={{ padding: "16px 20px", marginBottom: "20px" }}
+          className="glass-card animate-slide-down playground-system-card"
+          style={{
+            padding: "18px 20px",
+            marginBottom: "20px",
+            border: "1px solid rgba(124,58,237,0.18)",
+          }}
         >
           <label
             style={{
               fontSize: "0.8rem",
-              fontWeight: 600,
+              fontWeight: 700,
               color: "var(--text-secondary)",
-              display: "block",
-              marginBottom: "8px",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              marginBottom: "10px",
             }}
           >
+            <SlidersHorizontal size={15} strokeWidth={1.8} />
             System Prompt (optional)
           </label>
+
           <textarea
             value={systemPrompt}
             onChange={(e) => setSystemPrompt(e.target.value)}
             placeholder="You are a helpful AI assistant..."
             style={{
               width: "100%",
-              padding: "12px",
-              borderRadius: "10px",
-              border: "1px solid var(--border-subtle)",
-              background: "rgba(0,0,0,0.3)",
+              padding: "13px 14px",
+              borderRadius: "12px",
+              border: "1px solid rgba(255,255,255,0.08)",
+              background:
+                "linear-gradient(135deg, rgba(0,0,0,0.34), rgba(15,23,42,0.18))",
               color: "var(--text-primary)",
               fontSize: "0.85rem",
-              lineHeight: 1.5,
+              lineHeight: 1.55,
               resize: "vertical",
               outline: "none",
               fontFamily: "var(--font-geist-mono), monospace",
-              minHeight: "60px",
-              maxHeight: "150px",
+              minHeight: "72px",
+              maxHeight: "160px",
+              boxSizing: "border-box",
             }}
           />
         </div>
@@ -270,15 +395,28 @@ export default function PlaygroundPage() {
       >
         {/* Input Panel */}
         <div
-          className="glass-card"
+          className="glass-card playground-panel"
           style={{
-            padding: "20px",
+            padding: "22px",
             display: "flex",
             flexDirection: "column",
+            border: "1px solid rgba(0,229,255,0.16)",
           }}
         >
-          <h3 style={{ fontSize: "0.85rem", fontWeight: 600, marginBottom: "12px", color: "var(--text-secondary)", display: "flex", alignItems: "center", gap: "7px" }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          <h3
+            style={{
+              fontSize: "0.82rem",
+              fontWeight: 800,
+              marginBottom: "12px",
+              color: "var(--text-secondary)",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+            }}
+          >
+            <FileInput size={16} strokeWidth={1.8} />
             Prompt Input
           </h3>
 
@@ -295,16 +433,20 @@ export default function PlaygroundPage() {
             style={{
               flex: 1,
               padding: "16px",
-              borderRadius: "12px",
-              border: "1px solid var(--border-subtle)",
-              background: "rgba(0,0,0,0.3)",
+              borderRadius: "14px",
+              border: prompt
+                ? "1px solid rgba(0,229,255,0.34)"
+                : "1px solid rgba(255,255,255,0.08)",
+              background:
+                "linear-gradient(135deg, rgba(0,0,0,0.34), rgba(15,23,42,0.18))",
               color: "var(--text-primary)",
               fontSize: "0.9rem",
-              lineHeight: 1.6,
+              lineHeight: 1.65,
               resize: "none",
               outline: "none",
               fontFamily: "var(--font-geist-mono), monospace",
               minHeight: "300px",
+              boxShadow: prompt ? "0 0 0 3px rgba(0,229,255,0.06)" : "none",
             }}
           />
 
@@ -313,59 +455,76 @@ export default function PlaygroundPage() {
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              marginTop: "10px",
+              marginTop: "12px",
               fontSize: "0.75rem",
               color: "var(--text-muted)",
+              gap: "12px",
+              flexWrap: "wrap",
             }}
           >
-            <span>{prompt.length} characters · ~{Math.ceil(prompt.length / 4)} tokens</span>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+              <ClipboardList size={14} strokeWidth={1.8} />
+              {prompt.length} characters · ~{Math.ceil(prompt.length / 4)} tokens
+            </span>
+
             <span>Ctrl+Enter to run</span>
           </div>
         </div>
 
         {/* Output Panel */}
         <div
-          className="glass-card"
+          className="glass-card playground-panel"
           style={{
-            padding: "20px",
+            padding: "22px",
             display: "flex",
             flexDirection: "column",
+            border: "1px solid rgba(124,58,237,0.18)",
           }}
         >
-          <h3 style={{ fontSize: "0.85rem", fontWeight: 600, marginBottom: "12px", color: "var(--text-secondary)", display: "flex", alignItems: "center", gap: "7px" }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+          <h3
+            style={{
+              fontSize: "0.82rem",
+              fontWeight: 800,
+              marginBottom: "12px",
+              color: "var(--text-secondary)",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+            }}
+          >
+            <FileOutput size={16} strokeWidth={1.8} />
             Output
           </h3>
+
           <div
             id="prompt-output"
             style={{
               flex: 1,
               padding: "16px",
-              borderRadius: "12px",
-              background: "rgba(0,0,0,0.3)",
-              border: "1px solid var(--border-subtle)",
+              borderRadius: "14px",
+              background:
+                "linear-gradient(135deg, rgba(0,0,0,0.34), rgba(15,23,42,0.18))",
+              border: output
+                ? "1px solid rgba(124,58,237,0.34)"
+                : "1px solid rgba(255,255,255,0.08)",
               fontFamily: "var(--font-geist-mono), monospace",
               fontSize: "0.85rem",
               lineHeight: 1.7,
-              color: output
-                ? "var(--text-primary)"
-                : "var(--text-muted)",
+              color: output ? "var(--text-primary)" : "var(--text-muted)",
               whiteSpace: "pre-wrap",
               overflow: "auto",
               minHeight: "300px",
+              boxShadow: output ? "0 0 0 3px rgba(124,58,237,0.06)" : "none",
             }}
           >
             {isRunning ? (
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <div
-                  style={{
-                    width: "16px",
-                    height: "16px",
-                    borderRadius: "50%",
-                    border: "2px solid rgba(0,229,255,0.2)",
-                    borderTopColor: "#00e5ff",
-                    animation: "orbit 0.8s linear infinite",
-                  }}
+                <Loader2
+                  size={17}
+                  strokeWidth={1.8}
+                  style={{ animation: "orbit 0.8s linear infinite" }}
                 />
                 <span>Generating response...</span>
               </div>
@@ -381,27 +540,27 @@ export default function PlaygroundPage() {
             <div
               style={{
                 display: "flex",
-                gap: "16px",
-                marginTop: "10px",
+                gap: "10px",
+                marginTop: "12px",
                 fontSize: "0.75rem",
                 color: "var(--text-muted)",
                 flexWrap: "wrap",
               }}
             >
-              <span style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
-                {lastUsage.input_tokens} in
+              <span className="usage-pill">
+                <FileInput size={13} strokeWidth={1.8} />
+                {lastUsage.input_tokens} input
               </span>
-              <span style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="8 7 12 3 16 7"/><line x1="12" y1="21" x2="12" y2="3"/></svg>
-                {lastUsage.output_tokens} out
+              <span className="usage-pill">
+                <FileOutput size={13} strokeWidth={1.8} />
+                {lastUsage.output_tokens} output
               </span>
-              <span style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-                {lastUsage.total_tokens} tokens
+              <span className="usage-pill">
+                <BrainCircuit size={13} strokeWidth={1.8} />
+                {lastUsage.total_tokens} total
               </span>
-              <span style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              <span className="usage-pill">
+                <Clock3 size={13} strokeWidth={1.8} />
                 {lastUsage.latency_ms}ms
               </span>
             </div>
@@ -411,25 +570,42 @@ export default function PlaygroundPage() {
 
       {/* Info bar */}
       <div
-        className="glass-card"
+        className="glass-card playground-info-card"
         style={{
           marginTop: "20px",
-          padding: "14px 20px",
+          padding: "16px 20px",
           display: "flex",
-          alignItems: "center",
+          alignItems: "flex-start",
           gap: "12px",
           fontSize: "0.82rem",
           color: "var(--text-muted)",
+          border: "1px solid rgba(251,191,36,0.16)",
         }}
       >
-        <span style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"/><path d="M12 18v4"/><path d="M8 22h8"/></svg>
-        </span>
-        <span>
-          <strong style={{ color: "var(--text-secondary)" }}>Smart Responses:</strong>{" "}
-          The playground generates context-aware simulated responses. Try prompts about
-          summarization, JSON extraction, code generation, or explanations for varied outputs.
-          Real LLM integration (OpenAI, Gemini, HuggingFace) coming in Phase 4.
+        <div
+          style={{
+            width: "34px",
+            height: "34px",
+            borderRadius: "12px",
+            background: "rgba(251,191,36,0.1)",
+            border: "1px solid rgba(251,191,36,0.18)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          <Lightbulb size={17} strokeWidth={1.8} color="#fbbf24" />
+        </div>
+
+        <span style={{ lineHeight: 1.7 }}>
+          <strong style={{ color: "var(--text-secondary)" }}>
+            Smart Responses:
+          </strong>{" "}
+          The playground generates context-aware simulated responses. Try prompts
+          about summarization, JSON extraction, code generation, or explanations
+          for varied outputs. Real LLM integration with OpenAI, Gemini, and
+          HuggingFace can be added in Phase 4.
         </span>
       </div>
 
