@@ -594,13 +594,12 @@ export default async function ArticleDetailPage({
         {related.length > 0 && (
           <section style={{ marginBottom: "40px" }}>
             <h2 style={{
-              fontSize: "1.1rem",
+              fontSize: "0.78rem",
               fontWeight: 700,
               marginBottom: "16px",
               color: "var(--text-secondary)",
               textTransform: "uppercase",
               letterSpacing: "0.08em",
-              fontSize: "0.78rem",
             }}>
               Related Articles
             </h2>

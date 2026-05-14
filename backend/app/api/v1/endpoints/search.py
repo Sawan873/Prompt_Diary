@@ -4,7 +4,7 @@ Search API endpoint.
 GET /search?q=...  — Search articles, challenges, and roadmaps
 """
 
-from fastapi import APIRouter, Query, HTTPException
+from fastapi import APIRouter, Query
 from typing import Optional
 
 from app.core.config import settings

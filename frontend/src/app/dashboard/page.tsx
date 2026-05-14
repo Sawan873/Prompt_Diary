@@ -28,6 +28,11 @@ export default function DashboardPage() {
   const [statsLoading, setStatsLoading] = useState(true);
 
   useEffect(() => {
+    if (!user) {
+      setStatsLoading(false);
+      return;
+    }
+
     async function loadStats() {
       try {
         const data = await getUserStats();
@@ -41,9 +46,7 @@ export default function DashboardPage() {
       }
     }
 
-    if (user) {
-      loadStats();
-    }
+    loadStats();
   }, [user]);
 
   // Show loading state while checking auth
