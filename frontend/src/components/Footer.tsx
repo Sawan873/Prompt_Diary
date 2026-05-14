@@ -41,7 +41,7 @@ export default function Footer() {
       id="main-footer"
       style={{
         borderTop: "1px solid var(--border-subtle)",
-        background: "rgba(8, 10, 18, 0.92)",
+        background: "var(--footer-bg)",
         position: "relative",
         zIndex: 10,
       }}
