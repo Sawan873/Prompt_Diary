@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-// Challenges list — "Start Challenge" now links to /challenges/[id]
+import { ArrowRight, CheckCircle2, Layers3, Trophy } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Challenges — Prompt Dairy",
@@ -56,19 +56,46 @@ const challenges = [
   },
 ];
 
+const stats = [
+  {
+    label: "Total Challenges",
+    value: "5",
+    icon: Layers3,
+  },
+  {
+    label: "Total Points",
+    value: "120",
+    icon: Trophy,
+  },
+  {
+    label: "Difficulties",
+    value: "3",
+    icon: CheckCircle2,
+  },
+];
+
 export default function ChallengesPage() {
   return (
     <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "48px 24px" }}>
-      <div style={{ marginBottom: "48px" }}>
-        <h1 style={{ fontSize: "clamp(2rem, 4vw, 2.75rem)", fontWeight: 800, marginBottom: "12px", display: "flex", alignItems: "center", gap: "12px" }}>
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+      {/* Header */}
+      <div style={{ marginBottom: "46px" }}>
+        <h1
+          style={{
+            fontSize: "clamp(2rem, 4vw, 2.75rem)",
+            fontWeight: 800,
+            marginBottom: "12px",
+            letterSpacing: "-0.03em",
+          }}
+        >
           Prompt Challenges
         </h1>
+
         <p
           style={{
             color: "var(--text-secondary)",
             fontSize: "1.05rem",
-            maxWidth: "600px",
+            maxWidth: "640px",
+            lineHeight: 1.7,
           }}
         >
           Practice writing effective prompts. Earn points and track your
@@ -80,41 +107,69 @@ export default function ChallengesPage() {
       <div
         className="glass-card"
         style={{
-          display: "flex",
-          justifyContent: "space-around",
-          padding: "24px",
-          marginBottom: "32px",
-          textAlign: "center",
-          flexWrap: "wrap",
-          gap: "16px",
+          display: "grid",
+          gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+          padding: "22px",
+          marginBottom: "34px",
+          gap: "14px",
         }}
       >
-        {[
-          { label: "Total Challenges", value: "5" },
-          { label: "Total Points", value: "120" },
-          { label: "Difficulties", value: "3" },
-        ].map((stat) => (
-          <div key={stat.label}>
+        {stats.map((stat) => {
+          const Icon = stat.icon;
+
+          return (
             <div
-              style={{ fontSize: "1.5rem", fontWeight: 700 }}
-              className="gradient-text"
+              key={stat.label}
+              style={{
+                padding: "18px 16px",
+                borderRadius: "16px",
+                background: "rgba(255,255,255,0.025)",
+                border: "1px solid rgba(255,255,255,0.06)",
+                display: "flex",
+                alignItems: "center",
+                gap: "14px",
+              }}
             >
-              {stat.value}
+              <div
+                style={{
+                  width: "42px",
+                  height: "42px",
+                  borderRadius: "13px",
+                  background:
+                    "linear-gradient(135deg, rgba(0,229,255,0.12), rgba(124,58,237,0.14))",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <Icon size={20} strokeWidth={1.8} />
+              </div>
+
+              <div>
+                <div
+                  style={{ fontSize: "1.45rem", fontWeight: 800 }}
+                  className="gradient-text"
+                >
+                  {stat.value}
+                </div>
+                <div style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
+                  {stat.label}
+                </div>
+              </div>
             </div>
-            <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
-              {stat.label}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Challenge Cards */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
         {challenges.map((challenge, index) => (
           <div
             key={challenge.id}
             id={`challenge-${challenge.id}`}
-            className="glass-card animate-fade-in-up"
+            className="glass-card challenge-card animate-fade-in-up"
             style={{
               padding: "28px 32px",
               opacity: 0,
@@ -124,10 +179,9 @@ export default function ChallengesPage() {
             <div
               style={{
                 display: "flex",
-                alignItems: "start",
+                alignItems: "flex-start",
                 justifyContent: "space-between",
-                gap: "16px",
-                flexWrap: "wrap",
+                gap: "18px",
               }}
             >
               <div style={{ flex: 1 }}>
@@ -143,6 +197,7 @@ export default function ChallengesPage() {
                   <span className={`badge badge-${challenge.difficulty}`}>
                     {challenge.difficulty}
                   </span>
+
                   <span
                     style={{
                       fontSize: "0.75rem",
@@ -156,20 +211,24 @@ export default function ChallengesPage() {
                     {challenge.category}
                   </span>
                 </div>
+
                 <h3
                   style={{
                     fontSize: "1.15rem",
-                    fontWeight: 600,
+                    fontWeight: 700,
                     marginBottom: "8px",
+                    letterSpacing: "-0.01em",
                   }}
                 >
                   {challenge.title}
                 </h3>
+
                 <p
                   style={{
                     color: "var(--text-secondary)",
                     fontSize: "0.9rem",
-                    lineHeight: 1.6,
+                    lineHeight: 1.65,
+                    maxWidth: "680px",
                   }}
                 >
                   {challenge.description}
@@ -179,6 +238,11 @@ export default function ChallengesPage() {
               {/* Points */}
               <div
                 style={{
+                  minWidth: "82px",
+                  padding: "12px 14px",
+                  borderRadius: "16px",
+                  background: "rgba(255,255,255,0.035)",
+                  border: "1px solid rgba(255,255,255,0.07)",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
@@ -188,8 +252,9 @@ export default function ChallengesPage() {
               >
                 <div
                   style={{
-                    fontSize: "1.5rem",
-                    fontWeight: 700,
+                    fontSize: "1.45rem",
+                    fontWeight: 800,
+                    lineHeight: 1,
                   }}
                   className="gradient-text"
                 >
@@ -197,9 +262,10 @@ export default function ChallengesPage() {
                 </div>
                 <div
                   style={{
-                    fontSize: "0.7rem",
+                    fontSize: "0.68rem",
                     color: "var(--text-muted)",
-                    fontWeight: 500,
+                    fontWeight: 700,
+                    letterSpacing: "0.08em",
                   }}
                 >
                   POINTS
@@ -207,19 +273,22 @@ export default function ChallengesPage() {
               </div>
             </div>
 
-            <div style={{ marginTop: "16px" }}>
+            <div style={{ marginTop: "18px" }}>
               <Link
                 href={`/challenges/${challenge.id}`}
-                className="btn-secondary"
+                className="btn-secondary challenge-action"
                 style={{
-                  padding: "8px 20px",
+                  padding: "8px 18px",
                   fontSize: "0.85rem",
                   display: "inline-flex",
                   alignItems: "center",
-                  gap: "6px",
+                  gap: "8px",
+                  position: "relative",
+                  zIndex: 1,
                 }}
               >
-                Start Challenge →
+                Start Challenge
+                <ArrowRight size={15} strokeWidth={1.8} />
               </Link>
             </div>
           </div>
