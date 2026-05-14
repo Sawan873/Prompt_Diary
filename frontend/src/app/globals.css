@@ -118,6 +118,15 @@ body {
 
 ::selection { background: rgba(124, 58, 237, 0.3); color: #fff; }
 
+/* Heading typography — display font for visual hierarchy */
+h1, h2, h3 {
+  font-family: var(--font-display), var(--font-geist-sans), 'Inter', system-ui, sans-serif;
+  letter-spacing: -0.025em;
+}
+h1 { line-height: 1.1; }
+h2 { line-height: 1.2; }
+h3 { line-height: 1.3; }
+
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg-primary); }
 ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 3px; }
