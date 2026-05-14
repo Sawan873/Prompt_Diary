@@ -1,73 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState, useEffect, useCallback } from "react";
-
-/* Animated count-up hook */
-function useCountUp(target: number, duration = 1800, startOnView = true) {
-  const [count, setCount] = useState(0);
-  const [started, setStarted] = useState(!startOnView);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!startOnView) return;
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setStarted(true); obs.disconnect(); } },
-      { threshold: 0.5 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [startOnView]);
-
-  useEffect(() => {
-    if (!started) return;
-    let start: number | null = null;
-    let raf: number;
-    const step = (ts: number) => {
-      if (!start) start = ts;
-      const progress = Math.min((ts - start) / duration, 1);
-      // easeOutQuart for a snappy feel
-      const eased = 1 - Math.pow(1 - progress, 4);
-      setCount(Math.round(eased * target));
-      if (progress < 1) raf = requestAnimationFrame(step);
-    };
-    raf = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(raf);
-  }, [started, target, duration]);
-
-  return { count, ref };
-}
-
-/* Individual stat display with count-up */
-function AnimatedStat({ numericValue, suffix, label }: { numericValue: number; suffix: string; label: string }) {
-  const { count, ref } = useCountUp(numericValue, 1600);
-  return (
-    <div ref={ref} style={{ textAlign: "center" }}>
-      <div
-        style={{
-          fontSize: "1.75rem",
-          fontWeight: 700,
-          marginBottom: "4px",
-        }}
-        className="gradient-text"
-      >
-        {count}{suffix}
-      </div>
-      <div
-        style={{
-          fontSize: "0.85rem",
-          color: "var(--text-muted)",
-          fontWeight: 500,
-          textShadow: "0 1px 10px rgba(0,0,0,0.3)",
-        }}
-      >
-        {label}
-      </div>
-    </div>
-  );
-}
+import { useRef, useState, useEffect } from "react";
+import { FlaskConical, Volume2, VolumeX } from "lucide-react";
 
 export default function Hero() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -197,21 +132,59 @@ export default function Hero() {
 
       {/* HUD corner brackets */}
       {[
-        { top: "24px", left: "24px", borderTopWidth: "2px", borderTopStyle: "solid" as const, borderTopColor: "rgba(0,229,255,0.3)", borderLeftWidth: "2px", borderLeftStyle: "solid" as const, borderLeftColor: "rgba(0,229,255,0.3)" },
-        { top: "24px", right: "24px", borderTopWidth: "2px", borderTopStyle: "solid" as const, borderTopColor: "rgba(0,229,255,0.3)", borderRightWidth: "2px", borderRightStyle: "solid" as const, borderRightColor: "rgba(0,229,255,0.3)" },
-        { bottom: "24px", left: "24px", borderBottomWidth: "2px", borderBottomStyle: "solid" as const, borderBottomColor: "rgba(0,229,255,0.3)", borderLeftWidth: "2px", borderLeftStyle: "solid" as const, borderLeftColor: "rgba(0,229,255,0.3)" },
-        { bottom: "24px", right: "24px", borderBottomWidth: "2px", borderBottomStyle: "solid" as const, borderBottomColor: "rgba(0,229,255,0.3)", borderRightWidth: "2px", borderRightStyle: "solid" as const, borderRightColor: "rgba(0,229,255,0.3)" },
+        {
+          top: "24px",
+          left: "24px",
+          borderTopWidth: "2px",
+          borderTopStyle: "solid" as const,
+          borderTopColor: "rgba(0,229,255,0.3)",
+          borderLeftWidth: "2px",
+          borderLeftStyle: "solid" as const,
+          borderLeftColor: "rgba(0,229,255,0.3)",
+        },
+        {
+          top: "24px",
+          right: "24px",
+          borderTopWidth: "2px",
+          borderTopStyle: "solid" as const,
+          borderTopColor: "rgba(0,229,255,0.3)",
+          borderRightWidth: "2px",
+          borderRightStyle: "solid" as const,
+          borderRightColor: "rgba(0,229,255,0.3)",
+        },
+        {
+          bottom: "24px",
+          left: "24px",
+          borderBottomWidth: "2px",
+          borderBottomStyle: "solid" as const,
+          borderBottomColor: "rgba(0,229,255,0.3)",
+          borderLeftWidth: "2px",
+          borderLeftStyle: "solid" as const,
+          borderLeftColor: "rgba(0,229,255,0.3)",
+        },
+        {
+          bottom: "24px",
+          right: "24px",
+          borderBottomWidth: "2px",
+          borderBottomStyle: "solid" as const,
+          borderBottomColor: "rgba(0,229,255,0.3)",
+          borderRightWidth: "2px",
+          borderRightStyle: "solid" as const,
+          borderRightColor: "rgba(0,229,255,0.3)",
+        },
       ].map((pos, i) => (
         <div
           key={i}
-          style={{
-            position: "absolute",
-            width: "36px",
-            height: "36px",
-            zIndex: 3,
-            pointerEvents: "none",
-            ...pos,
-          } as React.CSSProperties}
+          style={
+            {
+              position: "absolute",
+              width: "36px",
+              height: "36px",
+              zIndex: 3,
+              pointerEvents: "none",
+              ...pos,
+            } as React.CSSProperties
+          }
         />
       ))}
 
@@ -316,17 +289,22 @@ export default function Hero() {
               fontSize: "1rem",
               background: "rgba(255,255,255,0.06)",
               backdropFilter: "blur(10px)",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
             }}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-            Try Playground
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              <FlaskConical size={18} strokeWidth={2} />
+              Try Playground
+            </span>
           </Link>
         </div>
 
-        {/* Stats — animated count-up */}
+        {/* Stats */}
         <div
           className="animate-fade-in-up delay-400"
           style={{
@@ -337,10 +315,35 @@ export default function Hero() {
             opacity: 0,
           }}
         >
-          <AnimatedStat numericValue={50} suffix="+" label="Knowledge Drops" />
-          <AnimatedStat numericValue={25} suffix="+" label="Mission Challenges" />
-          <AnimatedStat numericValue={3} suffix="" label="Skill Paths" />
-          <AnimatedStat numericValue={24} suffix="/7" label="Online Mode" />
+          {[
+            { value: "50+", label: "Knowledge Drops" },
+            { value: "25+", label: "Mission Challenges" },
+            { value: "3", label: "Skill Paths" },
+            { value: "24/7", label: "Online Mode" },
+          ].map((stat) => (
+            <div key={stat.label} style={{ textAlign: "center" }}>
+              <div
+                style={{
+                  fontSize: "1.75rem",
+                  fontWeight: 700,
+                  marginBottom: "4px",
+                }}
+                className="gradient-text"
+              >
+                {stat.value}
+              </div>
+              <div
+                style={{
+                  fontSize: "0.85rem",
+                  color: "var(--text-muted)",
+                  fontWeight: 500,
+                  textShadow: "0 1px 10px rgba(0,0,0,0.3)",
+                }}
+              >
+                {stat.label}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -365,7 +368,6 @@ export default function Hero() {
           alignItems: "center",
           justifyContent: "center",
           cursor: "pointer",
-          fontSize: "18px",
           color: isMuted ? "var(--text-muted)" : "#00e5ff",
           transition: "all 0.3s ease",
           boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
@@ -384,17 +386,9 @@ export default function Hero() {
         aria-label={isMuted ? "Unmute video" : "Mute video"}
       >
         {isMuted ? (
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-            <line x1="23" y1="9" x2="17" y2="15"/>
-            <line x1="17" y1="9" x2="23" y2="15"/>
-          </svg>
+          <VolumeX size={20} strokeWidth={2} />
         ) : (
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-          </svg>
+          <Volume2 size={20} strokeWidth={2} />
         )}
       </button>
 
