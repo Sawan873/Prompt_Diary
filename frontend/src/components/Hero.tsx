@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRef, useState, useEffect } from "react";
+import { FlaskConical, Volume2, VolumeX } from "lucide-react";
 
 export default function Hero() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -131,21 +132,59 @@ export default function Hero() {
 
       {/* HUD corner brackets */}
       {[
-        { top: "24px", left: "24px", borderTopWidth: "2px", borderTopStyle: "solid" as const, borderTopColor: "rgba(0,229,255,0.3)", borderLeftWidth: "2px", borderLeftStyle: "solid" as const, borderLeftColor: "rgba(0,229,255,0.3)" },
-        { top: "24px", right: "24px", borderTopWidth: "2px", borderTopStyle: "solid" as const, borderTopColor: "rgba(0,229,255,0.3)", borderRightWidth: "2px", borderRightStyle: "solid" as const, borderRightColor: "rgba(0,229,255,0.3)" },
-        { bottom: "24px", left: "24px", borderBottomWidth: "2px", borderBottomStyle: "solid" as const, borderBottomColor: "rgba(0,229,255,0.3)", borderLeftWidth: "2px", borderLeftStyle: "solid" as const, borderLeftColor: "rgba(0,229,255,0.3)" },
-        { bottom: "24px", right: "24px", borderBottomWidth: "2px", borderBottomStyle: "solid" as const, borderBottomColor: "rgba(0,229,255,0.3)", borderRightWidth: "2px", borderRightStyle: "solid" as const, borderRightColor: "rgba(0,229,255,0.3)" },
+        {
+          top: "24px",
+          left: "24px",
+          borderTopWidth: "2px",
+          borderTopStyle: "solid" as const,
+          borderTopColor: "rgba(0,229,255,0.3)",
+          borderLeftWidth: "2px",
+          borderLeftStyle: "solid" as const,
+          borderLeftColor: "rgba(0,229,255,0.3)",
+        },
+        {
+          top: "24px",
+          right: "24px",
+          borderTopWidth: "2px",
+          borderTopStyle: "solid" as const,
+          borderTopColor: "rgba(0,229,255,0.3)",
+          borderRightWidth: "2px",
+          borderRightStyle: "solid" as const,
+          borderRightColor: "rgba(0,229,255,0.3)",
+        },
+        {
+          bottom: "24px",
+          left: "24px",
+          borderBottomWidth: "2px",
+          borderBottomStyle: "solid" as const,
+          borderBottomColor: "rgba(0,229,255,0.3)",
+          borderLeftWidth: "2px",
+          borderLeftStyle: "solid" as const,
+          borderLeftColor: "rgba(0,229,255,0.3)",
+        },
+        {
+          bottom: "24px",
+          right: "24px",
+          borderBottomWidth: "2px",
+          borderBottomStyle: "solid" as const,
+          borderBottomColor: "rgba(0,229,255,0.3)",
+          borderRightWidth: "2px",
+          borderRightStyle: "solid" as const,
+          borderRightColor: "rgba(0,229,255,0.3)",
+        },
       ].map((pos, i) => (
         <div
           key={i}
-          style={{
-            position: "absolute",
-            width: "36px",
-            height: "36px",
-            zIndex: 3,
-            pointerEvents: "none",
-            ...pos,
-          } as React.CSSProperties}
+          style={
+            {
+              position: "absolute",
+              width: "36px",
+              height: "36px",
+              zIndex: 3,
+              pointerEvents: "none",
+              ...pos,
+            } as React.CSSProperties
+          }
         />
       ))}
 
@@ -250,13 +289,18 @@ export default function Hero() {
               fontSize: "1rem",
               background: "rgba(255,255,255,0.06)",
               backdropFilter: "blur(10px)",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
             }}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-            Try Playground
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              <FlaskConical size={18} strokeWidth={2} />
+              Try Playground
+            </span>
           </Link>
         </div>
 
@@ -324,7 +368,6 @@ export default function Hero() {
           alignItems: "center",
           justifyContent: "center",
           cursor: "pointer",
-          fontSize: "18px",
           color: isMuted ? "var(--text-muted)" : "#00e5ff",
           transition: "all 0.3s ease",
           boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
@@ -343,17 +386,9 @@ export default function Hero() {
         aria-label={isMuted ? "Unmute video" : "Mute video"}
       >
         {isMuted ? (
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-            <line x1="23" y1="9" x2="17" y2="15"/>
-            <line x1="17" y1="9" x2="23" y2="15"/>
-          </svg>
+          <VolumeX size={20} strokeWidth={2} />
         ) : (
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-          </svg>
+          <Volume2 size={20} strokeWidth={2} />
         )}
       </button>
 

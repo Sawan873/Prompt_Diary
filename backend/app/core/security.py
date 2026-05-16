@@ -23,13 +23,29 @@ def verify_supabase_token(token: str) -> Optional[dict]:
 
     Supabase JWTs are signed with the JWT_SECRET from your project settings.
     The 'sub' field contains the user's UUID (auth.users.id).
+
+    Note: Some Supabase projects omit the 'aud' claim — we try with audience
+    first and fall back to decoding without it so both formats are supported.
     """
+    # First attempt: strict verification with audience claim
     try:
         payload = jwt.decode(
             token,
             settings.JWT_SECRET,
             algorithms=[settings.JWT_ALGORITHM],
             audience="authenticated",
+        )
+        return payload
+    except JWTError:
+        pass
+
+    # Second attempt: decode without audience (some Supabase project configs)
+    try:
+        payload = jwt.decode(
+            token,
+            settings.JWT_SECRET,
+            algorithms=[settings.JWT_ALGORITHM],
+            options={"verify_aud": False},
         )
         return payload
     except JWTError:

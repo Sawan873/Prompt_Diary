@@ -1,5 +1,7 @@
 "use client";
 
+import { useId } from "react";
+
 interface LogoProps {
   size?: number;
   className?: string;
@@ -13,6 +15,13 @@ export default function Logo({
   showText = true,
   textSize = "1.25rem",
 }: LogoProps) {
+  const id = useId();
+
+  const mainGradientId = `${id}-logo-grad-main`;
+  const glowGradientId = `${id}-logo-grad-glow`;
+  const accentGradientId = `${id}-logo-grad-accent`;
+  const bgGlowId = `${id}-logo-bg-glow`;
+
   return (
     <span
       style={{
@@ -29,35 +38,39 @@ export default function Logo({
         width={size}
         height={size}
         style={{ flexShrink: 0 }}
+        aria-hidden="true"
       >
         <defs>
-          <linearGradient id="logo-grad-main" x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient id={mainGradientId} x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#00e5ff" />
             <stop offset="50%" stopColor="#4d7cff" />
             <stop offset="100%" stopColor="#b026ff" />
           </linearGradient>
-          <linearGradient id="logo-grad-glow" x1="0%" y1="100%" x2="100%" y2="0%">
+
+          <linearGradient id={glowGradientId} x1="0%" y1="100%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="#00e5ff" stopOpacity="0.6" />
             <stop offset="100%" stopColor="#b026ff" stopOpacity="0.6" />
           </linearGradient>
-          <linearGradient id="logo-grad-accent" x1="0%" y1="0%" x2="100%" y2="100%">
+
+          <linearGradient id={accentGradientId} x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#00ffd0" />
             <stop offset="100%" stopColor="#00b3ff" />
           </linearGradient>
-          <radialGradient id="logo-bg-glow" cx="50%" cy="50%" r="50%">
+
+          <radialGradient id={bgGlowId} cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor="#4d7cff" stopOpacity="0.15" />
             <stop offset="100%" stopColor="#06070d" stopOpacity="0" />
           </radialGradient>
         </defs>
 
         {/* Background glow */}
-        <circle cx="256" cy="256" r="240" fill="url(#logo-bg-glow)" />
+        <circle cx="256" cy="256" r="240" fill={`url(#${bgGlowId})`} />
 
         {/* Outer hexagonal ring */}
         <polygon
           points="256,36 436,140 436,372 256,476 76,372 76,140"
           fill="none"
-          stroke="url(#logo-grad-glow)"
+          stroke={`url(#${glowGradientId})`}
           strokeWidth="2.5"
           opacity="0.5"
         />
@@ -65,7 +78,7 @@ export default function Logo({
         {/* Brain left hemisphere */}
         <path
           d="M256,160 C256,160 230,140 200,145 C170,150 148,175 145,210 C142,245 155,265 145,290 C135,315 120,320 125,350 C130,380 160,395 190,390 C220,385 240,365 256,340"
-          stroke="url(#logo-grad-main)"
+          stroke={`url(#${mainGradientId})`}
           strokeWidth="8"
           strokeLinecap="round"
           fill="none"
@@ -74,26 +87,26 @@ export default function Logo({
         {/* Brain right hemisphere */}
         <path
           d="M256,160 C256,160 282,140 312,145 C342,150 364,175 367,210 C370,245 357,265 367,290 C377,315 392,320 387,350 C382,380 352,395 322,390 C292,385 272,365 256,340"
-          stroke="url(#logo-grad-main)"
+          stroke={`url(#${mainGradientId})`}
           strokeWidth="8"
           strokeLinecap="round"
           fill="none"
         />
 
         {/* Neural connection lines */}
-        <line x1="195" y1="200" x2="256" y2="230" stroke="url(#logo-grad-accent)" strokeWidth="2.5" opacity="0.7" />
-        <line x1="317" y1="200" x2="256" y2="230" stroke="url(#logo-grad-accent)" strokeWidth="2.5" opacity="0.7" />
-        <line x1="175" y1="280" x2="256" y2="260" stroke="url(#logo-grad-accent)" strokeWidth="2.5" opacity="0.7" />
-        <line x1="337" y1="280" x2="256" y2="260" stroke="url(#logo-grad-accent)" strokeWidth="2.5" opacity="0.7" />
-        <line x1="200" y1="350" x2="256" y2="310" stroke="url(#logo-grad-accent)" strokeWidth="2.5" opacity="0.7" />
-        <line x1="312" y1="350" x2="256" y2="310" stroke="url(#logo-grad-accent)" strokeWidth="2.5" opacity="0.7" />
-        <line x1="256" y1="230" x2="256" y2="260" stroke="url(#logo-grad-accent)" strokeWidth="2.5" opacity="0.7" />
-        <line x1="256" y1="260" x2="256" y2="310" stroke="url(#logo-grad-accent)" strokeWidth="2.5" opacity="0.7" />
+        <line x1="195" y1="200" x2="256" y2="230" stroke={`url(#${accentGradientId})`} strokeWidth="2.5" opacity="0.7" />
+        <line x1="317" y1="200" x2="256" y2="230" stroke={`url(#${accentGradientId})`} strokeWidth="2.5" opacity="0.7" />
+        <line x1="175" y1="280" x2="256" y2="260" stroke={`url(#${accentGradientId})`} strokeWidth="2.5" opacity="0.7" />
+        <line x1="337" y1="280" x2="256" y2="260" stroke={`url(#${accentGradientId})`} strokeWidth="2.5" opacity="0.7" />
+        <line x1="200" y1="350" x2="256" y2="310" stroke={`url(#${accentGradientId})`} strokeWidth="2.5" opacity="0.7" />
+        <line x1="312" y1="350" x2="256" y2="310" stroke={`url(#${accentGradientId})`} strokeWidth="2.5" opacity="0.7" />
+        <line x1="256" y1="230" x2="256" y2="260" stroke={`url(#${accentGradientId})`} strokeWidth="2.5" opacity="0.7" />
+        <line x1="256" y1="260" x2="256" y2="310" stroke={`url(#${accentGradientId})`} strokeWidth="2.5" opacity="0.7" />
 
         {/* Neural nodes */}
-        <circle cx="256" cy="230" r="6" fill="url(#logo-grad-main)" />
-        <circle cx="256" cy="260" r="5" fill="url(#logo-grad-accent)" />
-        <circle cx="256" cy="310" r="6" fill="url(#logo-grad-main)" />
+        <circle cx="256" cy="230" r="6" fill={`url(#${mainGradientId})`} />
+        <circle cx="256" cy="260" r="5" fill={`url(#${accentGradientId})`} />
+        <circle cx="256" cy="310" r="6" fill={`url(#${mainGradientId})`} />
         <circle cx="195" cy="200" r="4" fill="#00e5ff" />
         <circle cx="317" cy="200" r="4" fill="#00e5ff" />
         <circle cx="175" cy="280" r="4" fill="#4d7cff" />
@@ -103,7 +116,7 @@ export default function Logo({
 
         {/* Pen/cursor element */}
         <g transform="translate(340, 360) rotate(-45)">
-          <rect x="0" y="0" width="12" height="65" rx="3" fill="url(#logo-grad-main)" />
+          <rect x="0" y="0" width="12" height="65" rx="3" fill={`url(#${mainGradientId})`} />
           <polygon points="0,65 12,65 6,82" fill="#00e5ff" />
           <rect x="2" y="5" width="3" height="20" rx="1.5" fill="white" opacity="0.3" />
         </g>
@@ -125,12 +138,12 @@ export default function Logo({
         <span
           style={{
             fontSize: textSize,
-            fontWeight: 700,
-            letterSpacing: "-0.02em",
+            fontWeight: 800,
+            letterSpacing: "-0.025em",
           }}
           className="gradient-text"
         >
-          Prompt Dairy
+          Prompt Diary
         </span>
       )}
     </span>
