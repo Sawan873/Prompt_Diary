@@ -1,12 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import {
-<<<<<<< HEAD
-  serverListRoadmaps,
-  roadmapTopicsToStrings,
-  type ApiRoadmap,
-} from "@/lib/server-api";
-=======
   ArrowRight,
   BookOpenCheck,
   CheckCircle2,
@@ -15,7 +9,11 @@ import {
   Map,
   Route,
 } from "lucide-react";
->>>>>>> bbb200638a49dad0c6e736c5989940ac851ebc77
+import {
+  roadmapTopicsToStrings,
+  serverListRoadmaps,
+  type ApiRoadmap,
+} from "@/lib/server-api";
 
 export const metadata: Metadata = {
   title: "Roadmaps — Prompt Diary",
@@ -23,10 +21,7 @@ export const metadata: Metadata = {
     "Structured learning paths from beginner to advanced for prompt engineering and AI systems.",
 };
 
-const LEVEL_STYLE: Record<
-  string,
-  { color: string; gradient: string }
-> = {
+const LEVEL_STYLE: Record<string, { color: string; gradient: string }> = {
   beginner: {
     color: "#10b981",
     gradient: "linear-gradient(135deg, #10b981, #06b6d4)",
@@ -79,7 +74,7 @@ const FALLBACK: ApiRoadmap[] = [
     title: "Advanced AI Architecture",
     level: "advanced",
     description:
-      "Master production AI systems — RAG pipelines, agent architectures, and enterprise workflows.",
+      "Master production AI systems, RAG pipelines, agent architectures, and enterprise workflows.",
     topics: [
       "RAG Architecture",
       "Vector Databases",
@@ -92,7 +87,6 @@ const FALLBACK: ApiRoadmap[] = [
   },
 ];
 
-<<<<<<< HEAD
 export default async function RoadmapsPage() {
   const api = await serverListRoadmaps();
   const roadmaps =
@@ -100,30 +94,20 @@ export default async function RoadmapsPage() {
       ? api.roadmaps
       : FALLBACK;
 
-=======
-const stats = [
-  {
-    label: "Learning Paths",
-    value: "3",
-    icon: Route,
-  },
-  {
-    label: "Total Topics",
-    value: "18",
-    icon: Layers3,
-  },
-  {
-    label: "Guided Hours",
-    value: "40",
-    icon: Clock3,
-  },
-];
+  const totalTopics = roadmaps.reduce((sum, roadmap) => {
+    return sum + roadmapTopicsToStrings(roadmap.topics).length;
+  }, 0);
+  const totalHours = roadmaps.reduce((sum, roadmap) => {
+    return sum + (roadmap.estimated_hours || 0);
+  }, 0);
+  const stats = [
+    { label: "Learning Paths", value: String(roadmaps.length), icon: Route },
+    { label: "Total Topics", value: String(totalTopics), icon: Layers3 },
+    { label: "Guided Hours", value: String(totalHours), icon: Clock3 },
+  ];
 
-export default function RoadmapsPage() {
->>>>>>> bbb200638a49dad0c6e736c5989940ac851ebc77
   return (
     <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "48px 24px" }}>
-      {/* Header */}
       <div style={{ marginBottom: "46px" }}>
         <h1
           style={{
@@ -148,15 +132,6 @@ export default function RoadmapsPage() {
         </p>
       </div>
 
-<<<<<<< HEAD
-      <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-        {roadmaps.map((roadmap, index) => {
-          const style = LEVEL_STYLE[roadmap.level] ?? LEVEL_STYLE.beginner;
-          const topicLabels = roadmapTopicsToStrings(roadmap.topics);
-
-          return (
-=======
-      {/* Stats bar */}
       <div
         className="glass-card"
         style={{
@@ -216,29 +191,18 @@ export default function RoadmapsPage() {
         })}
       </div>
 
-      {/* Roadmap Cards */}
       <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-        {roadmaps.map((roadmap, index) => (
-          <div
-            key={roadmap.id}
-            id={`roadmap-${roadmap.id}`}
-            className="glass-card roadmap-card animate-fade-in-up"
-            style={{
-              padding: "34px",
-              opacity: 0,
-              animationDelay: `${index * 0.15}s`,
-              borderLeft: `3px solid ${roadmap.color}`,
-            }}
-          >
-            {/* Header */}
->>>>>>> bbb200638a49dad0c6e736c5989940ac851ebc77
+        {roadmaps.map((roadmap, index) => {
+          const style = LEVEL_STYLE[roadmap.level] ?? LEVEL_STYLE.beginner;
+          const topicLabels = roadmapTopicsToStrings(roadmap.topics);
+
+          return (
             <div
               key={roadmap.id}
               id={`roadmap-${roadmap.id}`}
-              className="glass-card animate-fade-in-up"
+              className="glass-card roadmap-card animate-fade-in-up"
               style={{
-<<<<<<< HEAD
-                padding: "36px",
+                padding: "34px",
                 opacity: 0,
                 animationDelay: `${index * 0.15}s`,
                 borderLeft: `3px solid ${style.color}`,
@@ -247,117 +211,89 @@ export default function RoadmapsPage() {
               <div
                 style={{
                   display: "flex",
-                  alignItems: "start",
+                  alignItems: "flex-start",
                   justifyContent: "space-between",
-                  gap: "16px",
-                  marginBottom: "20px",
+                  gap: "18px",
+                  marginBottom: "22px",
                   flexWrap: "wrap",
                 }}
               >
-                <div>
+                <div style={{ flex: 1 }}>
                   <div
                     style={{
                       display: "flex",
                       gap: "10px",
                       alignItems: "center",
-                      marginBottom: "10px",
+                      marginBottom: "12px",
+                      flexWrap: "wrap",
                     }}
                   >
                     <span className={`badge badge-${roadmap.level}`}>
                       {roadmap.level}
                     </span>
+
                     <span
                       style={{
                         fontSize: "0.8rem",
                         color: "var(--text-muted)",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "6px",
                       }}
                     >
-                      ~{roadmap.estimated_hours ?? "—"} hours
+                      <Clock3 size={14} strokeWidth={1.8} />~
+                      {roadmap.estimated_hours ?? 0} hours
                     </span>
                   </div>
+
                   <h3
                     style={{
                       fontSize: "1.3rem",
-                      fontWeight: 700,
+                      fontWeight: 800,
                       marginBottom: "8px",
+                      letterSpacing: "-0.015em",
                     }}
                   >
                     {roadmap.title}
                   </h3>
+
                   <p
                     style={{
                       color: "var(--text-secondary)",
                       fontSize: "0.9rem",
-                      lineHeight: 1.6,
+                      lineHeight: 1.65,
+                      maxWidth: "760px",
                     }}
                   >
                     {roadmap.description}
                   </p>
                 </div>
-=======
-                display: "flex",
-                alignItems: "flex-start",
-                justifyContent: "space-between",
-                gap: "18px",
-                marginBottom: "22px",
-                flexWrap: "wrap",
-              }}
-            >
-              <div style={{ flex: 1 }}>
+
                 <div
                   style={{
+                    width: "52px",
+                    height: "52px",
+                    borderRadius: "16px",
+                    background: style.gradient,
                     display: "flex",
-                    gap: "10px",
                     alignItems: "center",
-                    marginBottom: "12px",
-                    flexWrap: "wrap",
+                    justifyContent: "center",
+                    boxShadow: `0 16px 40px ${style.color}33`,
+                    flexShrink: 0,
                   }}
                 >
-                  <span className={`badge badge-${roadmap.level}`}>
-                    {roadmap.level}
-                  </span>
-
-                  <span
-                    style={{
-                      fontSize: "0.8rem",
-                      color: "var(--text-muted)",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "6px",
-                    }}
-                  >
-                    <Clock3 size={14} strokeWidth={1.8} />~
-                    {roadmap.estimated_hours} hours
-                  </span>
+                  {roadmap.level === "beginner" ? (
+                    <BookOpenCheck size={25} strokeWidth={1.8} />
+                  ) : roadmap.level === "intermediate" ? (
+                    <Map size={25} strokeWidth={1.8} />
+                  ) : (
+                    <CheckCircle2 size={25} strokeWidth={1.8} />
+                  )}
                 </div>
-
-                <h3
-                  style={{
-                    fontSize: "1.3rem",
-                    fontWeight: 800,
-                    marginBottom: "8px",
-                    letterSpacing: "-0.015em",
-                  }}
-                >
-                  {roadmap.title}
-                </h3>
-
-                <p
-                  style={{
-                    color: "var(--text-secondary)",
-                    fontSize: "0.9rem",
-                    lineHeight: 1.65,
-                    maxWidth: "760px",
-                  }}
-                >
-                  {roadmap.description}
-                </p>
->>>>>>> bbb200638a49dad0c6e736c5989940ac851ebc77
               </div>
 
               <div
                 style={{
-<<<<<<< HEAD
                   display: "grid",
                   gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
                   gap: "10px",
@@ -372,27 +308,29 @@ export default function RoadmapsPage() {
                       alignItems: "center",
                       gap: "10px",
                       padding: "10px 14px",
-                      borderRadius: "10px",
-                      background: "rgba(255,255,255,0.03)",
+                      borderRadius: "12px",
+                      background: "rgba(255,255,255,0.035)",
+                      border: "1px solid rgba(255,255,255,0.055)",
                       fontSize: "0.85rem",
                     }}
                   >
                     <span
                       style={{
-                        width: "22px",
-                        height: "22px",
-                        borderRadius: "50%",
+                        width: "24px",
+                        height: "24px",
+                        borderRadius: "9px",
                         background: style.gradient,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        fontSize: "0.7rem",
-                        fontWeight: 700,
+                        fontSize: "0.72rem",
+                        fontWeight: 800,
                         flexShrink: 0,
                       }}
                     >
                       {i + 1}
                     </span>
+
                     <span style={{ color: "var(--text-secondary)" }}>{topic}</span>
                   </div>
                 ))}
@@ -400,107 +338,23 @@ export default function RoadmapsPage() {
 
               <Link
                 href="/articles"
-                className="btn-primary"
+                className="btn-primary roadmap-action"
                 style={{
-                  padding: "10px 24px",
+                  padding: "10px 22px",
                   fontSize: "0.9rem",
                   background: style.gradient,
-                  display: "inline-block",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "8px",
                   textDecoration: "none",
                 }}
               >
-                Start Learning →
+                Start Learning
+                <ArrowRight size={15} strokeWidth={1.8} />
               </Link>
             </div>
           );
         })}
-=======
-                  width: "52px",
-                  height: "52px",
-                  borderRadius: "16px",
-                  background: roadmap.gradient,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  boxShadow: `0 16px 40px ${roadmap.color}33`,
-                  flexShrink: 0,
-                }}
-              >
-                {roadmap.level === "beginner" ? (
-                  <BookOpenCheck size={25} strokeWidth={1.8} />
-                ) : roadmap.level === "intermediate" ? (
-                  <Map size={25} strokeWidth={1.8} />
-                ) : (
-                  <CheckCircle2 size={25} strokeWidth={1.8} />
-                )}
-              </div>
-            </div>
-
-            {/* Topics */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-                gap: "10px",
-                marginBottom: "24px",
-              }}
-            >
-              {roadmap.topics.map((topic, i) => (
-                <div
-                  key={topic}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "10px",
-                    padding: "10px 14px",
-                    borderRadius: "12px",
-                    background: "rgba(255,255,255,0.035)",
-                    border: "1px solid rgba(255,255,255,0.055)",
-                    fontSize: "0.85rem",
-                  }}
-                >
-                  <span
-                    style={{
-                      width: "24px",
-                      height: "24px",
-                      borderRadius: "9px",
-                      background: roadmap.gradient,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "0.72rem",
-                      fontWeight: 800,
-                      flexShrink: 0,
-                    }}
-                  >
-                    {i + 1}
-                  </span>
-
-                  <span style={{ color: "var(--text-secondary)" }}>{topic}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* CTA */}
-            <Link
-              href="/articles"
-              className="btn-primary roadmap-action"
-              style={{
-                padding: "10px 22px",
-                fontSize: "0.9rem",
-                background: roadmap.gradient,
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                textDecoration: "none",
-              }}
-            >
-              Start Learning
-              <ArrowRight size={15} strokeWidth={1.8} />
-            </Link>
-          </div>
-        ))}
->>>>>>> bbb200638a49dad0c6e736c5989940ac851ebc77
       </div>
     </div>
   );

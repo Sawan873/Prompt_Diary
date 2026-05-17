@@ -1,8 +1,5 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-<<<<<<< HEAD
-import { serverListSystemDesignArticles } from "@/lib/server-api";
-=======
 import type { LucideIcon } from "lucide-react";
 import {
   ArrowRight,
@@ -18,8 +15,7 @@ import {
   Sparkles,
   Zap,
 } from "lucide-react";
-import { getSystemDesignArticles } from "@/lib/api";
->>>>>>> bbb200638a49dad0c6e736c5989940ac851ebc77
+import { serverListSystemDesignArticles } from "@/lib/server-api";
 
 export const metadata: Metadata = {
   title: "System Design — Prompt Diary",
@@ -123,12 +119,7 @@ const checklist: ChecklistItem[] = [
 ];
 
 export default async function SystemDesignPage() {
-<<<<<<< HEAD
   const data = await serverListSystemDesignArticles();
-  const articles = Array.isArray(data?.articles) ? data.articles : [];
-=======
-  const data = await getSystemDesignArticles().catch(() => ({ articles: [] }));
-
   const apiArticles: ApiArticle[] = Array.isArray(data?.articles)
     ? data.articles
     : [];
@@ -145,7 +136,6 @@ export default async function SystemDesignPage() {
           accent: "#06b6d4",
         }))
       : fallbackArticles;
->>>>>>> bbb200638a49dad0c6e736c5989940ac851ebc77
 
   return (
     <div

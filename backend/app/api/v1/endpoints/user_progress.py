@@ -8,6 +8,7 @@ GET  /user-progress/stats   — Get user's overall stats (total completed, point
 """
 
 from fastapi import APIRouter, Depends, HTTPException
+from datetime import datetime, timezone
 from typing import Optional
 from pydantic import BaseModel
 
@@ -122,7 +123,7 @@ async def mark_article_completed(
                     "user_id": user_id,
                     "article_id": data.article_id,
                     "completed": True,
-                    "completed_at": "now()",
+                    "completed_at": datetime.now(timezone.utc).isoformat(),
                 },
                 on_conflict="user_id,article_id",
             ).execute()
@@ -154,7 +155,7 @@ async def mark_challenge_completed(
                     "challenge_id": data.challenge_id,
                     "completed": True,
                     "score": data.score or 0,
-                    "completed_at": "now()",
+                    "completed_at": datetime.now(timezone.utc).isoformat(),
                 },
                 on_conflict="user_id,challenge_id",
             ).execute()

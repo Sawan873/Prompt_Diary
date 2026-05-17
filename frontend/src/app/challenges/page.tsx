@@ -1,10 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-<<<<<<< HEAD
-import { serverListChallenges, type ApiChallenge } from "@/lib/server-api";
-=======
 import { ArrowRight, CheckCircle2, Layers3, Trophy } from "lucide-react";
->>>>>>> bbb200638a49dad0c6e736c5989940ac851ebc77
+import { serverListChallenges, type ApiChallenge } from "@/lib/server-api";
 
 export const metadata: Metadata = {
   title: "Challenges — Prompt Diary",
@@ -65,7 +62,7 @@ const FALLBACK: ApiChallenge[] = [
     id: "ch-005",
     title: "Build a Prompt Chain",
     description:
-      "Design 3 connected prompts: analyze → generate solutions → evaluate and rank.",
+      "Design 3 connected prompts: analyze, generate solutions, then evaluate and rank.",
     difficulty: "hard",
     category: "chaining",
     points: 40,
@@ -75,7 +72,6 @@ const FALLBACK: ApiChallenge[] = [
   },
 ];
 
-<<<<<<< HEAD
 export default async function ChallengesPage() {
   const api = await serverListChallenges();
   const challenges =
@@ -83,33 +79,18 @@ export default async function ChallengesPage() {
       ? api.challenges
       : FALLBACK;
 
-  const totalPoints = challenges.reduce((s, c) => s + (c.points || 0), 0);
-  const difficulties = new Set(challenges.map((c) => c.difficulty)).size;
+  const totalPoints = challenges.reduce((sum, challenge) => {
+    return sum + (challenge.points || 0);
+  }, 0);
+  const difficulties = new Set(challenges.map((challenge) => challenge.difficulty)).size;
+  const stats = [
+    { label: "Total Challenges", value: String(challenges.length), icon: Layers3 },
+    { label: "Total Points", value: String(totalPoints), icon: Trophy },
+    { label: "Difficulties", value: String(difficulties), icon: CheckCircle2 },
+  ];
 
-=======
-const stats = [
-  {
-    label: "Total Challenges",
-    value: "5",
-    icon: Layers3,
-  },
-  {
-    label: "Total Points",
-    value: "120",
-    icon: Trophy,
-  },
-  {
-    label: "Difficulties",
-    value: "3",
-    icon: CheckCircle2,
-  },
-];
-
-export default function ChallengesPage() {
->>>>>>> bbb200638a49dad0c6e736c5989940ac851ebc77
   return (
     <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "48px 24px" }}>
-      {/* Header */}
       <div style={{ marginBottom: "46px" }}>
         <h1
           style={{
@@ -144,19 +125,10 @@ export default function ChallengesPage() {
           gap: "14px",
         }}
       >
-<<<<<<< HEAD
-        {[
-          { label: "Total Challenges", value: String(challenges.length) },
-          { label: "Total Points", value: String(totalPoints) },
-          { label: "Difficulties", value: String(difficulties) },
-        ].map((stat) => (
-          <div key={stat.label}>
-=======
         {stats.map((stat) => {
           const Icon = stat.icon;
 
           return (
->>>>>>> bbb200638a49dad0c6e736c5989940ac851ebc77
             <div
               key={stat.label}
               style={{
@@ -202,12 +174,7 @@ export default function ChallengesPage() {
         })}
       </div>
 
-<<<<<<< HEAD
-      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-=======
-      {/* Challenge Cards */}
       <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
->>>>>>> bbb200638a49dad0c6e736c5989940ac851ebc77
         {challenges.map((challenge, index) => (
           <div
             key={challenge.id}

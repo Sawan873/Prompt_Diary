@@ -19,28 +19,48 @@ interface FeatureCardProps {
   delay?: string;
 }
 
+function FeatureIcon({
+  title,
+  href,
+  color = "white",
+}: {
+  title: string;
+  href: string;
+  color?: string;
+}) {
+  const text = `${title} ${href}`.toLowerCase();
+
+  if (text.includes("article") || text.includes("learn")) {
+    return <BookOpen size={25} strokeWidth={2.1} color={color} />;
+  }
+  if (text.includes("challenge") || text.includes("mission")) {
+    return <Target size={25} strokeWidth={2.1} color={color} />;
+  }
+  if (text.includes("roadmap") || text.includes("path")) {
+    return <Map size={25} strokeWidth={2.1} color={color} />;
+  }
+  if (text.includes("playground") || text.includes("prompt")) {
+    return <Code2 size={25} strokeWidth={2.1} color={color} />;
+  }
+  if (text.includes("system") || text.includes("architecture")) {
+    return <Network size={25} strokeWidth={2.1} color={color} />;
+  }
+  if (text.includes("search")) {
+    return <Search size={25} strokeWidth={2.1} color={color} />;
+  }
+
+  return <Sparkles size={25} strokeWidth={2.1} color={color} />;
+}
+
 export default function FeatureCard({
-  icon,
+  icon: _icon,
   title,
   description,
   href,
   gradient,
   delay = "",
 }: FeatureCardProps) {
-  const getIcon = () => {
-    const text = `${title} ${href}`.toLowerCase();
-
-    if (text.includes("article") || text.includes("learn")) return BookOpen;
-    if (text.includes("challenge") || text.includes("mission")) return Target;
-    if (text.includes("roadmap") || text.includes("path")) return Map;
-    if (text.includes("playground") || text.includes("prompt")) return Code2;
-    if (text.includes("system") || text.includes("architecture")) return Network;
-    if (text.includes("search")) return Search;
-
-    return Sparkles;
-  };
-
-  const Icon = getIcon();
+  void _icon;
 
   return (
     <Link
@@ -79,7 +99,7 @@ export default function FeatureCard({
         }}
         aria-hidden="true"
       >
-        <Icon size={25} strokeWidth={2.1} color="white" />
+        <FeatureIcon title={title} href={href} />
       </div>
 
       {/* Content */}

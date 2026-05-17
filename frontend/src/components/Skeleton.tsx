@@ -16,6 +16,7 @@ export default function Skeleton({
   className = "",
 }: SkeletonProps) {
   const items = Array.from({ length: count });
+  const textWidths = ["72%", "84%", "65%", "90%", "78%"];
 
   if (variant === "card") {
     return (
@@ -35,7 +36,7 @@ export default function Skeleton({
           key={i}
           className={`skeleton ${variant === "title" ? "skeleton-title" : variant === "icon" ? "skeleton-icon" : variant === "avatar" ? "skeleton-avatar" : variant === "block" ? "" : "skeleton-text"} ${className}`}
           style={{
-            width: width || (variant === "text" ? `${70 + Math.random() * 25}%` : undefined),
+            width: width || (variant === "text" ? textWidths[i % textWidths.length] : undefined),
             height: height || undefined,
           }}
         />

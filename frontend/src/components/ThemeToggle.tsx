@@ -28,8 +28,8 @@ export default function ThemeToggle() {
   useEffect(() => {
     const saved = localStorage.getItem("pd-theme") as "dark" | "light" | null;
     if (saved) {
-      setTheme(saved);
       document.documentElement.setAttribute("data-theme", saved);
+      queueMicrotask(() => setTheme(saved));
     }
   }, []);
 

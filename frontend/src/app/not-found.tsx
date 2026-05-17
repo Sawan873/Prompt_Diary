@@ -3,6 +3,16 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+const PARTICLES = Array.from({ length: 12 }, (_, i) => ({
+  size: 3 + ((i * 7) % 5),
+  opacity: 0.3 + ((i * 3) % 4) * 0.08,
+  top: `${(i * 23) % 100}%`,
+  left: `${(i * 37) % 100}%`,
+  duration: 4 + (i % 4),
+  delay: (i % 3) * 0.7,
+  color: ["#00e5ff", "#4d7cff", "#b026ff"][i % 3],
+}));
+
 export default function NotFound() {
   const [glitch, setGlitch] = useState(false);
 
@@ -29,20 +39,20 @@ export default function NotFound() {
       }}
     >
       {/* Floating particles */}
-      {[...Array(12)].map((_, i) => (
+      {PARTICLES.map((particle, i) => (
         <div
           key={i}
           style={{
             position: "absolute",
-            width: `${3 + Math.random() * 5}px`,
-            height: `${3 + Math.random() * 5}px`,
+            width: `${particle.size}px`,
+            height: `${particle.size}px`,
             borderRadius: "50%",
-            background: ["#00e5ff", "#4d7cff", "#b026ff"][i % 3],
-            opacity: 0.3 + Math.random() * 0.3,
-            top: `${Math.random() * 100}%`,
-            left: `${Math.random() * 100}%`,
-            animation: `float ${4 + Math.random() * 4}s ease-in-out infinite`,
-            animationDelay: `${Math.random() * 3}s`,
+            background: particle.color,
+            opacity: particle.opacity,
+            top: particle.top,
+            left: particle.left,
+            animation: `float ${particle.duration}s ease-in-out infinite`,
+            animationDelay: `${particle.delay}s`,
             pointerEvents: "none",
           }}
         />

@@ -14,7 +14,6 @@ import { serverGetArticleBySlug, serverListArticles } from "@/lib/server-api";
 
 // ─── Offline fallback (when API is down) ─────────────────────────────────────
 
-<<<<<<< HEAD
 const FALLBACK_BY_SLUG: Record<string, {
   title: string;
   category: string;
@@ -23,19 +22,6 @@ const FALLBACK_BY_SLUG: Record<string, {
   tags: string[];
   created_at: string;
 }> = {
-=======
-const articles: Record<
-  string,
-  {
-    title: string;
-    category: string;
-    difficulty: string;
-    content: string;
-    tags: string[];
-    created_at: string;
-  }
-> = {
->>>>>>> bbb200638a49dad0c6e736c5989940ac851ebc77
   "intro-to-prompt-engineering": {
     title: "Introduction to Prompt Engineering",
     category: "fundamentals",
@@ -268,7 +254,6 @@ Multiple specialized agents collaborate — one plans, one researches, one write
   },
 };
 
-<<<<<<< HEAD
 // Related articles when API list is empty
 const STATIC_RELATED_META = [
   { slug: "intro-to-prompt-engineering", title: "Introduction to Prompt Engineering", category: "fundamentals" },
@@ -276,35 +261,6 @@ const STATIC_RELATED_META = [
   { slug: "chain-of-thought-prompting", title: "Chain-of-Thought Prompting", category: "techniques" },
   { slug: "rag-architecture-deep-dive", title: "RAG Architecture Deep Dive", category: "architecture" },
   { slug: "building-ai-agent-systems", title: "Building AI Agent Systems", category: "architecture" },
-=======
-// Related articles list (flat, for sidebar)
-const allArticlesMeta = [
-  {
-    slug: "intro-to-prompt-engineering",
-    title: "Introduction to Prompt Engineering",
-    category: "fundamentals",
-  },
-  {
-    slug: "zero-shot-vs-few-shot",
-    title: "Zero-Shot vs Few-Shot Prompting",
-    category: "techniques",
-  },
-  {
-    slug: "chain-of-thought-prompting",
-    title: "Chain-of-Thought Prompting",
-    category: "techniques",
-  },
-  {
-    slug: "rag-architecture-deep-dive",
-    title: "RAG Architecture Deep Dive",
-    category: "architecture",
-  },
-  {
-    slug: "building-ai-agent-systems",
-    title: "Building AI Agent Systems",
-    category: "architecture",
-  },
->>>>>>> bbb200638a49dad0c6e736c5989940ac851ebc77
 ];
 
 type DisplayArticle = {
@@ -607,13 +563,8 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-<<<<<<< HEAD
   const article = await resolveDisplayArticle(slug);
   if (!article) return { title: "Article Not Found — Prompt Dairy" };
-=======
-  const article = articles[slug];
-  if (!article) return { title: "Article Not Found — Prompt Diary" };
->>>>>>> bbb200638a49dad0c6e736c5989940ac851ebc77
   return {
     title: `${article.title} — Prompt Diary`,
     description: `Learn about ${article.title}. A ${article.difficulty}-level article on ${article.category}.`,
@@ -868,16 +819,6 @@ export default async function ArticleDetailPage({
         {/* ── Related Articles ── */}
         {related.length > 0 && (
           <section style={{ marginBottom: "40px" }}>
-<<<<<<< HEAD
-            <h2 style={{
-              fontSize: "0.78rem",
-              fontWeight: 700,
-              marginBottom: "16px",
-              color: "var(--text-secondary)",
-              textTransform: "uppercase",
-              letterSpacing: "0.08em",
-            }}>
-=======
             <h2
               style={{
                 fontWeight: 700,
@@ -888,7 +829,6 @@ export default async function ArticleDetailPage({
                 fontSize: "0.78rem",
               }}
             >
->>>>>>> bbb200638a49dad0c6e736c5989940ac851ebc77
               Related Articles
             </h2>
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>

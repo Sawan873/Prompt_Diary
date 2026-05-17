@@ -23,18 +23,17 @@ const AuthContext = createContext<AuthContextType>({
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(isSupabaseConfigured);
 
   useEffect(() => {
     // If Supabase is not configured, skip auth entirely
     if (!isSupabaseConfigured) {
-      setLoading(false);
       return;
     }
 
     const supabase = createClient();
     if (!supabase) {
-      setLoading(false);
+      queueMicrotask(() => setLoading(false));
       return;
     }
 

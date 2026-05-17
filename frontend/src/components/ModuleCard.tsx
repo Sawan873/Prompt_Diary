@@ -19,28 +19,40 @@ interface ModuleCardProps {
   itemCount?: number;
 }
 
+function ModuleIcon({ title, href }: { title: string; href: string }) {
+  const text = `${title} ${href}`.toLowerCase();
+
+  if (text.includes("article") || text.includes("learn")) {
+    return <BookOpen size={24} strokeWidth={2.1} />;
+  }
+  if (text.includes("challenge") || text.includes("mission")) {
+    return <Target size={24} strokeWidth={2.1} />;
+  }
+  if (text.includes("roadmap") || text.includes("path")) {
+    return <Map size={24} strokeWidth={2.1} />;
+  }
+  if (text.includes("playground") || text.includes("prompt")) {
+    return <Code2 size={24} strokeWidth={2.1} />;
+  }
+  if (text.includes("system") || text.includes("architecture")) {
+    return <Network size={24} strokeWidth={2.1} />;
+  }
+  if (text.includes("search")) {
+    return <Search size={24} strokeWidth={2.1} />;
+  }
+
+  return <Sparkles size={24} strokeWidth={2.1} />;
+}
+
 export default function ModuleCard({
-  icon,
+  icon: _icon,
   title,
   description,
   href,
   status,
   itemCount,
 }: ModuleCardProps) {
-  const getIcon = () => {
-    const text = `${title} ${href}`.toLowerCase();
-
-    if (text.includes("article") || text.includes("learn")) return BookOpen;
-    if (text.includes("challenge") || text.includes("mission")) return Target;
-    if (text.includes("roadmap") || text.includes("path")) return Map;
-    if (text.includes("playground") || text.includes("prompt")) return Code2;
-    if (text.includes("system") || text.includes("architecture")) return Network;
-    if (text.includes("search")) return Search;
-
-    return Sparkles;
-  };
-
-  const Icon = getIcon();
+  void _icon;
 
   return (
     <Link
@@ -74,7 +86,7 @@ export default function ModuleCard({
         }}
         aria-hidden="true"
       >
-        <Icon size={24} strokeWidth={2.1} />
+        <ModuleIcon title={title} href={href} />
       </div>
 
       <div style={{ flex: 1 }}>
