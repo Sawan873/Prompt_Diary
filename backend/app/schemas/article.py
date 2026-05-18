@@ -57,3 +57,23 @@ class ArticleListResponse(BaseModel):
     """Response schema for article listing."""
     articles: List[ArticleListItem]
     total: int
+
+
+class ArticleCreateMDX(BaseModel):
+    """Request schema for creating an article using raw MDX text with frontmatter."""
+    raw_mdx: str = Field(..., description="Complete MDX text with YAML frontmatter")
+
+
+class MDXValidationResponse(BaseModel):
+    """Response schema representing MDX parser dry-run/validation output."""
+    title: str
+    slug: str
+    category: str
+    difficulty: str
+    tags: List[str]
+    excerpt: str
+    content: str
+    published: bool
+    is_valid: bool
+    errors: List[str]
+
