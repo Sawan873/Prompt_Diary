@@ -71,3 +71,9 @@ htmlcov/
 *.log
 *.pid
 *.seed
+
+# ========================
+# Personal development notes
+# ========================
+dev_docs/
+
