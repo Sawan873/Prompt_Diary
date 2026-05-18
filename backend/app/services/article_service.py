@@ -7,6 +7,9 @@ Falls back to mock data if Supabase is not configured.
 
 from typing import Optional
 from app.core.config import settings
+from app.schemas.article import ArticleCreate
+from app.services.mdx_service import parse_mdx_article
+import uuid
 
 # ---------------------------------------------------------------------------
 # Supabase-powered functions
@@ -88,6 +91,65 @@ def get_article_by_slug(slug: str) -> Optional[dict]:
         if article["slug"] == slug:
             return article
     return None
+
+
+def create_article(article_data: ArticleCreate, author_id: Optional[str] = None) -> dict:
+    """Create a new article in the database."""
+    supabase = _get_supabase()
+    
+    # Setup data payload
+    article_dict = article_data.model_dump()
+    article_dict["id"] = str(uuid.uuid4())
+    article_dict["published"] = False  # Draft by default
+    article_dict["author_id"] = author_id
+    
+    if supabase:
+        try:
+            result = supabase.table("articles").insert(article_dict).execute()
+            if result.data:
+                return result.data[0]
+        except Exception as e:
+            print(f"[ArticleService] Supabase insert failed: {e}")
+            
+    # Mock fallback injection
+    MOCK_ARTICLES.insert(0, article_dict)
+    return article_dict
+
+
+def create_article_from_mdx(raw_mdx: str, author_id: Optional[str] = None) -> dict:
+    """Parses raw MDX with frontmatter and inserts it into the database."""
+    parsed = parse_mdx_article(raw_mdx)
+    
+    if not parsed["is_valid"]:
+        raise ValueError(f"MDX validation failed: {', '.join(parsed['errors'])}")
+        
+    supabase = _get_supabase()
+    
+    # Prepare payload
+    article_dict = {
+        "id": str(uuid.uuid4()),
+        "title": parsed["title"],
+        "slug": parsed["slug"],
+        "content": parsed["content"],
+        "excerpt": parsed["excerpt"],
+        "category": parsed["category"],
+        "difficulty": parsed["difficulty"],
+        "tags": parsed["tags"],
+        "published": parsed["published"],
+        "author_id": author_id
+    }
+    
+    if supabase:
+        try:
+            result = supabase.table("articles").insert(article_dict).execute()
+            if result.data:
+                return result.data[0]
+        except Exception as e:
+            print(f"[ArticleService] Supabase MDX insert failed: {e}")
+            
+    # Mock fallback injection
+    MOCK_ARTICLES.insert(0, article_dict)
+    return article_dict
 
 
 # ---------------------------------------------------------------------------
