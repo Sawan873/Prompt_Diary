@@ -7,7 +7,7 @@ GET /articles/slug/{slug} — Get a single article by URL slug (MUST be before /
 GET /articles/{id}        — Get a single article by ID
 """
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends, status
 from typing import Optional
 
 from app.services.article_service import (
@@ -15,15 +15,19 @@ from app.services.article_service import (
     get_article_by_id, 
     get_article_by_slug, 
     create_article, 
-    create_article_from_mdx
+    create_article_from_mdx,
+    update_article,
+    delete_article
 )
 from app.schemas.article import (
     ArticleCreate, 
+    ArticleUpdate,
     ArticleCreateMDX, 
     MDXValidationResponse, 
     ArticleResponse
 )
 from app.services.mdx_service import parse_mdx_article
+from app.core.security import get_current_admin
 
 router = APIRouter(prefix="/articles", tags=["Articles"])
 
@@ -70,19 +74,27 @@ async def get_article(article_id: str):
     return article
 
 
-@router.post("", response_model=ArticleResponse, status_code=201)
-async def create_new_article(article_data: ArticleCreate):
-    """Create a new article draft using structured fields."""
+@router.post("", response_model=ArticleResponse, status_code=status.HTTP_201_CREATED)
+async def create_new_article(
+    article_data: ArticleCreate,
+    current_admin: dict = Depends(get_current_admin),
+):
+    """Create a new article draft using structured fields (Admin only)."""
     try:
-        return create_article(article_data)
+        # Pass the admin user ID as author_id
+        author_id = current_admin.get("sub")
+        return create_article(article_data, author_id=author_id)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.post("/validate-mdx", response_model=MDXValidationResponse)
-async def validate_mdx_content_endpoint(payload: ArticleCreateMDX):
+async def validate_mdx_content_endpoint(
+    payload: ArticleCreateMDX,
+    current_admin: dict = Depends(get_current_admin),
+):
     """
-    Performs a dry-run parse on a raw MDX string with frontmatter.
+    Performs a dry-run parse on a raw MDX string with frontmatter (Admin only).
     Returns parsed metadata, body, and any syntax/structural warnings.
     """
     try:
@@ -91,16 +103,45 @@ async def validate_mdx_content_endpoint(payload: ArticleCreateMDX):
         raise HTTPException(status_code=400, detail=f"Parsing failed: {str(e)}")
 
 
-@router.post("/import-mdx", response_model=ArticleResponse, status_code=201)
-async def import_article_from_mdx(payload: ArticleCreateMDX):
+@router.post("/import-mdx", response_model=ArticleResponse, status_code=status.HTTP_201_CREATED)
+async def import_article_from_mdx(
+    payload: ArticleCreateMDX,
+    current_admin: dict = Depends(get_current_admin),
+):
     """
-    Imports and creates an article directly from a raw MDX string with frontmatter.
+    Imports and creates an article directly from a raw MDX string with frontmatter (Admin only).
     Validates syntax and metadata before saving.
     """
     try:
-        return create_article_from_mdx(payload.raw_mdx)
+        author_id = current_admin.get("sub")
+        return create_article_from_mdx(payload.raw_mdx, author_id=author_id)
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.put("/{article_id}", response_model=ArticleResponse)
+async def update_existing_article(
+    article_id: str,
+    article_data: ArticleUpdate,
+    current_admin: dict = Depends(get_current_admin),
+):
+    """Update an article's metadata or content (Admin only)."""
+    article = update_article(article_id, article_data)
+    if not article:
+        raise HTTPException(status_code=404, detail="Article not found or update failed")
+    return article
+
+
+@router.delete("/{article_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_existing_article(
+    article_id: str,
+    current_admin: dict = Depends(get_current_admin),
+):
+    """Delete an article by ID (Admin only)."""
+    success = delete_article(article_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Article not found or deletion failed")
+    return None
 

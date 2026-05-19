@@ -24,7 +24,7 @@ from app.schemas.roadmap import (
     RoadmapCreate, 
     RoadmapUpdate
 )
-from app.core.security import get_optional_user
+from app.core.security import get_optional_user, get_current_admin
 
 router = APIRouter(prefix="/roadmaps", tags=["Roadmaps"])
 
@@ -59,8 +59,11 @@ async def get_roadmap(
 
 
 @router.post("", response_model=RoadmapResponse, status_code=status.HTTP_201_CREATED)
-async def create_new_roadmap(roadmap_data: RoadmapCreate):
-    """Create a new learning roadmap (Admin CMS utility)."""
+async def create_new_roadmap(
+    roadmap_data: RoadmapCreate,
+    current_admin: dict = Depends(get_current_admin),
+):
+    """Create a new learning roadmap (Admin only)."""
     try:
         return create_roadmap(roadmap_data)
     except Exception as e:
@@ -68,8 +71,12 @@ async def create_new_roadmap(roadmap_data: RoadmapCreate):
 
 
 @router.put("/{roadmap_id}", response_model=RoadmapResponse)
-async def update_existing_roadmap(roadmap_id: str, roadmap_data: RoadmapUpdate):
-    """Update a learning roadmap's metadata or topics list."""
+async def update_existing_roadmap(
+    roadmap_id: str,
+    roadmap_data: RoadmapUpdate,
+    current_admin: dict = Depends(get_current_admin),
+):
+    """Update a learning roadmap's metadata or topics list (Admin only)."""
     roadmap = update_roadmap(roadmap_id, roadmap_data)
     if not roadmap:
         raise HTTPException(status_code=404, detail="Roadmap not found or update failed")
@@ -77,8 +84,11 @@ async def update_existing_roadmap(roadmap_id: str, roadmap_data: RoadmapUpdate):
 
 
 @router.delete("/{roadmap_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_existing_roadmap(roadmap_id: str):
-    """Delete a learning roadmap path by ID."""
+async def delete_existing_roadmap(
+    roadmap_id: str,
+    current_admin: dict = Depends(get_current_admin),
+):
+    """Delete a learning roadmap path by ID (Admin only)."""
     success = delete_roadmap(roadmap_id)
     if not success:
         raise HTTPException(status_code=404, detail="Roadmap not found or deletion failed")

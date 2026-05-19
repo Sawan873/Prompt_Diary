@@ -9,6 +9,28 @@ from uuid import UUID
 from pydantic import BaseModel, Field
 
 
+class ChallengeCreate(BaseModel):
+    """Request schema for creating a challenge."""
+    title: str = Field(..., description="Challenge title")
+    description: str = Field(..., description="Challenge description")
+    difficulty: str = Field(..., description="easy, medium, hard")
+    category: str = Field(..., description="summarization, extraction, reasoning, role-playing, chaining")
+    starter_prompt: Optional[str] = Field(None, description="Starter prompt for the user")
+    hints: Optional[List[str]] = Field(None, description="Hints list")
+    points: int = Field(..., description="Points awarded for completion")
+
+
+class ChallengeUpdate(BaseModel):
+    """Request schema for updating a challenge."""
+    title: Optional[str] = Field(None, description="Challenge title")
+    description: Optional[str] = Field(None, description="Challenge description")
+    difficulty: Optional[str] = Field(None, description="easy, medium, hard")
+    category: Optional[str] = Field(None, description="summarization, extraction, reasoning, role-playing, chaining")
+    starter_prompt: Optional[str] = Field(None, description="Starter prompt for the user")
+    hints: Optional[List[str]] = Field(None, description="Hints list")
+    points: Optional[int] = Field(None, description="Points awarded for completion")
+
+
 class ChallengeResponse(BaseModel):
     """Response schema for a challenge."""
     id: UUID
