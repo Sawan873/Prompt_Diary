@@ -144,66 +144,83 @@ The project is deployed using **Render** for both frontend and backend, and **Su
 
 ### Frontend → Render
 
+The frontend is deployed on Render as a **Web Service**.
+
 - Connect the GitHub repository to Render.
 - Create a new **Web Service** for the frontend.
-- Set the **Root Directory** as:
+- Set the **Root Directory** as `frontend`.
+- Set the **Build Command** as `npm install && npm run build`.
+- Set the **Start Command** as `npm run start`.
+- Add the required environment variable in the Render dashboard:
+
+```env
+NEXT_PUBLIC_API_URL=https://prompt-diary-backend.onrender.com/api/v1
+```
+
+- Deploy the frontend service.
+
+**Frontend Live URL:**  
+https://prompt-diary-frontend.onrender.com
+
+---
+
+### Backend → Render
+
+The backend is deployed on Render as a **Web Service**.
+
+- Connect the GitHub repository to Render.
+- Create a new **Web Service** for the backend.
+- Set the **Root Directory** as `backend`.
+- Set the **Build Command** as `pip install -r requirements.txt`.
+- Set the **Start Command** as:
 
 ```bash
-frontend
-Set the Build Command as:
-npm install && npm run build
-Set the Start Command as:
-npm run start
-Add the required environment variable in the Render dashboard:
-NEXT_PUBLIC_API_URL=https://prompt-diary-backend.onrender.com/api/v1
-Deploy the frontend service.
-
-Frontend Live URL:
-
-https://prompt-diary-frontend.onrender.
-
-###Backend → Render
-
-The backend is deployed on Render as a Web Service.
-
-Connect the GitHub repository to Render.
-Create a new Web Service for the backend.
-Set the Root Directory as:
-backend
-Set the Build Command as:
-pip install -r requirements.txt
-Set the Start Command as:
 python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
-Add all required environment variables in the Render dashboard.
-Deploy the backend service.
+```
 
-Backend Live URL:
+- Add all required environment variables in the Render dashboard.
+- Deploy the backend service.
 
+**Backend Live URL:**  
 https://prompt-diary-backend.onrender.com
 
-API Base URL:
-
+**API Base URL:**  
 https://prompt-diary-backend.onrender.com/api/v1
 
-API Documentation / Swagger:
-
+**API Documentation / Swagger:**  
 https://prompt-diary-backend.onrender.com/docs
-Important Backend API Endpoints
+
+---
+
+### Important Backend API Endpoints
 
 After deployment, the backend APIs are available at the following endpoints:
 
-GET https://prompt-diary-backend.onrender.com/
-GET https://prompt-diary-backend.onrender.com/docs
-GET https://prompt-diary-backend.onrender.com/api/v1/articles
-GET https://prompt-diary-backend.onrender.com/api/v1/articles/system-design
-GET https://prompt-diary-backend.onrender.com/api/v1/roadmaps
-GET https://prompt-diary-backend.onrender.com/api/v1/search
+- `GET https://prompt-diary-backend.onrender.com/`
+- `GET https://prompt-diary-backend.onrender.com/docs`
+- `GET https://prompt-diary-backend.onrender.com/api/v1/articles`
+- `GET https://prompt-diary-backend.onrender.com/api/v1/articles/system-design`
+- `GET https://prompt-diary-backend.onrender.com/api/v1/roadmaps`
+- `GET https://prompt-diary-backend.onrender.com/api/v1/search`
 
-###Database → Supabase
+---
 
-The database is hosted on Supabase.
+### Database → Supabase
 
-Supabase is used as the hosted PostgreSQL database.
-The backend connects to Supabase using environment variables.
-Ensure that all backend environment variables point to the correct Supabase project.
-No separate database deployment is required because Supabase is already hosted.
+The database is hosted on **Supabase**.
+
+- Supabase is used as the hosted PostgreSQL database.
+- The backend connects to Supabase using environment variables.
+- Ensure that all backend environment variables point to the correct Supabase project.
+- No separate database deployment is required because Supabase is already hosted.
+
+---
+
+### Deployment Summary
+
+| Service | Platform | URL |
+|---|---|---|
+| Frontend | Render | https://prompt-diary-frontend.onrender.com |
+| Backend | Render | https://prompt-diary-backend.onrender.com |
+| API Docs | FastAPI Swagger | https://prompt-diary-backend.onrender.com/docs |
+| Database | Supabase | Hosted Supabase Project |
