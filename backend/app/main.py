@@ -5,11 +5,12 @@ This is the main application file that initializes the FastAPI app,
 configures CORS, and includes all API routers.
 """
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.router import api_router
 from app.core.config import settings
+from app.core.rate_limit import global_rate_limiter
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -34,8 +35,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include API v1 routes
-app.include_router(api_router, prefix="/api/v1")
+# Include API v1 routes protected by the global rate limiter
+app.include_router(
+    api_router, 
+    prefix="/api/v1", 
+    dependencies=[Depends(global_rate_limiter)]
+)
 
 
 @app.get("/", tags=["Health"])

@@ -17,6 +17,7 @@ from app.services.challenge_service import (
 )
 from app.schemas.challenge import ChallengeCreate, ChallengeUpdate, ChallengeResponse
 from app.core.security import get_current_admin
+from app.core.rate_limit import admin_rate_limiter
 
 router = APIRouter(prefix="/challenges", tags=["Challenges"])
 
@@ -50,6 +51,7 @@ async def get_challenge(challenge_id: str):
 async def create_new_challenge(
     challenge_data: ChallengeCreate,
     current_admin: dict = Depends(get_current_admin),
+    _: str = Depends(admin_rate_limiter),
 ):
     """Create a new prompt challenge (Admin only)."""
     try:
@@ -63,6 +65,7 @@ async def update_existing_challenge(
     challenge_id: str,
     challenge_data: ChallengeUpdate,
     current_admin: dict = Depends(get_current_admin),
+    _: str = Depends(admin_rate_limiter),
 ):
     """Update a prompt challenge (Admin only)."""
     challenge = update_challenge(challenge_id, challenge_data)
@@ -75,6 +78,7 @@ async def update_existing_challenge(
 async def delete_existing_challenge(
     challenge_id: str,
     current_admin: dict = Depends(get_current_admin),
+    _: str = Depends(admin_rate_limiter),
 ):
     """Delete a prompt challenge (Admin only)."""
     success = delete_challenge(challenge_id)

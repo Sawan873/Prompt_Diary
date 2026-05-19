@@ -28,6 +28,7 @@ from app.schemas.article import (
 )
 from app.services.mdx_service import parse_mdx_article
 from app.core.security import get_current_admin
+from app.core.rate_limit import admin_rate_limiter
 
 router = APIRouter(prefix="/articles", tags=["Articles"])
 
@@ -78,6 +79,7 @@ async def get_article(article_id: str):
 async def create_new_article(
     article_data: ArticleCreate,
     current_admin: dict = Depends(get_current_admin),
+    _: str = Depends(admin_rate_limiter),
 ):
     """Create a new article draft using structured fields (Admin only)."""
     try:
@@ -92,6 +94,7 @@ async def create_new_article(
 async def validate_mdx_content_endpoint(
     payload: ArticleCreateMDX,
     current_admin: dict = Depends(get_current_admin),
+    _: str = Depends(admin_rate_limiter),
 ):
     """
     Performs a dry-run parse on a raw MDX string with frontmatter (Admin only).
@@ -107,6 +110,7 @@ async def validate_mdx_content_endpoint(
 async def import_article_from_mdx(
     payload: ArticleCreateMDX,
     current_admin: dict = Depends(get_current_admin),
+    _: str = Depends(admin_rate_limiter),
 ):
     """
     Imports and creates an article directly from a raw MDX string with frontmatter (Admin only).
@@ -126,6 +130,7 @@ async def update_existing_article(
     article_id: str,
     article_data: ArticleUpdate,
     current_admin: dict = Depends(get_current_admin),
+    _: str = Depends(admin_rate_limiter),
 ):
     """Update an article's metadata or content (Admin only)."""
     article = update_article(article_id, article_data)
@@ -138,6 +143,7 @@ async def update_existing_article(
 async def delete_existing_article(
     article_id: str,
     current_admin: dict = Depends(get_current_admin),
+    _: str = Depends(admin_rate_limiter),
 ):
     """Delete an article by ID (Admin only)."""
     success = delete_article(article_id)

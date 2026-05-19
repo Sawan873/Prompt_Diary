@@ -25,6 +25,7 @@ from app.schemas.roadmap import (
     RoadmapUpdate
 )
 from app.core.security import get_optional_user, get_current_admin
+from app.core.rate_limit import admin_rate_limiter
 
 router = APIRouter(prefix="/roadmaps", tags=["Roadmaps"])
 
@@ -62,6 +63,7 @@ async def get_roadmap(
 async def create_new_roadmap(
     roadmap_data: RoadmapCreate,
     current_admin: dict = Depends(get_current_admin),
+    _: str = Depends(admin_rate_limiter),
 ):
     """Create a new learning roadmap (Admin only)."""
     try:
@@ -75,6 +77,7 @@ async def update_existing_roadmap(
     roadmap_id: str,
     roadmap_data: RoadmapUpdate,
     current_admin: dict = Depends(get_current_admin),
+    _: str = Depends(admin_rate_limiter),
 ):
     """Update a learning roadmap's metadata or topics list (Admin only)."""
     roadmap = update_roadmap(roadmap_id, roadmap_data)
@@ -87,6 +90,7 @@ async def update_existing_roadmap(
 async def delete_existing_roadmap(
     roadmap_id: str,
     current_admin: dict = Depends(get_current_admin),
+    _: str = Depends(admin_rate_limiter),
 ):
     """Delete a learning roadmap path by ID (Admin only)."""
     success = delete_roadmap(roadmap_id)
