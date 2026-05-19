@@ -102,6 +102,17 @@ CREATE INDEX IF NOT EXISTS idx_roadmaps_level ON public.roadmaps(level);
 CREATE INDEX IF NOT EXISTS idx_user_progress_user ON public.user_progress(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_progress_article ON public.user_progress(article_id);
 
+-- Performance Optimizations:
+-- 1. GIN Inverted Index on JSONB topics column in roadmaps for fast query parsing inside JSON arrays
+CREATE INDEX IF NOT EXISTS idx_roadmaps_topics_gin ON public.roadmaps USING gin (topics);
+
+-- 2. Composite index on articles to speed up published article feeds sorted by timestamp
+CREATE INDEX IF NOT EXISTS idx_articles_published_created_at ON public.articles(published, created_at DESC);
+
+-- 3. Partial composite index on user progress to optimize fetching completed steps
+CREATE INDEX IF NOT EXISTS idx_user_progress_user_completed ON public.user_progress(user_id, completed_at DESC) WHERE (completed = true);
+
+
 -- ============================================================
 -- 7. ROW LEVEL SECURITY (RLS)
 -- ============================================================
