@@ -24,6 +24,11 @@ CREATE TABLE IF NOT EXISTS public.challenge_progress (
 CREATE INDEX IF NOT EXISTS idx_challenge_progress_user ON public.challenge_progress(user_id);
 CREATE INDEX IF NOT EXISTS idx_challenge_progress_challenge ON public.challenge_progress(challenge_id);
 
+-- Performance Optimization:
+-- Partial composite index on challenge progress to optimize user point aggregates and dashboard loading
+CREATE INDEX IF NOT EXISTS idx_challenge_progress_user_completed ON public.challenge_progress(user_id, completed_at DESC) WHERE (completed = true);
+
+
 -- ============================================================
 -- 3. ROW LEVEL SECURITY
 -- ============================================================
