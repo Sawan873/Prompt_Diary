@@ -94,3 +94,43 @@ async def get_optional_user(
         return None
 
     return verify_supabase_token(credentials.credentials)
+
+
+async def get_current_admin(
+    user: dict = Depends(get_current_user),
+) -> dict:
+    """
+    FastAPI dependency — extracts the user JWT and queries Supabase database
+    to verify that the user profile has is_admin set to True.
+    """
+    user_id = user.get("sub")
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token — no user ID claim",
+        )
+
+    # Import inside to prevent circular import issues
+    from app.core.supabase_client import get_supabase_admin
+    supabase = get_supabase_admin()
+
+    try:
+        result = (
+            supabase.table("profiles")
+            .select("is_admin")
+            .eq("id", user_id)
+            .execute()
+        )
+        profile_data = result.data
+        if profile_data and len(profile_data) > 0 and profile_data[0].get("is_admin") is True:
+            return user
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Database error during administrator authorization check: {str(e)}",
+        )
+
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Access denied — Administrator privileges required",
+    )
