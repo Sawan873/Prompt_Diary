@@ -1,5 +1,5 @@
 -- ============================================================
--- Prompt Dairy — Migration 004: Add Admin Role
+-- Prompt Diary — Migration 004: Add Admin Role
 -- ============================================================
 
 -- 1. Add is_admin column to profiles table

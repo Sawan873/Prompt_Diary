@@ -1,5 +1,5 @@
 -- ============================================================
--- Prompt Dairy — Migration 003: Seed Data
+-- Prompt Diary — Migration 003: Seed Data
 -- Run this in Supabase SQL Editor after 001 and 002
 -- This populates the platform with initial content
 -- ============================================================

@@ -1,4 +1,4 @@
-# Prompt Dairy — Setup Guide
+# Prompt Diary — Setup Guide
 
 ## Prerequisites
 
@@ -12,8 +12,8 @@
 ## 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-org/prompt-dairy.git
-cd prompt-dairy
+git clone https://github.com/your-org/prompt-diary.git
+cd prompt-diary
 ```
 
 ---
@@ -46,7 +46,7 @@ cp .env.example .env
 
 Edit `.env`:
 ```env
-APP_NAME=Prompt Dairy
+APP_NAME=Prompt Diary
 APP_ENV=development
 FRONTEND_URL=http://localhost:3000
 

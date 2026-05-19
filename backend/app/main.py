@@ -1,5 +1,5 @@
 """
-Prompt Dairy — FastAPI Application Entry Point
+Prompt Diary — FastAPI Application Entry Point
 
 This is the main application file that initializes the FastAPI app,
 configures CORS, and includes all API routers.
@@ -50,7 +50,7 @@ async def health_check():
         "status": "healthy",
         "app": settings.APP_NAME,
         "version": "0.1.0",
-        "message": "Welcome to Prompt Dairy API 🧠🥛",
+        "message": "Welcome to Prompt Diary API 🧠🥛",
     }
 
 

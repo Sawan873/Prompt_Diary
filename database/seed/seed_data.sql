@@ -1,5 +1,5 @@
 -- ============================================================
--- Prompt Dairy — Seed Data
+-- Prompt Diary — Seed Data
 -- Run this AFTER 001_initial_schema.sql to populate sample data
 -- ============================================================
 

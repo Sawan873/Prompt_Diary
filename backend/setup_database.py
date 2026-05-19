@@ -1,5 +1,5 @@
 """
-Prompt Dairy — Database Setup Script
+Prompt Diary — Database Setup Script
 =====================================
 Applies all migrations in order and seeds the database.
 
@@ -344,7 +344,7 @@ def verify_setup(supabase) -> None:
 
 def main():
     print("=" * 60)
-    print("  Prompt Dairy — Database Setup")
+    print("  Prompt Diary — Database Setup")
     print("=" * 60)
     print(f"\n📡 Connecting to Supabase: {settings.SUPABASE_URL[:40]}...")
 
