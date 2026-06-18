@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { adminGetStats } from "@/lib/api";
+import Link from "next/link";
+import { adminGetStats, getArticles, getChallenges } from "@/lib/api";
 import { BookOpen, Target, Map, Users, AlertCircle } from "lucide-react";
 
 interface StatsData {
@@ -15,11 +16,15 @@ interface StatsData {
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<StatsData | null>(null);
+  const [recentArticles, setRecentArticles] = useState<any[]>([]);
+  const [recentChallenges, setRecentChallenges] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [contentLoading, setContentLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchStats() {
+    async function loadDashboardData() {
+      // Load stats
       try {
         const response = await adminGetStats();
         if (response?.success && response?.stats) {
@@ -33,9 +38,28 @@ export default function AdminDashboardPage() {
       } finally {
         setLoading(false);
       }
+
+      // Load recent content
+      try {
+        const [articlesRes, challengesRes] = await Promise.all([
+          getArticles(),
+          getChallenges()
+        ]);
+
+        if (articlesRes?.articles) {
+          setRecentArticles(articlesRes.articles.slice(0, 5));
+        }
+        if (challengesRes?.challenges) {
+          setRecentChallenges(challengesRes.challenges.slice(0, 5));
+        }
+      } catch (err) {
+        console.error("Failed to load recent content:", err);
+      } finally {
+        setContentLoading(false);
+      }
     }
 
-    fetchStats();
+    loadDashboardData();
   }, []);
 
   if (loading) {
@@ -216,6 +240,216 @@ export default function AdminDashboardPage() {
             </div>
           );
         })}
+      </div>
+
+      {/* Quick Actions */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        <h2 style={{ fontSize: "1.25rem", fontWeight: 700, letterSpacing: "-0.02em" }}>
+          Quick Actions
+        </h2>
+        <div 
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+            gap: "16px",
+          }}
+        >
+          <Link
+            href="/admin/articles?create=true"
+            className="glass-card shimmer-hover"
+            style={{
+              padding: "20px",
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+              textDecoration: "none",
+              color: "inherit",
+              fontWeight: 600,
+              fontSize: "0.9rem",
+              borderLeft: "3px solid #a855f6",
+            }}
+          >
+            <span style={{ fontSize: "1.25rem" }}>✍️</span>
+            <span>Create New Article</span>
+          </Link>
+
+          <Link
+            href="/admin/challenges?create=true"
+            className="glass-card shimmer-hover"
+            style={{
+              padding: "20px",
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+              textDecoration: "none",
+              color: "inherit",
+              fontWeight: 600,
+              fontSize: "0.9rem",
+              borderLeft: "3px solid #3b82f6",
+            }}
+          >
+            <span style={{ fontSize: "1.25rem" }}>🏆</span>
+            <span>Create New Challenge</span>
+          </Link>
+
+          <Link
+            href="/admin/roadmaps?create=true"
+            className="glass-card shimmer-hover"
+            style={{
+              padding: "20px",
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+              textDecoration: "none",
+              color: "inherit",
+              fontWeight: 600,
+              fontSize: "0.9rem",
+              borderLeft: "3px solid #f97316",
+            }}
+          >
+            <span style={{ fontSize: "1.25rem" }}>🗺️</span>
+            <span>Create New Roadmap</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* Recent Content Columns */}
+      <div 
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+          gap: "24px",
+        }}
+      >
+        {/* Recent Articles */}
+        <div className="glass-card" style={{ padding: "24px" }}>
+          <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
+            <BookOpen size={18} style={{ color: "#a855f6" }} />
+            Recent Articles
+          </h3>
+          {contentLoading ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              {[1, 2, 3].map((i) => (
+                <div key={i} style={{ height: "40px", background: "rgba(255,255,255,0.03)", borderRadius: "8px", animation: "pulse-glow 1.5s infinite" }} />
+              ))}
+            </div>
+          ) : recentArticles.length > 0 ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              {recentArticles.map((article) => (
+                <Link
+                  key={article.id}
+                  href={`/admin/articles?edit=${article.id}`}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "12px 16px",
+                    borderRadius: "10px",
+                    background: "rgba(255,255,255,0.02)",
+                    border: "1px solid rgba(255,255,255,0.04)",
+                    textDecoration: "none",
+                    color: "inherit",
+                    transition: "all 0.2s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
+                    e.currentTarget.style.borderColor = "rgba(168, 85, 246, 0.3)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "rgba(255, 255, 255, 0.02)";
+                    e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.04)";
+                  }}
+                >
+                  <div style={{ display: "flex", flexDirection: "column", gap: "2px", overflow: "hidden" }}>
+                    <span style={{ fontSize: "0.85rem", fontWeight: 600, textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
+                      {article.title}
+                    </span>
+                    <span style={{ fontSize: "0.7rem", color: "var(--text-muted)", textTransform: "capitalize" }}>
+                      {article.category} • {article.difficulty}
+                    </span>
+                  </div>
+                  <span 
+                    style={{
+                      fontSize: "0.7rem",
+                      fontWeight: 700,
+                      padding: "2px 8px",
+                      borderRadius: "10px",
+                      background: article.published ? "rgba(16, 185, 129, 0.1)" : "rgba(245, 158, 11, 0.1)",
+                      color: article.published ? "#34d399" : "#fbbf24",
+                      border: article.published ? "1px solid rgba(16, 185, 129, 0.2)" : "1px solid rgba(245, 158, 11, 0.2)",
+                    }}
+                  >
+                    {article.published ? "Published" : "Draft"}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", textAlign: "center", padding: "24px 0" }}>
+              No articles found.
+            </p>
+          )}
+        </div>
+
+        {/* Recent Challenges */}
+        <div className="glass-card" style={{ padding: "24px" }}>
+          <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
+            <Target size={18} style={{ color: "#3b82f6" }} />
+            Recent Challenges
+          </h3>
+          {contentLoading ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              {[1, 2, 3].map((i) => (
+                <div key={i} style={{ height: "40px", background: "rgba(255,255,255,0.03)", borderRadius: "8px", animation: "pulse-glow 1.5s infinite" }} />
+              ))}
+            </div>
+          ) : recentChallenges.length > 0 ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              {recentChallenges.map((challenge) => (
+                <Link
+                  key={challenge.id}
+                  href={`/admin/challenges?edit=${challenge.id}`}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "12px 16px",
+                    borderRadius: "10px",
+                    background: "rgba(255,255,255,0.02)",
+                    border: "1px solid rgba(255,255,255,0.04)",
+                    textDecoration: "none",
+                    color: "inherit",
+                    transition: "all 0.2s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
+                    e.currentTarget.style.borderColor = "rgba(59, 130, 246, 0.3)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "rgba(255, 255, 255, 0.02)";
+                    e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.04)";
+                  }}
+                >
+                  <div style={{ display: "flex", flexDirection: "column", gap: "2px", overflow: "hidden" }}>
+                    <span style={{ fontSize: "0.85rem", fontWeight: 600, textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
+                      {challenge.title}
+                    </span>
+                    <span style={{ fontSize: "0.7rem", color: "var(--text-muted)", textTransform: "capitalize" }}>
+                      {challenge.category} • {challenge.difficulty}
+                    </span>
+                  </div>
+                  <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#60a5fa" }}>
+                    {challenge.points} XP
+                  </span>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", textAlign: "center", padding: "24px 0" }}>
+              No challenges found.
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
