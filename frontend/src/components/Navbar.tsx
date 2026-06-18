@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/AuthContext";
 import { useRouter } from "next/navigation";
 import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
+import { getMe } from "@/lib/api";
 import {
   BookOpen,
   Target,
@@ -17,12 +18,37 @@ import {
   LayoutDashboard,
   Menu,
   X,
+  ShieldCheck,
 } from "lucide-react";
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, loading, signOut } = useAuth();
   const router = useRouter();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      setIsAdmin(false);
+      return;
+    }
+
+    async function checkUserAdmin() {
+      try {
+        const response = await getMe();
+        if (response?.success && response?.user?.profile?.is_admin) {
+          setIsAdmin(true);
+        } else {
+          setIsAdmin(false);
+        }
+      } catch (err) {
+        console.error("Failed to check user admin status in Navbar:", err);
+        setIsAdmin(false);
+      }
+    }
+
+    checkUserAdmin();
+  }, [user]);
 
   const navLinks = [
     { href: "/articles", label: "Articles", Icon: BookOpen },
@@ -165,6 +191,40 @@ export default function Navbar() {
           ) : user ? (
             /* Logged in — show avatar + dropdown */
             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  id="nav-admin"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    padding: "7px 14px",
+                    borderRadius: "12px",
+                    color: "rgba(0, 229, 255, 0.95)",
+                    textDecoration: "none",
+                    fontSize: "0.85rem",
+                    fontWeight: 600,
+                    transition: "all 0.2s ease",
+                    border: "1px solid rgba(0, 229, 255, 0.15)",
+                    background: "rgba(0, 229, 255, 0.05)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = "#00e5ff";
+                    e.currentTarget.style.background = "rgba(0, 229, 255, 0.08)";
+                    e.currentTarget.style.borderColor = "rgba(0, 229, 255, 0.3)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = "rgba(0, 229, 255, 0.95)";
+                    e.currentTarget.style.background = "rgba(0, 229, 255, 0.05)";
+                    e.currentTarget.style.borderColor = "rgba(0, 229, 255, 0.15)";
+                  }}
+                >
+                  <ShieldCheck size={16} strokeWidth={2} />
+                  Admin Panel
+                </Link>
+              )}
+
               <Link
                 href="/dashboard"
                 id="nav-dashboard"
@@ -359,33 +419,60 @@ export default function Navbar() {
           })}
 
           {/* Mobile auth buttons */}
-          <div style={{ display: "flex", gap: "8px", marginTop: "8px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "8px", width: "100%" }}>
             {user ? (
               <>
-                <Link
-                  href="/dashboard"
-                  className="btn-secondary"
-                  onClick={() => setMobileOpen(false)}
-                  style={{
-                    flex: 1,
-                    justifyContent: "center",
-                    padding: "10px",
-                  }}
-                >
-                  Dashboard
-                </Link>
-                <button
-                  onClick={handleSignOut}
-                  className="btn-primary"
-                  style={{
-                    flex: 1,
-                    justifyContent: "center",
-                    padding: "10px",
-                    cursor: "pointer",
-                  }}
-                >
-                  Sign Out
-                </button>
+                {isAdmin && (
+                  <Link
+                    href="/admin"
+                    onClick={() => setMobileOpen(false)}
+                    className="btn-primary"
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      gap: "8px",
+                      padding: "10px",
+                      background: "rgba(0, 229, 255, 0.1)",
+                      border: "1px solid rgba(0, 229, 255, 0.3)",
+                      color: "#00e5ff",
+                      fontSize: "0.85rem",
+                      fontWeight: 600,
+                      borderRadius: "12px",
+                      textDecoration: "none",
+                    }}
+                  >
+                    <ShieldCheck size={16} />
+                    Admin Panel
+                  </Link>
+                )}
+                <div style={{ display: "flex", gap: "8px", width: "100%" }}>
+                  <Link
+                    href="/dashboard"
+                    className="btn-secondary"
+                    onClick={() => setMobileOpen(false)}
+                    style={{
+                      flex: 1,
+                      justifyContent: "center",
+                      padding: "10px",
+                      textAlign: "center",
+                    }}
+                  >
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={handleSignOut}
+                    className="btn-primary"
+                    style={{
+                      flex: 1,
+                      justifyContent: "center",
+                      padding: "10px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Sign Out
+                  </button>
+                </div>
               </>
             ) : (
               <>
