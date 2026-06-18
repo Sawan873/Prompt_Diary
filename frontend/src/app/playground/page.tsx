@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { runPrompt, getPlaygroundModels } from "@/lib/api";
 import PromptHistory, { saveToHistory } from "@/components/PromptHistory";
@@ -34,7 +34,7 @@ interface ModelInfo {
   description: string;
 }
 
-export default function PlaygroundPage() {
+function PlaygroundContent() {
   const searchParams = useSearchParams();
   const [prompt, setPrompt] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
@@ -724,5 +724,27 @@ export default function PlaygroundPage() {
         }}
       />
     </div>
+  );
+}
+
+export default function PlaygroundPage() {
+  return (
+    <Suspense
+      fallback={
+        <div
+          style={{
+            maxWidth: "1200px",
+            margin: "0 auto",
+            padding: "48px 24px",
+            textAlign: "center",
+            color: "var(--text-muted)",
+          }}
+        >
+          Loading Playground...
+        </div>
+      }
+    >
+      <PlaygroundContent />
+    </Suspense>
   );
 }
