@@ -159,6 +159,14 @@ export default function Home() {
             gradient="linear-gradient(135deg, #f59e0b, #fbbf24)"
             delay="delay-400"
           />
+          <FeatureCard
+            icon="🏪"
+            title="Prompt Marketplace"
+            description="Browse curated prompt templates for code, marketing, data, and more. Copy and use instantly."
+            href="/marketplace"
+            gradient="linear-gradient(135deg, #ec4899, #f472b6)"
+            delay="delay-500"
+          />
         </div>
       </section>
 
@@ -226,6 +234,14 @@ export default function Home() {
               href="/system-design"
               status="active"
               itemCount={2}
+            />
+            <ModuleCard
+              icon="🏪"
+              title="Prompt Marketplace"
+              description="Browse and use curated prompt templates"
+              href="/marketplace"
+              status="active"
+              itemCount={12}
             />
           </div>
         </div>
