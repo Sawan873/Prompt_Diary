@@ -4,7 +4,7 @@
 -- ============================================================
 
 -- ============================================================
--- 1. MARKETPLACE PROMPTS TABLE
+-- 1. MARKETPLACE PROMPTS TABLE 
 -- ============================================================
 CREATE TABLE IF NOT EXISTS public.marketplace_prompts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
