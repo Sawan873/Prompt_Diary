@@ -35,6 +35,32 @@ async function getSessionToken(): Promise<string | null> {
   }
 }
 
+/**
+ * Custom API error class with status code for downstream handling.
+ */
+export class ApiError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
+/**
+ * Pause execution for the given number of milliseconds.
+ */
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Core fetch wrapper with:
+ * - Automatic retry (2 retries with exponential backoff) for transient errors
+ * - 15-second request timeout
+ * - Structured ApiError with HTTP status codes
+ * - Auth token attachment
+ */
 async function fetchAPI(endpoint: string, options: FetchOptions = {}) {
   const { method = "GET", body, authenticated = false } = options;
   let { token } = options;
@@ -52,18 +78,62 @@ async function fetchAPI(endpoint: string, options: FetchOptions = {}) {
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_BASE_URL}${endpoint}`, {
-    method,
-    headers,
-    body: body ? JSON.stringify(body) : undefined,
-  });
+  const MAX_RETRIES = 2;
+  let lastError: Error | null = null;
 
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({ detail: "Request failed" }));
-    throw new Error(error.detail || "Something went wrong");
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+      const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : undefined,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        const errorBody = await res.json().catch(() => ({ detail: "Request failed" }));
+        const errorMsg = errorBody.detail || `HTTP ${res.status}: Something went wrong`;
+
+        // Don't retry 4xx errors (client errors) — they won't succeed on retry
+        if (res.status >= 400 && res.status < 500) {
+          throw new ApiError(errorMsg, res.status);
+        }
+
+        // 5xx errors are retryable
+        throw new ApiError(errorMsg, res.status);
+      }
+
+      return res.json();
+    } catch (error) {
+      lastError = error as Error;
+
+      // Don't retry client errors (4xx) or AbortError from timeout
+      const isClientError = error instanceof ApiError && error.status >= 400 && error.status < 500;
+      const isAbort = error instanceof DOMException && error.name === "AbortError";
+
+      if (isClientError) {
+        throw error;
+      }
+
+      // If we have retries left, wait with exponential backoff
+      if (attempt < MAX_RETRIES) {
+        const backoffMs = Math.min(1000 * Math.pow(2, attempt), 4000);
+        console.warn(
+          `[API] Request to ${endpoint} failed (attempt ${attempt + 1}/${MAX_RETRIES + 1}), retrying in ${backoffMs}ms...`,
+          isAbort ? "Timeout" : (error as Error).message
+        );
+        await delay(backoffMs);
+      }
+    }
   }
 
-  return res.json();
+  // All retries exhausted
+  throw lastError || new ApiError("Request failed after retries", 0);
 }
 
 // =====================
