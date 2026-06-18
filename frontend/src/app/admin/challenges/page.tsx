@@ -8,6 +8,7 @@ import {
   adminDeleteChallenge 
 } from "@/lib/api";
 import { Plus, Edit, Trash2, AlertCircle, Calendar, Trophy, X, Save } from "lucide-react";
+import { useToast } from "@/components/Toast";
 
 interface Challenge {
   id: string;
@@ -26,6 +27,7 @@ export default function AdminChallengesPage() {
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   // Form states for creating/editing a challenge
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -145,6 +147,7 @@ export default function AdminChallengesPage() {
 
         if (result) {
           setIsModalOpen(false);
+          showToast("Challenge updated successfully!", "success");
           await loadChallenges();
         } else {
           setFormError("Failed to update challenge.");
@@ -164,6 +167,7 @@ export default function AdminChallengesPage() {
 
         if (result) {
           setIsModalOpen(false);
+          showToast("Challenge created successfully!", "success");
           await loadChallenges();
         } else {
           setFormError("Failed to create challenge.");
@@ -187,6 +191,7 @@ export default function AdminChallengesPage() {
       if (success) {
         setIsDeleteOpen(false);
         setDeletingChallenge(null);
+        showToast("Challenge deleted successfully!", "success");
         await loadChallenges();
       } else {
         setDeleteError("Failed to delete challenge.");

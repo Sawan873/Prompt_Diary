@@ -8,6 +8,7 @@ import {
   adminDeleteArticle 
 } from "@/lib/api";
 import { Plus, Edit, Trash2, AlertCircle, Calendar, X, Save } from "lucide-react";
+import { useToast } from "@/components/Toast";
 
 interface Article {
   id: string;
@@ -26,6 +27,7 @@ export default function AdminArticlesPage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   // Modal states for creating/editing an article
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -128,6 +130,7 @@ export default function AdminArticlesPage() {
 
         if (result) {
           setIsModalOpen(false);
+          showToast("Article updated successfully!", "success");
           await loadArticles();
         } else {
           setFormError("Failed to update article.");
@@ -150,6 +153,7 @@ export default function AdminArticlesPage() {
 
         if (result) {
           setIsModalOpen(false);
+          showToast("Article created successfully!", "success");
           await loadArticles();
         } else {
           setFormError("Failed to create article.");
@@ -179,6 +183,7 @@ export default function AdminArticlesPage() {
       if (success) {
         setIsDeleteOpen(false);
         setDeletingArticle(null);
+        showToast("Article deleted successfully!", "success");
         await loadArticles();
       } else {
         setDeleteError("Failed to delete article.");

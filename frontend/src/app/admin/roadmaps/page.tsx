@@ -20,6 +20,7 @@ import {
   ChevronUp, 
   ChevronDown 
 } from "lucide-react";
+import { useToast } from "@/components/Toast";
 
 interface TopicItem {
   order: number;
@@ -43,6 +44,7 @@ export default function AdminRoadmapsPage() {
   const [roadmaps, setRoadmaps] = useState<Roadmap[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   // Form states for creating/editing a roadmap
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -280,6 +282,7 @@ export default function AdminRoadmapsPage() {
 
         if (result) {
           setIsModalOpen(false);
+          showToast("Roadmap updated successfully!", "success");
           await loadRoadmaps();
         } else {
           setFormError("Failed to update roadmap.");
@@ -296,6 +299,7 @@ export default function AdminRoadmapsPage() {
 
         if (result) {
           setIsModalOpen(false);
+          showToast("Roadmap created successfully!", "success");
           await loadRoadmaps();
         } else {
           setFormError("Failed to create roadmap.");
@@ -318,6 +322,7 @@ export default function AdminRoadmapsPage() {
       await adminDeleteRoadmap(deletingRoadmap.id);
       setIsDeleteOpen(false);
       setDeletingRoadmap(null);
+      showToast("Roadmap deleted successfully!", "success");
       await loadRoadmaps();
     } catch (err: any) {
       console.error("Error deleting roadmap:", err);
