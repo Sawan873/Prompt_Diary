@@ -9,75 +9,9 @@ export const metadata: Metadata = {
     "Practice writing effective prompts with hands-on challenges. From summarization to multi-step reasoning.",
 };
 
-const FALLBACK: ApiChallenge[] = [
-  {
-    id: "ch-001",
-    title: "Summarize an Article",
-    description:
-      "Write a prompt that instructs an AI to summarize a long technical article into 3 key bullet points.",
-    difficulty: "easy",
-    category: "summarization",
-    points: 10,
-    starter_prompt: "Summarize the following article...",
-    hints: [],
-    created_at: "",
-  },
-  {
-    id: "ch-002",
-    title: "Extract JSON from Text",
-    description:
-      "Write a prompt that extracts structured JSON data from an unstructured product review.",
-    difficulty: "medium",
-    category: "extraction",
-    points: 20,
-    starter_prompt: "Extract the following information...",
-    hints: [],
-    created_at: "",
-  },
-  {
-    id: "ch-003",
-    title: "Multi-Step Reasoning",
-    description:
-      "Write a prompt that guides the AI through a multi-step math word problem with step-by-step work.",
-    difficulty: "medium",
-    category: "reasoning",
-    points: 20,
-    starter_prompt: "Solve the following problem step by step...",
-    hints: [],
-    created_at: "",
-  },
-  {
-    id: "ch-004",
-    title: "Role-Based Prompt Design",
-    description:
-      "Create a system prompt that makes the AI act as a senior code reviewer with actionable feedback.",
-    difficulty: "hard",
-    category: "role-playing",
-    points: 30,
-    starter_prompt: "You are a senior software engineer...",
-    hints: [],
-    created_at: "",
-  },
-  {
-    id: "ch-005",
-    title: "Build a Prompt Chain",
-    description:
-      "Design 3 connected prompts: analyze, generate solutions, then evaluate and rank.",
-    difficulty: "hard",
-    category: "chaining",
-    points: 40,
-    starter_prompt: "Step 1: Analyze the following...",
-    hints: [],
-    created_at: "",
-  },
-];
-
 export default async function ChallengesPage() {
   const api = await serverListChallenges();
-  const challenges =
-    api?.challenges?.length && api.challenges.every((c) => c.id && c.title)
-      ? api.challenges
-      : FALLBACK;
+  const challenges = api?.challenges || [];
 
   const totalPoints = challenges.reduce((sum, challenge) => {
     return sum + (challenge.points || 0);

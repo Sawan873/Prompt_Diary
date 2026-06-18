@@ -4,106 +4,6 @@ import ChallengeAttempt from "@/components/ChallengeAttempt";
 import { serverGetChallenge, type ApiChallenge } from "@/lib/server-api";
 import { ArrowLeft, Award, Folder, Lightbulb, Target } from "lucide-react";
 
-const LEGACY_CHALLENGES: Record<
-  string,
-  {
-    title: string;
-    description: string;
-    difficulty: "easy" | "medium" | "hard";
-    category: string;
-    points: number;
-    exampleContext: string;
-    expectedOutput: string;
-    hints: { text: string }[];
-  }
-> = {
-  "ch-001": {
-    title: "Summarize an Article",
-    description:
-      "Write a prompt that instructs an AI to summarize a long technical article into exactly 3 key bullet points. Each bullet point should be concise, informative, and capture a distinct idea.",
-    difficulty: "easy",
-    category: "summarization",
-    points: 10,
-    exampleContext:
-      "Large language models are AI systems trained on vast amounts of text data. They can generate coherent text, answer questions, translate languages, and perform many other tasks, but they can also hallucinate incorrect facts.",
-    expectedOutput:
-      "- [Key point 1: main concept]\n- [Key point 2: important detail]\n- [Key point 3: takeaway or implication]",
-    hints: [
-      { text: "Tell the AI exactly how many bullet points you want." },
-      { text: "Specify what each bullet should focus on." },
-      { text: "Add a word limit to keep the summary concise." },
-    ],
-  },
-  "ch-002": {
-    title: "Extract JSON from Text",
-    description:
-      "Write a prompt that extracts structured JSON data from an unstructured product review.",
-    difficulty: "medium",
-    category: "extraction",
-    points: 20,
-    exampleContext:
-      "I bought the Sony WH-1000XM5 headphones last week. Noise cancellation is excellent, sound quality is rich, and battery life is strong. The ear cushions get warm and the price is high. Rating: 5 out of 5.",
-    expectedOutput:
-      '{\n  "product": "Sony WH-1000XM5",\n  "rating": 5,\n  "pros": ["noise cancellation", "sound quality", "battery life"],\n  "cons": ["ear cushions get warm", "expensive"]\n}',
-    hints: [
-      { text: "Specify the exact JSON schema you want." },
-      { text: "Tell the model to output only valid JSON." },
-      { text: "Mention that rating should be a number, not a string." },
-    ],
-  },
-  "ch-003": {
-    title: "Multi-Step Reasoning",
-    description:
-      "Write a prompt that guides the AI through a multi-step math word problem showing all intermediate work.",
-    difficulty: "medium",
-    category: "reasoning",
-    points: 20,
-    exampleContext:
-      "A bakery makes 240 cookies per batch. They make 3 chocolate chip batches, 2 oatmeal batches, and 1 peanut butter batch. They sell 80% of all cookies at different prices. What is total revenue?",
-    expectedOutput:
-      "Step 1: Calculate total cookies per type\nStep 2: Calculate cookies sold\nStep 3: Calculate revenue per type\nStep 4: Sum all revenues",
-    hints: [
-      { text: "Ask the model to think step by step." },
-      { text: "Ask it to label each step clearly." },
-      { text: "Request a final verification pass." },
-    ],
-  },
-  "ch-004": {
-    title: "Role-Based Prompt Design",
-    description:
-      "Create a system prompt that makes the AI behave as a senior code reviewer.",
-    difficulty: "hard",
-    category: "role-playing",
-    points: 30,
-    exampleContext:
-      "function calculateTotal(items) {\n  let t = 0;\n  for (let i = 0; i < items.length; i++) {\n    t = t + items[i].p * items[i].q;\n  }\n  return t;\n}",
-    expectedOutput:
-      "A senior code review covering naming, readability, edge cases, performance, and a suggested refactor.",
-    hints: [
-      { text: "Define the reviewer persona clearly." },
-      { text: "Tell the model what categories to inspect." },
-      { text: "Ask for actionable feedback, not vague comments." },
-    ],
-  },
-  "ch-005": {
-    title: "Build a Prompt Chain",
-    description:
-      "Design 3 connected prompts that analyze a problem, generate solutions, then evaluate and rank those solutions.",
-    difficulty: "hard",
-    category: "chaining",
-    points: 40,
-    exampleContext:
-      "A SaaS startup is losing 15% of customers every month. Most users sign up but never use core features. Support is overwhelmed.",
-    expectedOutput:
-      "Prompt 1: Problem analysis\nPrompt 2: Solution generation using Prompt 1 output\nPrompt 3: Ranking using Prompt 2 output",
-    hints: [
-      { text: "Each prompt should explicitly reference the previous output." },
-      { text: "Use placeholders to show where previous output goes." },
-      { text: "Keep one job per prompt." },
-    ],
-  },
-};
-
 type UiChallenge = {
   title: string;
   description: string;
@@ -149,7 +49,7 @@ function mapApiChallenge(challenge: ApiChallenge): UiChallenge {
 async function resolveChallenge(id: string): Promise<UiChallenge | null> {
   const apiChallenge = await serverGetChallenge(id);
   if (apiChallenge?.title) return mapApiChallenge(apiChallenge);
-  return LEGACY_CHALLENGES[id] ?? null;
+  return null;
 }
 
 export async function generateMetadata({
