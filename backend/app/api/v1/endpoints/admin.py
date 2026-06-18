@@ -12,6 +12,7 @@ from typing import Optional, List
 from app.core.security import get_current_admin
 from app.core.config import settings
 from app.core.rate_limit import admin_rate_limiter
+from app.schemas.article import ArticleResponse
 
 router = APIRouter(
     prefix="/admin",
@@ -70,6 +71,14 @@ class AdminUserDetailResponse(BaseModel):
     success: bool = True
     user: AdminUserResponse
     stats: UserProgressStats
+
+
+class AdminArticleListResponse(BaseModel):
+    """Response wrapper for admin article list endpoint."""
+    success: bool = True
+    articles: List[ArticleResponse]
+    total: int
+
 
 
 # ---------------------------------------------------------------------------
@@ -430,5 +439,38 @@ async def get_user_detail(user_id: str):
             level="Newcomer",
         ),
     )
+
+
+@router.get("/articles", response_model=AdminArticleListResponse)
+async def list_admin_articles():
+    """
+    Get all articles, including unpublished drafts (Admin only).
+    """
+    supabase = _get_supabase()
+
+    if supabase:
+        try:
+            result = (
+                supabase.table("articles")
+                .select("*")
+                .order("created_at", desc=True)
+                .execute()
+            )
+            articles_data = result.data or []
+            return AdminArticleListResponse(
+                articles=articles_data,
+                total=len(articles_data)
+            )
+        except Exception as e:
+            print(f"[AdminService] Supabase admin articles query failed, using mock: {e}")
+
+    # Fallback to mock data (contains both published and unpublished/draft)
+    from app.services.article_service import MOCK_ARTICLES
+
+    return AdminArticleListResponse(
+        articles=MOCK_ARTICLES,
+        total=len(MOCK_ARTICLES)
+    )
+
 
 
