@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getChallenges, adminCreateChallenge } from "@/lib/api";
+import { 
+  getChallenges, 
+  adminCreateChallenge, 
+  adminUpdateChallenge, 
+  adminDeleteChallenge 
+} from "@/lib/api";
 import { Plus, Edit, Trash2, AlertCircle, Calendar, Trophy, X, Save } from "lucide-react";
 
 interface Challenge {
@@ -22,8 +27,11 @@ export default function AdminChallengesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Form states for creating a new challenge
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  // Form states for creating/editing a challenge
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingChallengeId, setEditingChallengeId] = useState<string | null>(null);
+  
+  // Form fields
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("easy");
@@ -36,6 +44,12 @@ export default function AdminChallengesPage() {
 
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+
+  // Delete confirmation modal states
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [deletingChallenge, setDeletingChallenge] = useState<Challenge | null>(null);
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   async function loadChallenges() {
     try {
@@ -58,6 +72,42 @@ export default function AdminChallengesPage() {
     loadChallenges();
   }, []);
 
+  const openCreateModal = () => {
+    setEditingChallengeId(null);
+    setTitle("");
+    setDescription("");
+    setDifficulty("easy");
+    setCategory("summarization");
+    setStarterPrompt("");
+    setExpectedOutput("");
+    setHints([]);
+    setNewHint("");
+    setPoints(10);
+    setFormError(null);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (challenge: Challenge) => {
+    setEditingChallengeId(challenge.id);
+    setTitle(challenge.title);
+    setDescription(challenge.description || "");
+    setDifficulty(challenge.difficulty);
+    setCategory(challenge.category || "summarization");
+    setStarterPrompt(challenge.starter_prompt || "");
+    setExpectedOutput(challenge.expected_output || "");
+    setHints(challenge.hints || []);
+    setNewHint("");
+    setPoints(challenge.points);
+    setFormError(null);
+    setIsModalOpen(true);
+  };
+
+  const openDeleteModal = (challenge: Challenge) => {
+    setDeletingChallenge(challenge);
+    setDeleteError(null);
+    setIsDeleteOpen(true);
+  };
+
   const addHint = () => {
     const trimmed = newHint.trim();
     if (!trimmed) return;
@@ -69,7 +119,7 @@ export default function AdminChallengesPage() {
     setHints(hints.filter((_, i) => i !== index));
   };
 
-  const handleCreateSubmit = async (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !description || !difficulty || !category) {
       setFormError("Title, description, difficulty, and category are required.");
@@ -80,39 +130,72 @@ export default function AdminChallengesPage() {
     setFormError(null);
 
     try {
-      const result = await adminCreateChallenge({
-        title,
-        description,
-        difficulty,
-        category: category || undefined,
-        starter_prompt: starterPrompt || undefined,
-        expected_output: expectedOutput || undefined,
-        hints: hints.length > 0 ? hints : undefined,
-        points: Number(points) || 10,
-      });
+      if (editingChallengeId) {
+        // Edit mode
+        const result = await adminUpdateChallenge(editingChallengeId, {
+          title,
+          description,
+          difficulty,
+          category: category || undefined,
+          starter_prompt: starterPrompt || undefined,
+          expected_output: expectedOutput || undefined,
+          hints: hints.length > 0 ? hints : undefined,
+          points: Number(points) || 10,
+        });
 
-      if (result) {
-        // Reset form
-        setTitle("");
-        setDescription("");
-        setDifficulty("easy");
-        setCategory("summarization");
-        setStarterPrompt("");
-        setExpectedOutput("");
-        setHints([]);
-        setNewHint("");
-        setPoints(10);
-        setIsCreateOpen(false);
-        // Refresh challenges list
-        await loadChallenges();
+        if (result) {
+          setIsModalOpen(false);
+          await loadChallenges();
+        } else {
+          setFormError("Failed to update challenge.");
+        }
       } else {
-        setFormError("Failed to create challenge.");
+        // Create mode
+        const result = await adminCreateChallenge({
+          title,
+          description,
+          difficulty,
+          category: category || undefined,
+          starter_prompt: starterPrompt || undefined,
+          expected_output: expectedOutput || undefined,
+          hints: hints.length > 0 ? hints : undefined,
+          points: Number(points) || 10,
+        });
+
+        if (result) {
+          setIsModalOpen(false);
+          await loadChallenges();
+        } else {
+          setFormError("Failed to create challenge.");
+        }
       }
     } catch (err: any) {
-      console.error("Error creating challenge:", err);
-      setFormError(err.message || "An error occurred while creating the challenge.");
+      console.error("Error saving challenge:", err);
+      setFormError(err.message || "An error occurred while saving the challenge.");
     } finally {
       setFormSubmitting(false);
+    }
+  };
+
+  const handleDeleteSubmit = async () => {
+    if (!deletingChallenge) return;
+    setDeleteSubmitting(true);
+    setDeleteError(null);
+
+    try {
+      const success = await adminDeleteChallenge(deletingChallenge.id);
+      if (success) {
+        setIsDeleteOpen(false);
+        setDeletingChallenge(null);
+        await loadChallenges();
+      } else {
+        setDeleteError("Failed to delete challenge.");
+      }
+    } catch (err: any) {
+      console.error("Error deleting challenge:", err);
+      setDeleteError(err.message || "An error occurred while deleting the challenge.");
+    } finally {
+      setDeleteSubmitting(false);
     }
   };
 
@@ -181,7 +264,7 @@ export default function AdminChallengesPage() {
         </div>
         <button 
           className="btn-primary" 
-          onClick={() => setIsCreateOpen(true)}
+          onClick={openCreateModal}
           style={{
             padding: "10px 20px",
             fontSize: "0.85rem",
@@ -299,6 +382,7 @@ export default function AdminChallengesPage() {
                       <div style={{ display: "inline-flex", gap: "8px" }}>
                         <button 
                           className="btn-secondary" 
+                          onClick={() => openEditModal(challenge)}
                           style={{
                             padding: "6px 10px",
                             borderRadius: "8px",
@@ -314,6 +398,7 @@ export default function AdminChallengesPage() {
                         </button>
                         <button 
                           className="btn-secondary" 
+                          onClick={() => openDeleteModal(challenge)}
                           style={{
                             padding: "6px 10px",
                             borderRadius: "8px",
@@ -353,8 +438,8 @@ export default function AdminChallengesPage() {
         )}
       </div>
 
-      {/* Creation Modal Backdrop */}
-      {isCreateOpen && (
+      {/* Creation/Editing Modal Backdrop */}
+      {isModalOpen && (
         <div 
           style={{
             position: "fixed",
@@ -388,11 +473,11 @@ export default function AdminChallengesPage() {
             {/* Modal Header */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <h2 style={{ fontSize: "1.25rem", fontWeight: 800, color: "var(--text-primary)" }}>
-                Create New Challenge
+                {editingChallengeId ? "Edit Challenge Details" : "Create New Challenge"}
               </h2>
               <button 
                 onClick={() => {
-                  setIsCreateOpen(false);
+                  setIsModalOpen(false);
                   setFormError(null);
                 }}
                 style={{
@@ -429,7 +514,7 @@ export default function AdminChallengesPage() {
             )}
 
             {/* Form */}
-            <form onSubmit={handleCreateSubmit} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+            <form onSubmit={handleFormSubmit} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
               {/* Title */}
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-secondary)" }}>Title</label>
@@ -660,7 +745,7 @@ export default function AdminChallengesPage() {
                   type="button" 
                   className="btn-secondary"
                   onClick={() => {
-                    setIsCreateOpen(false);
+                    setIsModalOpen(false);
                     setFormError(null);
                   }}
                   style={{ padding: "10px 20px", fontSize: "0.85rem" }}
@@ -681,10 +766,126 @@ export default function AdminChallengesPage() {
                   disabled={formSubmitting}
                 >
                   <Save size={16} />
-                  {formSubmitting ? "Creating..." : "Save Challenge"}
+                  {formSubmitting ? "Saving..." : editingChallengeId ? "Save Changes" : "Save Challenge"}
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal Backdrop */}
+      {isDeleteOpen && deletingChallenge && (
+        <div 
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 100,
+            background: "rgba(6, 7, 13, 0.82)",
+            backdropFilter: "blur(6px)",
+            WebkitBackdropFilter: "blur(6px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "24px",
+          }}
+        >
+          {/* Modal Card */}
+          <div 
+            className="glass-card animate-fade-in-up" 
+            style={{
+              maxWidth: "480px",
+              width: "100%",
+              padding: "32px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "24px",
+              boxShadow: "0 20px 50px rgba(0, 0, 0, 0.5)",
+              border: "1px solid rgba(239, 68, 68, 0.3)",
+            }}
+          >
+            {/* Modal Header */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h2 style={{ fontSize: "1.25rem", fontWeight: 800, color: "#f87171" }}>
+                Delete Challenge
+              </h2>
+              <button 
+                onClick={() => {
+                  setIsDeleteOpen(false);
+                  setDeletingChallenge(null);
+                }}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "var(--text-secondary)",
+                  cursor: "pointer",
+                  padding: "4px",
+                }}
+                aria-label="Close modal"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Error Message */}
+            {deleteError && (
+              <div 
+                style={{
+                  background: "rgba(239, 68, 68, 0.1)",
+                  border: "1px solid rgba(239, 68, 68, 0.3)",
+                  color: "#f87171",
+                  padding: "12px 16px",
+                  borderRadius: "10px",
+                  fontSize: "0.825rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}
+              >
+                <AlertCircle size={16} />
+                <span>{deleteError}</span>
+              </div>
+            )}
+
+            <div>
+              <p style={{ color: "var(--text-primary)", fontSize: "0.9rem", lineHeight: "1.5" }}>
+                Are you sure you want to delete challenge <strong>{deletingChallenge.title}</strong>?
+              </p>
+              <p style={{ color: "var(--text-muted)", fontSize: "0.8rem", marginTop: "12px", lineHeight: "1.5" }}>
+                This action is permanent and cannot be undone. All user challenge completion statistics associated with this challenge will be reset.
+              </p>
+            </div>
+
+            {/* Action Buttons */}
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px" }}>
+              <button 
+                type="button" 
+                className="btn-secondary"
+                onClick={() => {
+                  setIsDeleteOpen(false);
+                  setDeletingChallenge(null);
+                }}
+                style={{ padding: "10px 20px", fontSize: "0.85rem" }}
+                disabled={deleteSubmitting}
+              >
+                Cancel
+              </button>
+              <button 
+                type="button" 
+                className="btn-primary"
+                onClick={handleDeleteSubmit}
+                style={{ 
+                  padding: "10px 20px", 
+                  fontSize: "0.85rem",
+                  background: "rgba(239, 68, 68, 0.2)",
+                  borderColor: "rgba(239, 68, 68, 0.4)",
+                  color: "#f87171",
+                }}
+                disabled={deleteSubmitting}
+              >
+                {deleteSubmitting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
           </div>
         </div>
       )}
