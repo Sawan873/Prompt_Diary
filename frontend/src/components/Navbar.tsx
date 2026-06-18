@@ -10,6 +10,7 @@ import {
   Target,
   Map,
   Code2,
+  Store,
   Network,
   Search,
   LayoutDashboard,
@@ -27,6 +28,7 @@ export default function Navbar() {
     { href: "/challenges", label: "Challenges", Icon: Target },
     { href: "/roadmaps", label: "Roadmaps", Icon: Map },
     { href: "/playground", label: "Playground", Icon: Code2 },
+    { href: "/marketplace", label: "Marketplace", Icon: Store },
     { href: "/system-design", label: "System Design", Icon: Network },
     { href: "/search", label: "Search", Icon: Search },
   ];
