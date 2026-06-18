@@ -163,35 +163,11 @@ export default function AdminLayout({
   ];
 
   return (
-    <div 
-      style={{
-        display: "flex",
-        minHeight: "calc(100vh - 72px)",
-        background: "var(--bg-primary)",
-        color: "var(--text-primary)",
-      }}
-    >
+    <div className="admin-container">
       {/* Sidebar */}
-      <aside 
-        style={{
-          width: "256px",
-          borderRight: "1px solid var(--border-subtle)",
-          background: "var(--bg-secondary)",
-          display: "flex",
-          flexDirection: "column",
-          flexShrink: 0,
-        }}
-      >
+      <aside className="admin-sidebar">
         {/* Header */}
-        <div 
-          style={{
-            height: "64px",
-            display: "flex",
-            alignItems: "center",
-            padding: "0 24px",
-            borderBottom: "1px solid var(--border-subtle)",
-          }}
-        >
+        <div className="admin-sidebar-header">
           <span 
             style={{
               fontSize: "0.75rem",
@@ -206,7 +182,7 @@ export default function AdminLayout({
         </div>
 
         {/* Links */}
-        <nav style={{ flex: 1, padding: "16px", display: "flex", flexDirection: "column", gap: "6px" }}>
+        <nav className="admin-sidebar-nav">
           {sidebarLinks.map((link) => {
             const Icon = link.Icon;
             const isActive = link.exact 
@@ -217,6 +193,7 @@ export default function AdminLayout({
               <Link
                 key={link.href}
                 href={link.href}
+                className="admin-sidebar-link"
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -254,13 +231,92 @@ export default function AdminLayout({
       </aside>
 
       {/* Main Content Area */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+      <div className="admin-main">
         <main style={{ flex: 1, padding: "32px", overflowY: "auto" }}>
-          <div style={{ maxWidth: "1100px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "32px" }}>
+          <div className="admin-main-inner">
             {children}
           </div>
         </main>
       </div>
+
+      <style jsx global>{`
+        .admin-container {
+          display: flex;
+          min-height: calc(100vh - 72px);
+          background: var(--bg-primary);
+          color: var(--text-primary);
+        }
+        .admin-sidebar {
+          width: 256px;
+          border-right: 1px solid var(--border-subtle);
+          background: var(--bg-secondary);
+          display: flex;
+          flex-direction: column;
+          flex-shrink: 0;
+        }
+        .admin-sidebar-header {
+          height: 64px;
+          display: flex;
+          align-items: center;
+          padding: 0 24px;
+          border-bottom: 1px solid var(--border-subtle);
+        }
+        .admin-sidebar-nav {
+          flex: 1;
+          padding: 16px;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+        .admin-main {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          min-width: 0;
+        }
+        .admin-main-inner {
+          max-width: 1100px;
+          margin: 0 auto;
+          display: flex;
+          flex-direction: column;
+          gap: 32px;
+          width: 100%;
+        }
+
+        @media (max-width: 768px) {
+          .admin-container {
+            flex-direction: column;
+          }
+          .admin-sidebar {
+            width: 100%;
+            border-right: none;
+            border-bottom: 1px solid var(--border-subtle);
+            flex-direction: column;
+          }
+          .admin-sidebar-header {
+            height: auto;
+            padding: 16px 24px 8px;
+            border-bottom: none;
+          }
+          .admin-sidebar-nav {
+            flex-direction: row;
+            flex-wrap: wrap;
+            padding: 8px 16px 16px;
+            gap: 8px;
+          }
+          .admin-sidebar-link {
+            flex: 1 1 calc(50% - 8px) !important;
+            justify-content: center;
+            padding: 10px 12px !important;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .admin-sidebar-link {
+            flex: 1 1 100% !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
