@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { adminGetAllArticles, adminCreateArticle } from "@/lib/api";
+import { 
+  adminGetAllArticles, 
+  adminCreateArticle, 
+  adminUpdateArticle, 
+  adminDeleteArticle 
+} from "@/lib/api";
 import { Plus, Edit, Trash2, AlertCircle, Calendar, X, Save } from "lucide-react";
 
 interface Article {
@@ -11,6 +16,9 @@ interface Article {
   category: string;
   difficulty?: string;
   published: boolean;
+  tags?: string[];
+  excerpt?: string;
+  content: string;
   created_at: string;
 }
 
@@ -19,16 +27,27 @@ export default function AdminArticlesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Form states for creating a new article
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  // Modal states for creating/editing an article
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingArticleId, setEditingArticleId] = useState<string | null>(null);
+  
+  // Form fields
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [excerpt, setExcerpt] = useState("");
   const [category, setCategory] = useState("fundamentals");
   const [difficulty, setDifficulty] = useState("beginner");
   const [tagsInput, setTagsInput] = useState("");
+  const [published, setPublished] = useState(false);
+  
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+
+  // Delete confirmation modal states
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [deletingArticle, setDeletingArticle] = useState<Article | null>(null);
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   async function loadArticles() {
     try {
@@ -51,7 +70,33 @@ export default function AdminArticlesPage() {
     loadArticles();
   }, []);
 
-  const handleCreateSubmit = async (e: React.FormEvent) => {
+  const openCreateModal = () => {
+    setEditingArticleId(null);
+    setTitle("");
+    setContent("");
+    setExcerpt("");
+    setCategory("fundamentals");
+    setDifficulty("beginner");
+    setTagsInput("");
+    setPublished(false);
+    setFormError(null);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (article: Article) => {
+    setEditingArticleId(article.id);
+    setTitle(article.title);
+    setContent(article.content || "");
+    setExcerpt(article.excerpt || "");
+    setCategory(article.category);
+    setDifficulty(article.difficulty || "beginner");
+    setTagsInput(article.tags ? article.tags.join(", ") : "");
+    setPublished(article.published);
+    setFormError(null);
+    setIsModalOpen(true);
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !content || !category) {
       setFormError("Title, content, and category are required.");
@@ -69,34 +114,80 @@ export default function AdminArticlesPage() {
       : [];
 
     try {
-      const result = await adminCreateArticle({
-        title,
-        content,
-        excerpt: excerpt || undefined,
-        category,
-        difficulty: difficulty || undefined,
-        tags,
-      });
+      if (editingArticleId) {
+        // Edit mode
+        const result = await adminUpdateArticle(editingArticleId, {
+          title,
+          content,
+          excerpt: excerpt || undefined,
+          category,
+          difficulty: difficulty || undefined,
+          tags,
+          published,
+        });
 
-      if (result) {
-        // Reset form
-        setTitle("");
-        setContent("");
-        setExcerpt("");
-        setCategory("fundamentals");
-        setDifficulty("beginner");
-        setTagsInput("");
-        setIsCreateOpen(false);
-        // Refresh articles list
-        await loadArticles();
+        if (result) {
+          setIsModalOpen(false);
+          await loadArticles();
+        } else {
+          setFormError("Failed to update article.");
+        }
       } else {
-        setFormError("Failed to create article.");
+        // Create mode
+        const result = await adminCreateArticle({
+          title,
+          content,
+          excerpt: excerpt || undefined,
+          category,
+          difficulty: difficulty || undefined,
+          tags,
+        });
+
+        // If user wants it published, call update immediately after creation
+        if (result && published) {
+          await adminUpdateArticle(result.id, { published: true });
+        }
+
+        if (result) {
+          setIsModalOpen(false);
+          await loadArticles();
+        } else {
+          setFormError("Failed to create article.");
+        }
       }
     } catch (err: any) {
-      console.error("Error creating article:", err);
-      setFormError(err.message || "An error occurred while creating the article.");
+      console.error("Error saving article:", err);
+      setFormError(err.message || "An error occurred while saving the article.");
     } finally {
       setFormSubmitting(false);
+    }
+  };
+
+  const openDeleteModal = (article: Article) => {
+    setDeletingArticle(article);
+    setDeleteError(null);
+    setIsDeleteOpen(true);
+  };
+
+  const handleDeleteSubmit = async () => {
+    if (!deletingArticle) return;
+    setDeleteSubmitting(true);
+    setDeleteError(null);
+
+    try {
+      const success = await adminDeleteArticle(deletingArticle.id);
+      if (success) {
+        setIsDeleteOpen(false);
+        setDeletingArticle(null);
+        await loadArticles();
+      } else {
+        setDeleteError("Failed to delete article.");
+      }
+    } catch (err: any) {
+      console.error("Error deleting article:", err);
+      setDeleteError(err.message || "An error occurred while deleting the article.");
+    } finally {
+      setDeleteSubmitting(false);
     }
   };
 
@@ -165,7 +256,7 @@ export default function AdminArticlesPage() {
         </div>
         <button 
           className="btn-primary" 
-          onClick={() => setIsCreateOpen(true)}
+          onClick={openCreateModal}
           style={{
             padding: "10px 20px",
             fontSize: "0.85rem",
@@ -284,6 +375,7 @@ export default function AdminArticlesPage() {
                       <div style={{ display: "inline-flex", gap: "8px" }}>
                         <button 
                           className="btn-secondary" 
+                          onClick={() => openEditModal(article)}
                           style={{
                             padding: "6px 10px",
                             borderRadius: "8px",
@@ -299,6 +391,7 @@ export default function AdminArticlesPage() {
                         </button>
                         <button 
                           className="btn-secondary" 
+                          onClick={() => openDeleteModal(article)}
                           style={{
                             padding: "6px 10px",
                             borderRadius: "8px",
@@ -338,8 +431,8 @@ export default function AdminArticlesPage() {
         )}
       </div>
 
-      {/* Creation Modal Backdrop */}
-      {isCreateOpen && (
+      {/* Creation / Editing Modal Backdrop */}
+      {isModalOpen && (
         <div 
           style={{
             position: "fixed",
@@ -373,11 +466,11 @@ export default function AdminArticlesPage() {
             {/* Modal Header */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <h2 style={{ fontSize: "1.25rem", fontWeight: 800, color: "var(--text-primary)" }}>
-                Create New Article Draft
+                {editingArticleId ? "Edit Article Details" : "Create New Article Draft"}
               </h2>
               <button 
                 onClick={() => {
-                  setIsCreateOpen(false);
+                  setIsModalOpen(false);
                   setFormError(null);
                 }}
                 style={{
@@ -414,7 +507,7 @@ export default function AdminArticlesPage() {
             )}
 
             {/* Form */}
-            <form onSubmit={handleCreateSubmit} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+            <form onSubmit={handleFormSubmit} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
               {/* Title */}
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-secondary)" }}>Title</label>
@@ -546,13 +639,41 @@ export default function AdminArticlesPage() {
                 />
               </div>
 
+              {/* Published Switch */}
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "4px 0" }}>
+                <input 
+                  type="checkbox" 
+                  id="published"
+                  checked={published}
+                  onChange={(e) => setPublished(e.target.checked)}
+                  style={{
+                    width: "18px",
+                    height: "18px",
+                    accentColor: "#00e5ff",
+                    cursor: "pointer",
+                  }}
+                />
+                <label 
+                  htmlFor="published" 
+                  style={{ 
+                    fontSize: "0.85rem", 
+                    fontWeight: 600, 
+                    color: "var(--text-primary)",
+                    cursor: "pointer",
+                    userSelect: "none"
+                  }}
+                >
+                  Publish immediately (make visible on user feed)
+                </label>
+              </div>
+
               {/* Action Buttons */}
               <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", marginTop: "10px" }}>
                 <button 
                   type="button" 
                   className="btn-secondary"
                   onClick={() => {
-                    setIsCreateOpen(false);
+                    setIsModalOpen(false);
                     setFormError(null);
                   }}
                   style={{ padding: "10px 20px", fontSize: "0.85rem" }}
@@ -573,10 +694,125 @@ export default function AdminArticlesPage() {
                   disabled={formSubmitting}
                 >
                   <Save size={16} />
-                  {formSubmitting ? "Creating..." : "Save Draft"}
+                  {formSubmitting ? "Saving..." : editingArticleId ? "Save Changes" : "Save Draft"}
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal Backdrop */}
+      {isDeleteOpen && deletingArticle && (
+        <div 
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 100,
+            background: "rgba(6, 7, 13, 0.82)",
+            backdropFilter: "blur(6px)",
+            WebkitBackdropFilter: "blur(6px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "24px",
+          }}
+        >
+          {/* Modal Card */}
+          <div 
+            className="glass-card animate-fade-in-up" 
+            style={{
+              maxWidth: "480px",
+              width: "100%",
+              padding: "32px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "24px",
+              boxShadow: "0 20px 50px rgba(0, 0, 0, 0.5)",
+              border: "1px solid rgba(239, 68, 68, 0.3)",
+            }}
+          >
+            {/* Modal Header */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h2 style={{ fontSize: "1.25rem", fontWeight: 800, color: "#f87171" }}>
+                Delete Article
+              </h2>
+              <button 
+                onClick={() => {
+                  setIsDeleteOpen(false);
+                  setDeletingArticle(null);
+                }}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "var(--text-secondary)",
+                  cursor: "pointer",
+                  padding: "4px",
+                }}
+                aria-label="Close modal"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Error Message */}
+            {deleteError && (
+              <div 
+                style={{
+                  background: "rgba(239, 68, 68, 0.1)",
+                  border: "1px solid rgba(239, 68, 68, 0.3)",
+                  color: "#f87171",
+                  padding: "12px 16px",
+                  borderRadius: "10px",
+                  fontSize: "0.825rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}
+              >
+                <AlertCircle size={16} />
+                <span>{deleteError}</span>
+              </div>
+            )}
+
+            <div>
+              <p style={{ color: "var(--text-primary)", fontSize: "0.9rem", lineHeight: "1.5" }}>
+                Are you sure you want to delete article <strong>{deletingArticle.title}</strong>?
+              </p>
+              <p style={{ color: "var(--text-muted)", fontSize: "0.8rem", marginTop: "12px", lineHeight: "1.5" }}>
+                This action is permanent and cannot be undone. All user reading progress statistics associated with this article will be reset.
+              </p>
+            </div>
+
+            {/* Action Buttons */}
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px" }}>
+              <button 
+                type="button" 
+                className="btn-secondary"
+                onClick={() => {
+                  setIsDeleteOpen(false);
+                  setDeletingArticle(null);
+                }}
+                style={{ padding: "10px 20px", fontSize: "0.85rem" }}
+                disabled={deleteSubmitting}
+              >
+                Cancel
+              </button>
+              <button 
+                type="button" 
+                className="btn-primary"
+                onClick={handleDeleteSubmit}
+                style={{ 
+                  padding: "10px 20px", 
+                  fontSize: "0.85rem",
+                  background: "linear-gradient(135deg, #ef4444, #dc2626)",
+                  boxShadow: "0 10px 30px rgba(239, 68, 68, 0.25)",
+                }}
+                disabled={deleteSubmitting}
+              >
+                {deleteSubmitting ? "Deleting..." : "Confirm Delete"}
+              </button>
+            </div>
           </div>
         </div>
       )}
