@@ -7,12 +7,15 @@ import {
   ChevronDown,
   ClipboardList,
   Eraser,
+  Eraser,
   FileText,
   Lightbulb,
   PartyPopper,
   PenLine,
   Send,
+  Loader2,
 } from "lucide-react";
+import { evaluateChallenge } from "@/lib/api";
 
 interface Hint {
   text: string;
@@ -39,6 +42,8 @@ export default function ChallengeAttempt({
   const [hintsOpen, setHintsOpen] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [charCount, setCharCount] = useState(0);
+  const [evaluating, setEvaluating] = useState(false);
+  const [evaluation, setEvaluation] = useState<{ score: number; feedback: string; improvements: string[] } | null>(null);
 
   const difficultyColor: Record<string, string> = {
     easy: "#34d399",
@@ -51,15 +56,27 @@ export default function ChallengeAttempt({
     setCharCount(e.target.value.length);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (prompt.trim().length < 10) return;
-    setSubmitted(true);
+    setEvaluating(true);
+    setSubmitted(false);
+    setEvaluation(null);
+    try {
+      const result = await evaluateChallenge(challengeId, prompt);
+      setEvaluation(result);
+    } catch (error) {
+      console.error("Evaluation failed:", error);
+    } finally {
+      setEvaluating(false);
+      setSubmitted(true);
+    }
   };
 
   const handleReset = () => {
     setPrompt("");
     setCharCount(0);
     setSubmitted(false);
+    setEvaluation(null);
   };
 
   const currentDifficultyColor = difficultyColor[difficulty] || "#a78bfa";
@@ -349,31 +366,61 @@ export default function ChallengeAttempt({
               +{points} pts
             </div>
 
-            <p
-              style={{
-                fontSize: "0.8rem",
-                color: "var(--text-muted)",
-                marginBottom: "24px",
-                padding: "10px 16px",
-                background: "rgba(255,255,255,0.03)",
-                borderRadius: "10px",
-                border: "1px solid var(--border-subtle)",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                maxWidth: "560px",
-                lineHeight: 1.6,
-              }}
-            >
-              <AlertTriangle
-                size={15}
-                strokeWidth={1.8}
-                color={currentDifficultyColor}
-                style={{ flexShrink: 0 }}
-              />
-              Auto-evaluation coming in Phase 4. A human reviewer or LLM will
-              grade your prompt.
-            </p>
+            {evaluation ? (
+              <div
+                style={{
+                  background: "rgba(0,0,0,0.2)",
+                  borderRadius: "12px",
+                  padding: "20px",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  marginBottom: "24px",
+                  textAlign: "left"
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
+                  <h4 style={{ margin: 0, fontWeight: 700, color: "#fff" }}>AI Evaluation Score</h4>
+                  <span style={{ fontWeight: 800, color: evaluation.score >= 7 ? "#34d399" : "#fbbf24" }}>{evaluation.score} / 10</span>
+                </div>
+                <p style={{ fontSize: "0.9rem", color: "#cbd5e1", lineHeight: 1.6, marginBottom: "16px" }}>
+                  {evaluation.feedback}
+                </p>
+                {evaluation.improvements && evaluation.improvements.length > 0 && (
+                  <div>
+                    <h5 style={{ margin: "0 0 8px 0", fontSize: "0.85rem", color: "var(--text-muted)", textTransform: "uppercase" }}>Suggestions for Improvement:</h5>
+                    <ul style={{ margin: 0, paddingLeft: "20px", color: "#94a3b8", fontSize: "0.85rem" }}>
+                      {evaluation.improvements.map((imp, idx) => (
+                        <li key={idx} style={{ marginBottom: "6px" }}>{imp}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p
+                style={{
+                  fontSize: "0.8rem",
+                  color: "var(--text-muted)",
+                  marginBottom: "24px",
+                  padding: "10px 16px",
+                  background: "rgba(255,255,255,0.03)",
+                  borderRadius: "10px",
+                  border: "1px solid var(--border-subtle)",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  maxWidth: "560px",
+                  lineHeight: 1.6,
+                }}
+              >
+                <AlertTriangle
+                  size={15}
+                  strokeWidth={1.8}
+                  color={currentDifficultyColor}
+                  style={{ flexShrink: 0 }}
+                />
+                No evaluation received from Ollama.
+              </p>
+            )}
 
             <div
               style={{
@@ -480,20 +527,20 @@ export default function ChallengeAttempt({
 
                 <button
                   onClick={handleSubmit}
-                  disabled={prompt.trim().length < 10}
+                  disabled={prompt.trim().length < 10 || evaluating}
                   className="btn-primary"
                   style={{
                     padding: "10px 24px",
                     fontSize: "0.9rem",
-                    opacity: prompt.trim().length < 10 ? 0.5 : 1,
-                    cursor: prompt.trim().length < 10 ? "not-allowed" : "pointer",
+                    opacity: (prompt.trim().length < 10 || evaluating) ? 0.5 : 1,
+                    cursor: (prompt.trim().length < 10 || evaluating) ? "not-allowed" : "pointer",
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "8px",
                   }}
                 >
-                  Submit Prompt
-                  <Send size={15} strokeWidth={1.8} />
+                  {evaluating ? "Evaluating..." : "Submit Prompt"}
+                  {evaluating ? <Loader2 className="animate-spin" size={15} strokeWidth={1.8} /> : <Send size={15} strokeWidth={1.8} />}
                 </button>
               </div>
             </div>

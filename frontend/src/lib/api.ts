@@ -182,6 +182,14 @@ export async function getChallenge(id: string) {
   return fetchAPI(`/challenges/${id}`);
 }
 
+export async function evaluateChallenge(id: string, userPrompt: string) {
+  return fetchAPI(`/challenges/${id}/evaluate`, {
+    method: "POST",
+    body: { user_prompt: userPrompt },
+    authenticated: true,
+  });
+}
+
 // =====================
 // Roadmaps
 // =====================
