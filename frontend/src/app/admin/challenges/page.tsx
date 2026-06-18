@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getChallenges } from "@/lib/api";
-import { Plus, Edit, Trash2, AlertCircle, Calendar, Trophy } from "lucide-react";
+import { getChallenges, adminCreateChallenge } from "@/lib/api";
+import { Plus, Edit, Trash2, AlertCircle, Calendar, Trophy, X, Save } from "lucide-react";
 
 interface Challenge {
   id: string;
@@ -11,6 +11,9 @@ interface Challenge {
   difficulty: "easy" | "medium" | "hard";
   category?: string;
   points: number;
+  starter_prompt?: string;
+  expected_output?: string;
+  hints?: string[];
   created_at: string;
 }
 
@@ -19,27 +22,101 @@ export default function AdminChallengesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function loadChallenges() {
-      try {
-        const response = await getChallenges();
-        if (response?.challenges && Array.isArray(response?.challenges)) {
-          setChallenges(response.challenges);
-        } else {
-          setError("Failed to load challenges.");
-        }
-      } catch (err) {
-        console.error("Failed to load challenges for admin:", err);
-        setError("An error occurred while fetching challenges.");
-      } finally {
-        setLoading(false);
-      }
-    }
+  // Form states for creating a new challenge
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("easy");
+  const [category, setCategory] = useState("summarization");
+  const [starterPrompt, setStarterPrompt] = useState("");
+  const [expectedOutput, setExpectedOutput] = useState("");
+  const [hints, setHints] = useState<string[]>([]);
+  const [newHint, setNewHint] = useState("");
+  const [points, setPoints] = useState(10);
 
+  const [formSubmitting, setFormSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  async function loadChallenges() {
+    try {
+      setLoading(true);
+      const response = await getChallenges();
+      if (response?.challenges && Array.isArray(response?.challenges)) {
+        setChallenges(response.challenges);
+      } else {
+        setError("Failed to load challenges.");
+      }
+    } catch (err) {
+      console.error("Failed to load challenges for admin:", err);
+      setError("An error occurred while fetching challenges.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
     loadChallenges();
   }, []);
 
-  if (loading) {
+  const addHint = () => {
+    const trimmed = newHint.trim();
+    if (!trimmed) return;
+    setHints([...hints, trimmed]);
+    setNewHint("");
+  };
+
+  const removeHint = (index: number) => {
+    setHints(hints.filter((_, i) => i !== index));
+  };
+
+  const handleCreateSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title || !description || !difficulty || !category) {
+      setFormError("Title, description, difficulty, and category are required.");
+      return;
+    }
+
+    setFormSubmitting(true);
+    setFormError(null);
+
+    try {
+      const result = await adminCreateChallenge({
+        title,
+        description,
+        difficulty,
+        category: category || undefined,
+        starter_prompt: starterPrompt || undefined,
+        expected_output: expectedOutput || undefined,
+        hints: hints.length > 0 ? hints : undefined,
+        points: Number(points) || 10,
+      });
+
+      if (result) {
+        // Reset form
+        setTitle("");
+        setDescription("");
+        setDifficulty("easy");
+        setCategory("summarization");
+        setStarterPrompt("");
+        setExpectedOutput("");
+        setHints([]);
+        setNewHint("");
+        setPoints(10);
+        setIsCreateOpen(false);
+        // Refresh challenges list
+        await loadChallenges();
+      } else {
+        setFormError("Failed to create challenge.");
+      }
+    } catch (err: any) {
+      console.error("Error creating challenge:", err);
+      setFormError(err.message || "An error occurred while creating the challenge.");
+    } finally {
+      setFormSubmitting(false);
+    }
+  };
+
+  if (loading && challenges.length === 0) {
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -104,6 +181,7 @@ export default function AdminChallengesPage() {
         </div>
         <button 
           className="btn-primary" 
+          onClick={() => setIsCreateOpen(true)}
           style={{
             padding: "10px 20px",
             fontSize: "0.85rem",
@@ -274,6 +352,342 @@ export default function AdminChallengesPage() {
           </div>
         )}
       </div>
+
+      {/* Creation Modal Backdrop */}
+      {isCreateOpen && (
+        <div 
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 100,
+            background: "rgba(6, 7, 13, 0.82)",
+            backdropFilter: "blur(6px)",
+            WebkitBackdropFilter: "blur(6px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "24px",
+          }}
+        >
+          {/* Modal Card */}
+          <div 
+            className="glass-card animate-fade-in-up" 
+            style={{
+              maxWidth: "680px",
+              width: "100%",
+              maxHeight: "90vh",
+              overflowY: "auto",
+              padding: "32px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "24px",
+              boxShadow: "0 20px 50px rgba(0, 0, 0, 0.5)",
+              border: "1px solid rgba(0, 229, 255, 0.2)",
+            }}
+          >
+            {/* Modal Header */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h2 style={{ fontSize: "1.25rem", fontWeight: 800, color: "var(--text-primary)" }}>
+                Create New Challenge
+              </h2>
+              <button 
+                onClick={() => {
+                  setIsCreateOpen(false);
+                  setFormError(null);
+                }}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "var(--text-secondary)",
+                  cursor: "pointer",
+                  padding: "4px",
+                }}
+                aria-label="Close modal"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Error Message */}
+            {formError && (
+              <div 
+                style={{
+                  background: "rgba(239, 68, 68, 0.1)",
+                  border: "1px solid rgba(239, 68, 68, 0.3)",
+                  color: "#f87171",
+                  padding: "12px 16px",
+                  borderRadius: "10px",
+                  fontSize: "0.825rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}
+              >
+                <AlertCircle size={16} />
+                <span>{formError}</span>
+              </div>
+            )}
+
+            {/* Form */}
+            <form onSubmit={handleCreateSubmit} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+              {/* Title */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-secondary)" }}>Title</label>
+                <input 
+                  type="text" 
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g. JSON Data Extraction"
+                  style={{
+                    background: "rgba(255, 255, 255, 0.03)",
+                    border: "1px solid var(--border-medium)",
+                    borderRadius: "10px",
+                    padding: "10px 14px",
+                    color: "white",
+                    fontSize: "0.875rem",
+                    outline: "none",
+                  }}
+                  required
+                />
+              </div>
+
+              {/* Description */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-secondary)" }}>Description</label>
+                <textarea 
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Explain the challenge objectives to the user..."
+                  style={{
+                    background: "rgba(255, 255, 255, 0.03)",
+                    border: "1px solid var(--border-medium)",
+                    borderRadius: "10px",
+                    padding: "12px 14px",
+                    color: "white",
+                    fontSize: "0.875rem",
+                    outline: "none",
+                    minHeight: "80px",
+                  }}
+                  required
+                />
+              </div>
+
+              {/* Grid for Difficulty, Category and Points */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
+                {/* Difficulty Dropdown */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-secondary)" }}>Difficulty</label>
+                  <select 
+                    value={difficulty}
+                    onChange={(e) => setDifficulty(e.target.value as any)}
+                    style={{
+                      background: "rgba(255, 255, 255, 0.03)",
+                      border: "1px solid var(--border-medium)",
+                      borderRadius: "10px",
+                      padding: "10px 14px",
+                      color: "white",
+                      fontSize: "0.875rem",
+                      outline: "none",
+                    }}
+                  >
+                    <option value="easy" style={{ background: "#0d1120" }}>Easy</option>
+                    <option value="medium" style={{ background: "#0d1120" }}>Medium</option>
+                    <option value="hard" style={{ background: "#0d1120" }}>Hard</option>
+                  </select>
+                </div>
+
+                {/* Category Dropdown */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-secondary)" }}>Category</label>
+                  <select 
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    style={{
+                      background: "rgba(255, 255, 255, 0.03)",
+                      border: "1px solid var(--border-medium)",
+                      borderRadius: "10px",
+                      padding: "10px 14px",
+                      color: "white",
+                      fontSize: "0.875rem",
+                      outline: "none",
+                    }}
+                  >
+                    <option value="summarization" style={{ background: "#0d1120" }}>Summarization</option>
+                    <option value="extraction" style={{ background: "#0d1120" }}>Extraction</option>
+                    <option value="reasoning" style={{ background: "#0d1120" }}>Reasoning</option>
+                    <option value="role-playing" style={{ background: "#0d1120" }}>Role-Playing</option>
+                    <option value="chaining" style={{ background: "#0d1120" }}>Chaining</option>
+                    <option value="transformation" style={{ background: "#0d1120" }}>Transformation</option>
+                  </select>
+                </div>
+
+                {/* Points */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-secondary)" }}>Points (XP)</label>
+                  <input 
+                    type="number" 
+                    value={points}
+                    onChange={(e) => setPoints(Number(e.target.value))}
+                    min={5}
+                    max={100}
+                    style={{
+                      background: "rgba(255, 255, 255, 0.03)",
+                      border: "1px solid var(--border-medium)",
+                      borderRadius: "10px",
+                      padding: "10px 14px",
+                      color: "white",
+                      fontSize: "0.875rem",
+                      outline: "none",
+                    }}
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Starter Prompt */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-secondary)" }}>Starter Prompt</label>
+                <textarea 
+                  value={starterPrompt}
+                  onChange={(e) => setStarterPrompt(e.target.value)}
+                  placeholder="Paste starter guidelines or structure..."
+                  style={{
+                    background: "rgba(255, 255, 255, 0.03)",
+                    border: "1px solid var(--border-medium)",
+                    borderRadius: "10px",
+                    padding: "12px 14px",
+                    color: "white",
+                    fontSize: "0.875rem",
+                    outline: "none",
+                    minHeight: "80px",
+                    fontFamily: "monospace",
+                  }}
+                />
+              </div>
+
+              {/* Expected Output */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-secondary)" }}>Expected Output (Reference)</label>
+                <textarea 
+                  value={expectedOutput}
+                  onChange={(e) => setExpectedOutput(e.target.value)}
+                  placeholder="What should the final target prompt output resemble?..."
+                  style={{
+                    background: "rgba(255, 255, 255, 0.03)",
+                    border: "1px solid var(--border-medium)",
+                    borderRadius: "10px",
+                    padding: "12px 14px",
+                    color: "white",
+                    fontSize: "0.875rem",
+                    outline: "none",
+                    minHeight: "80px",
+                    fontFamily: "monospace",
+                  }}
+                />
+              </div>
+
+              {/* Hints Add/Remove section */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-secondary)" }}>Hints List</label>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <input 
+                    type="text" 
+                    value={newHint}
+                    onChange={(e) => setNewHint(e.target.value)}
+                    placeholder="Enter hints helper tip..."
+                    style={{
+                      background: "rgba(255, 255, 255, 0.03)",
+                      border: "1px solid var(--border-medium)",
+                      borderRadius: "10px",
+                      padding: "10px 14px",
+                      color: "white",
+                      fontSize: "0.875rem",
+                      outline: "none",
+                      flex: 1,
+                    }}
+                  />
+                  <button 
+                    type="button" 
+                    onClick={addHint}
+                    className="btn-secondary"
+                    style={{ padding: "10px 16px", borderRadius: "10px", fontSize: "0.85rem" }}
+                  >
+                    Add
+                  </button>
+                </div>
+                {hints.length > 0 && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "4px" }}>
+                    {hints.map((hint, idx) => (
+                      <span 
+                        key={idx} 
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "8px",
+                          background: "rgba(255, 255, 255, 0.05)",
+                          border: "1px solid var(--border-subtle)",
+                          borderRadius: "8px",
+                          padding: "6px 12px",
+                          fontSize: "0.75rem",
+                        }}
+                      >
+                        <span>{hint}</span>
+                        <button 
+                          type="button" 
+                          onClick={() => removeHint(idx)}
+                          style={{
+                            background: "transparent",
+                            border: "none",
+                            color: "#f87171",
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            padding: "2px",
+                          }}
+                          aria-label="Remove hint"
+                        >
+                          <X size={12} />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", marginTop: "10px" }}>
+                <button 
+                  type="button" 
+                  className="btn-secondary"
+                  onClick={() => {
+                    setIsCreateOpen(false);
+                    setFormError(null);
+                  }}
+                  style={{ padding: "10px 20px", fontSize: "0.85rem" }}
+                  disabled={formSubmitting}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  className="btn-primary"
+                  style={{ 
+                    padding: "10px 20px", 
+                    fontSize: "0.85rem",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                  disabled={formSubmitting}
+                >
+                  <Save size={16} />
+                  {formSubmitting ? "Creating..." : "Save Challenge"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
