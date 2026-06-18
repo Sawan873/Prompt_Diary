@@ -673,4 +673,112 @@ export async function adminDeleteArticle(id: string) {
   });
 }
 
+/**
+ * Create a new challenge (Admin only).
+ */
+export async function adminCreateChallenge(data: {
+  title: string;
+  description: string;
+  difficulty: "easy" | "medium" | "hard";
+  category?: string;
+  starter_prompt?: string;
+  expected_output?: string;
+  hints?: string[];
+  points?: number;
+}) {
+  return fetchAPI("/challenges", {
+    method: "POST",
+    body: data as Record<string, unknown>,
+    authenticated: true,
+  });
+}
+
+/**
+ * Update an existing challenge (Admin only).
+ */
+export async function adminUpdateChallenge(
+  id: string,
+  data: {
+    title?: string;
+    description?: string;
+    difficulty?: "easy" | "medium" | "hard";
+    category?: string;
+    starter_prompt?: string;
+    expected_output?: string;
+    hints?: string[];
+    points?: number;
+  }
+) {
+  return fetchAPI(`/challenges/${id}`, {
+    method: "PUT",
+    body: data as Record<string, unknown>,
+    authenticated: true,
+  });
+}
+
+/**
+ * Delete a challenge (Admin only).
+ */
+export async function adminDeleteChallenge(id: string) {
+  return fetchAPI(`/challenges/${id}`, {
+    method: "DELETE",
+    authenticated: true,
+  });
+}
+
+export interface RoadmapTopic {
+  order: number;
+  title: string;
+  description: string;
+  article_slug?: string;
+}
+
+/**
+ * Create a new roadmap (Admin only).
+ */
+export async function adminCreateRoadmap(data: {
+  title: string;
+  level: "beginner" | "intermediate" | "advanced";
+  description?: string;
+  topics: RoadmapTopic[];
+  estimated_hours?: number;
+}) {
+  return fetchAPI("/roadmaps", {
+    method: "POST",
+    body: data as Record<string, unknown>,
+    authenticated: true,
+  });
+}
+
+/**
+ * Update an existing roadmap (Admin only).
+ */
+export async function adminUpdateRoadmap(
+  id: string,
+  data: {
+    title?: string;
+    level?: "beginner" | "intermediate" | "advanced";
+    description?: string;
+    topics?: RoadmapTopic[];
+    estimated_hours?: number;
+  }
+) {
+  return fetchAPI(`/roadmaps/${id}`, {
+    method: "PUT",
+    body: data as Record<string, unknown>,
+    authenticated: true,
+  });
+}
+
+/**
+ * Delete a roadmap (Admin only).
+ */
+export async function adminDeleteRoadmap(id: string) {
+  return fetchAPI(`/roadmaps/${id}`, {
+    method: "DELETE",
+    authenticated: true,
+  });
+}
+
+
 
