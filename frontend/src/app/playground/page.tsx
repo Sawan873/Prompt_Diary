@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { runPrompt, getPlaygroundModels } from "@/lib/api";
 import {
   ArrowRight,
@@ -9,6 +10,8 @@ import {
   ChevronDown,
   ClipboardList,
   Clock3,
+  Copy,
+  Check,
   Eraser,
   FileInput,
   FileOutput,
@@ -30,12 +33,14 @@ interface ModelInfo {
 }
 
 export default function PlaygroundPage() {
+  const searchParams = useSearchParams();
   const [prompt, setPrompt] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
   const [model, setModel] = useState("gpt-4");
   const [temperature, setTemperature] = useState(0.7);
   const [output, setOutput] = useState("");
   const [isRunning, setIsRunning] = useState(false);
+  const [copiedOutput, setCopiedOutput] = useState(false);
   const [models, setModels] = useState<ModelInfo[]>([]);
   const [showSettings, setShowSettings] = useState(false);
   const [lastUsage, setLastUsage] = useState<{
@@ -58,7 +63,13 @@ export default function PlaygroundPage() {
     }
 
     loadModels();
-  }, []);
+
+    // Load prompt from URL query params (from marketplace "Try in Playground")
+    const urlPrompt = searchParams.get("prompt");
+    if (urlPrompt) {
+      setPrompt(decodeURIComponent(urlPrompt));
+    }
+  }, [searchParams]);
 
   const handleRun = async () => {
     if (!prompt.trim()) return;
@@ -112,6 +123,14 @@ export default function PlaygroundPage() {
     setOutput("");
     setLastUsage(null);
     setSystemPrompt("");
+    setCopiedOutput(false);
+  };
+
+  const handleCopyOutput = () => {
+    if (!output) return;
+    navigator.clipboard.writeText(output);
+    setCopiedOutput(true);
+    setTimeout(() => setCopiedOutput(false), 2000);
   };
 
   return (
@@ -489,13 +508,68 @@ export default function PlaygroundPage() {
               color: "var(--text-secondary)",
               display: "flex",
               alignItems: "center",
-              gap: "8px",
+              justifyContent: "space-between",
               textTransform: "uppercase",
               letterSpacing: "0.08em",
             }}
           >
-            <FileOutput size={16} strokeWidth={1.8} />
-            Output
+            <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <FileOutput size={16} strokeWidth={1.8} />
+              Output
+              {output && (
+                <span
+                  style={{
+                    fontSize: "0.65rem",
+                    padding: "2px 8px",
+                    borderRadius: "6px",
+                    background: "rgba(245,158,11,0.12)",
+                    color: "#fbbf24",
+                    border: "1px solid rgba(245,158,11,0.2)",
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                  }}
+                >
+                  Simulated
+                </span>
+              )}
+            </span>
+            {output && (
+              <button
+                id="copy-output-btn"
+                onClick={handleCopyOutput}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "5px",
+                  padding: "5px 12px",
+                  borderRadius: "8px",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  background: copiedOutput
+                    ? "rgba(16,185,129,0.12)"
+                    : "rgba(255,255,255,0.04)",
+                  color: copiedOutput ? "#34d399" : "var(--text-muted)",
+                  fontSize: "0.72rem",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                  textTransform: "none",
+                  letterSpacing: "0",
+                }}
+              >
+                {copiedOutput ? (
+                  <>
+                    <Check size={12} />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy size={12} />
+                    Copy
+                  </>
+                )}
+              </button>
+            )}
           </h3>
 
           <div
