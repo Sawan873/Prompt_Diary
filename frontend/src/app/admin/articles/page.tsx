@@ -24,10 +24,10 @@ interface Article {
 }
 
 export default function AdminArticlesPage() {
+  const { showToast } = useToast();
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { showToast } = useToast();
 
   // Modal states for creating/editing an article
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -134,6 +134,7 @@ export default function AdminArticlesPage() {
           await loadArticles();
         } else {
           setFormError("Failed to update article.");
+          showToast("Failed to update article.", "error");
         }
       } else {
         // Create mode
@@ -157,11 +158,14 @@ export default function AdminArticlesPage() {
           await loadArticles();
         } else {
           setFormError("Failed to create article.");
+          showToast("Failed to create article.", "error");
         }
       }
     } catch (err: any) {
       console.error("Error saving article:", err);
-      setFormError(err.message || "An error occurred while saving the article.");
+      const errMsg = err.message || "An error occurred while saving the article.";
+      setFormError(errMsg);
+      showToast(errMsg, "error");
     } finally {
       setFormSubmitting(false);
     }
@@ -187,10 +191,13 @@ export default function AdminArticlesPage() {
         await loadArticles();
       } else {
         setDeleteError("Failed to delete article.");
+        showToast("Failed to delete article.", "error");
       }
     } catch (err: any) {
       console.error("Error deleting article:", err);
-      setDeleteError(err.message || "An error occurred while deleting the article.");
+      const errMsg = err.message || "An error occurred while deleting the article.";
+      setDeleteError(errMsg);
+      showToast(errMsg, "error");
     } finally {
       setDeleteSubmitting(false);
     }

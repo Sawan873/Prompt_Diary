@@ -41,10 +41,10 @@ interface Roadmap {
 }
 
 export default function AdminRoadmapsPage() {
+  const { showToast } = useToast();
   const [roadmaps, setRoadmaps] = useState<Roadmap[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { showToast } = useToast();
 
   // Form states for creating/editing a roadmap
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -286,6 +286,7 @@ export default function AdminRoadmapsPage() {
           await loadRoadmaps();
         } else {
           setFormError("Failed to update roadmap.");
+          showToast("Failed to update roadmap.", "error");
         }
       } else {
         // Create Mode
@@ -303,11 +304,14 @@ export default function AdminRoadmapsPage() {
           await loadRoadmaps();
         } else {
           setFormError("Failed to create roadmap.");
+          showToast("Failed to create roadmap.", "error");
         }
       }
     } catch (err: any) {
       console.error("Error saving roadmap:", err);
-      setFormError(err.message || "An error occurred while saving the roadmap.");
+      const errMsg = err.message || "An error occurred while saving the roadmap.";
+      setFormError(errMsg);
+      showToast(errMsg, "error");
     } finally {
       setFormSubmitting(false);
     }
@@ -326,7 +330,9 @@ export default function AdminRoadmapsPage() {
       await loadRoadmaps();
     } catch (err: any) {
       console.error("Error deleting roadmap:", err);
-      setDeleteError(err.message || "An error occurred while deleting the roadmap.");
+      const errMsg = err.message || "An error occurred while deleting the roadmap.";
+      setDeleteError(errMsg);
+      showToast(errMsg, "error");
     } finally {
       setDeleteSubmitting(false);
     }

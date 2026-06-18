@@ -24,10 +24,10 @@ interface Challenge {
 }
 
 export default function AdminChallengesPage() {
+  const { showToast } = useToast();
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { showToast } = useToast();
 
   // Form states for creating/editing a challenge
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -151,6 +151,7 @@ export default function AdminChallengesPage() {
           await loadChallenges();
         } else {
           setFormError("Failed to update challenge.");
+          showToast("Failed to update challenge.", "error");
         }
       } else {
         // Create mode
@@ -171,11 +172,14 @@ export default function AdminChallengesPage() {
           await loadChallenges();
         } else {
           setFormError("Failed to create challenge.");
+          showToast("Failed to create challenge.", "error");
         }
       }
     } catch (err: any) {
       console.error("Error saving challenge:", err);
-      setFormError(err.message || "An error occurred while saving the challenge.");
+      const errMsg = err.message || "An error occurred while saving the challenge.";
+      setFormError(errMsg);
+      showToast(errMsg, "error");
     } finally {
       setFormSubmitting(false);
     }
@@ -195,10 +199,13 @@ export default function AdminChallengesPage() {
         await loadChallenges();
       } else {
         setDeleteError("Failed to delete challenge.");
+        showToast("Failed to delete challenge.", "error");
       }
     } catch (err: any) {
       console.error("Error deleting challenge:", err);
-      setDeleteError(err.message || "An error occurred while deleting the challenge.");
+      const errMsg = err.message || "An error occurred while deleting the challenge.";
+      setDeleteError(errMsg);
+      showToast(errMsg, "error");
     } finally {
       setDeleteSubmitting(false);
     }
