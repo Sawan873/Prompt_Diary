@@ -15,6 +15,7 @@ from app.api.v1.endpoints.user_progress import router as user_progress_router
 from app.api.v1.endpoints.search import router as search_router
 from app.api.v1.endpoints.playground import router as playground_router
 from app.api.v1.endpoints.marketplace import router as marketplace_router  # NEW
+from app.api.v1.endpoints.admin import router as admin_router
 
 api_router = APIRouter()
 
@@ -27,3 +28,4 @@ api_router.include_router(user_progress_router)
 api_router.include_router(search_router)
 api_router.include_router(playground_router)
 api_router.include_router(marketplace_router)  # NEW
+api_router.include_router(admin_router)
