@@ -585,3 +585,34 @@ export async function getMarketplacePromptById(
     return MARKETPLACE_SEED_DATA.find((p) => p.id === id) || null;
   }
 }
+
+// =====================
+// Admin
+// =====================
+
+/**
+ * Fetch platform-wide statistics (Admin only).
+ */
+export async function adminGetStats() {
+  return fetchAPI("/admin/stats", { authenticated: true });
+}
+
+/**
+ * Fetch all registered users with optional search filtering (Admin only).
+ */
+export async function adminGetUsers(search?: string) {
+  const query = new URLSearchParams();
+  if (search) query.set("search", search);
+  const queryString = query.toString();
+  return fetchAPI(`/admin/users${queryString ? `?${queryString}` : ""}`, {
+    authenticated: true,
+  });
+}
+
+/**
+ * Fetch a single user's profile and progress metrics (Admin only).
+ */
+export async function adminGetUser(id: string) {
+  return fetchAPI(`/admin/users/${id}`, { authenticated: true });
+}
+
