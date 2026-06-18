@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { adminGetAllArticles } from "@/lib/api";
-import { Plus, Edit, Trash2, AlertCircle, Calendar } from "lucide-react";
+import { adminGetAllArticles, adminCreateArticle } from "@/lib/api";
+import { Plus, Edit, Trash2, AlertCircle, Calendar, X, Save } from "lucide-react";
 
 interface Article {
   id: string;
@@ -19,27 +19,88 @@ export default function AdminArticlesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function loadArticles() {
-      try {
-        const response = await adminGetAllArticles();
-        if (response?.success && Array.isArray(response?.articles)) {
-          setArticles(response.articles);
-        } else {
-          setError("Failed to load articles.");
-        }
-      } catch (err) {
-        console.error("Failed to load articles for admin:", err);
-        setError("An error occurred while fetching articles.");
-      } finally {
-        setLoading(false);
-      }
-    }
+  // Form states for creating a new article
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [excerpt, setExcerpt] = useState("");
+  const [category, setCategory] = useState("fundamentals");
+  const [difficulty, setDifficulty] = useState("beginner");
+  const [tagsInput, setTagsInput] = useState("");
+  const [formSubmitting, setFormSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
+  async function loadArticles() {
+    try {
+      setLoading(true);
+      const response = await adminGetAllArticles();
+      if (response?.success && Array.isArray(response?.articles)) {
+        setArticles(response.articles);
+      } else {
+        setError("Failed to load articles.");
+      }
+    } catch (err) {
+      console.error("Failed to load articles for admin:", err);
+      setError("An error occurred while fetching articles.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
     loadArticles();
   }, []);
 
-  if (loading) {
+  const handleCreateSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title || !content || !category) {
+      setFormError("Title, content, and category are required.");
+      return;
+    }
+
+    setFormSubmitting(true);
+    setFormError(null);
+
+    const tags = tagsInput
+      ? tagsInput
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean)
+      : [];
+
+    try {
+      const result = await adminCreateArticle({
+        title,
+        content,
+        excerpt: excerpt || undefined,
+        category,
+        difficulty: difficulty || undefined,
+        tags,
+      });
+
+      if (result) {
+        // Reset form
+        setTitle("");
+        setContent("");
+        setExcerpt("");
+        setCategory("fundamentals");
+        setDifficulty("beginner");
+        setTagsInput("");
+        setIsCreateOpen(false);
+        // Refresh articles list
+        await loadArticles();
+      } else {
+        setFormError("Failed to create article.");
+      }
+    } catch (err: any) {
+      console.error("Error creating article:", err);
+      setFormError(err.message || "An error occurred while creating the article.");
+    } finally {
+      setFormSubmitting(false);
+    }
+  };
+
+  if (loading && articles.length === 0) {
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -104,6 +165,7 @@ export default function AdminArticlesPage() {
         </div>
         <button 
           className="btn-primary" 
+          onClick={() => setIsCreateOpen(true)}
           style={{
             padding: "10px 20px",
             fontSize: "0.85rem",
@@ -275,6 +337,249 @@ export default function AdminArticlesPage() {
           </div>
         )}
       </div>
+
+      {/* Creation Modal Backdrop */}
+      {isCreateOpen && (
+        <div 
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 100,
+            background: "rgba(6, 7, 13, 0.82)",
+            backdropFilter: "blur(6px)",
+            WebkitBackdropFilter: "blur(6px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "24px",
+          }}
+        >
+          {/* Modal Card */}
+          <div 
+            className="glass-card animate-fade-in-up" 
+            style={{
+              maxWidth: "680px",
+              width: "100%",
+              maxHeight: "90vh",
+              overflowY: "auto",
+              padding: "32px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "24px",
+              boxShadow: "0 20px 50px rgba(0, 0, 0, 0.5)",
+              border: "1px solid rgba(0, 229, 255, 0.2)",
+            }}
+          >
+            {/* Modal Header */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h2 style={{ fontSize: "1.25rem", fontWeight: 800, color: "var(--text-primary)" }}>
+                Create New Article Draft
+              </h2>
+              <button 
+                onClick={() => {
+                  setIsCreateOpen(false);
+                  setFormError(null);
+                }}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "var(--text-secondary)",
+                  cursor: "pointer",
+                  padding: "4px",
+                }}
+                aria-label="Close modal"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Error Message */}
+            {formError && (
+              <div 
+                style={{
+                  background: "rgba(239, 68, 68, 0.1)",
+                  border: "1px solid rgba(239, 68, 68, 0.3)",
+                  color: "#f87171",
+                  padding: "12px 16px",
+                  borderRadius: "10px",
+                  fontSize: "0.825rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}
+              >
+                <AlertCircle size={16} />
+                <span>{formError}</span>
+              </div>
+            )}
+
+            {/* Form */}
+            <form onSubmit={handleCreateSubmit} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+              {/* Title */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-secondary)" }}>Title</label>
+                <input 
+                  type="text" 
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g. Advanced Prompt Techniques"
+                  style={{
+                    background: "rgba(255, 255, 255, 0.03)",
+                    border: "1px solid var(--border-medium)",
+                    borderRadius: "10px",
+                    padding: "10px 14px",
+                    color: "white",
+                    fontSize: "0.875rem",
+                    outline: "none",
+                  }}
+                  required
+                />
+              </div>
+
+              {/* Grid for Category and Difficulty */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                {/* Category Dropdown */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-secondary)" }}>Category</label>
+                  <select 
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    style={{
+                      background: "rgba(255, 255, 255, 0.03)",
+                      border: "1px solid var(--border-medium)",
+                      borderRadius: "10px",
+                      padding: "10px 14px",
+                      color: "white",
+                      fontSize: "0.875rem",
+                      outline: "none",
+                    }}
+                  >
+                    <option value="fundamentals" style={{ background: "#0d1120" }}>Fundamentals</option>
+                    <option value="techniques" style={{ background: "#0d1120" }}>Techniques</option>
+                    <option value="architecture" style={{ background: "#0d1120" }}>Architecture</option>
+                  </select>
+                </div>
+
+                {/* Difficulty Dropdown */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-secondary)" }}>Difficulty</label>
+                  <select 
+                    value={difficulty}
+                    onChange={(e) => setDifficulty(e.target.value)}
+                    style={{
+                      background: "rgba(255, 255, 255, 0.03)",
+                      border: "1px solid var(--border-medium)",
+                      borderRadius: "10px",
+                      padding: "10px 14px",
+                      color: "white",
+                      fontSize: "0.875rem",
+                      outline: "none",
+                    }}
+                  >
+                    <option value="beginner" style={{ background: "#0d1120" }}>Beginner</option>
+                    <option value="intermediate" style={{ background: "#0d1120" }}>Intermediate</option>
+                    <option value="advanced" style={{ background: "#0d1120" }}>Advanced</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Excerpt */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-secondary)" }}>Excerpt</label>
+                <input 
+                  type="text" 
+                  value={excerpt}
+                  onChange={(e) => setExcerpt(e.target.value)}
+                  placeholder="A short summary of the article..."
+                  style={{
+                    background: "rgba(255, 255, 255, 0.03)",
+                    border: "1px solid var(--border-medium)",
+                    borderRadius: "10px",
+                    padding: "10px 14px",
+                    color: "white",
+                    fontSize: "0.875rem",
+                    outline: "none",
+                  }}
+                />
+              </div>
+
+              {/* Tags */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-secondary)" }}>Tags (Comma-separated)</label>
+                <input 
+                  type="text" 
+                  value={tagsInput}
+                  onChange={(e) => setTagsInput(e.target.value)}
+                  placeholder="e.g. prompt-engineering, basics, llm"
+                  style={{
+                    background: "rgba(255, 255, 255, 0.03)",
+                    border: "1px solid var(--border-medium)",
+                    borderRadius: "10px",
+                    padding: "10px 14px",
+                    color: "white",
+                    fontSize: "0.875rem",
+                    outline: "none",
+                  }}
+                />
+              </div>
+
+              {/* Content Markdown */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-secondary)" }}>Content (Markdown supported)</label>
+                <textarea 
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="# Enter your article header here..."
+                  style={{
+                    background: "rgba(255, 255, 255, 0.03)",
+                    border: "1px solid var(--border-medium)",
+                    borderRadius: "10px",
+                    padding: "12px 14px",
+                    color: "white",
+                    fontSize: "0.875rem",
+                    outline: "none",
+                    minHeight: "160px",
+                    fontFamily: "monospace",
+                    lineHeight: "1.5",
+                  }}
+                  required
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", marginTop: "10px" }}>
+                <button 
+                  type="button" 
+                  className="btn-secondary"
+                  onClick={() => {
+                    setIsCreateOpen(false);
+                    setFormError(null);
+                  }}
+                  style={{ padding: "10px 20px", fontSize: "0.85rem" }}
+                  disabled={formSubmitting}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  className="btn-primary"
+                  style={{ 
+                    padding: "10px 20px", 
+                    fontSize: "0.85rem",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                  disabled={formSubmitting}
+                >
+                  <Save size={16} />
+                  {formSubmitting ? "Creating..." : "Save Draft"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

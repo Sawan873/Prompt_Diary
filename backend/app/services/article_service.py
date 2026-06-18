@@ -103,6 +103,13 @@ def create_article(article_data: ArticleCreate, author_id: Optional[str] = None)
     article_dict["published"] = False  # Draft by default
     article_dict["author_id"] = author_id
     
+    # Auto-generate slug from title
+    import re
+    title_slug = article_data.title.lower()
+    title_slug = re.sub(r'[^a-z0-9\s-]', '', title_slug)
+    title_slug = re.sub(r'[\s-]+', '-', title_slug).strip('-')
+    article_dict["slug"] = title_slug
+    
     if supabase:
         try:
             result = supabase.table("articles").insert(article_dict).execute()
@@ -114,6 +121,7 @@ def create_article(article_data: ArticleCreate, author_id: Optional[str] = None)
     # Mock fallback injection
     MOCK_ARTICLES.insert(0, article_dict)
     return article_dict
+
 
 
 def create_article_from_mdx(raw_mdx: str, author_id: Optional[str] = None) -> dict:
