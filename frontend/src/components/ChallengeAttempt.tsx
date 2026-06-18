@@ -7,7 +7,6 @@ import {
   ChevronDown,
   ClipboardList,
   Eraser,
-  Eraser,
   FileText,
   Lightbulb,
   PartyPopper,
@@ -15,7 +14,7 @@ import {
   Send,
   Loader2,
 } from "lucide-react";
-import { evaluateChallenge } from "@/lib/api";
+import { evaluateChallenge, markChallengeCompleted } from "@/lib/api";
 
 interface Hint {
   text: string;
@@ -32,6 +31,8 @@ interface ChallengeAttemptProps {
 }
 
 export default function ChallengeAttempt({
+  challengeId,
+  title,
   exampleContext,
   expectedOutput,
   hints,
@@ -64,6 +65,15 @@ export default function ChallengeAttempt({
     try {
       const result = await evaluateChallenge(challengeId, prompt);
       setEvaluation(result);
+      
+      // Save progress to database
+      if (result && result.score > 0) {
+        try {
+          await markChallengeCompleted(challengeId, result.score);
+        } catch (progressError) {
+          console.error("Failed to save progress:", progressError);
+        }
+      }
     } catch (error) {
       console.error("Evaluation failed:", error);
     } finally {
