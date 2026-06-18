@@ -15,9 +15,18 @@ from app.services.challenge_service import (
     update_challenge,
     delete_challenge
 )
-from app.schemas.challenge import ChallengeCreate, ChallengeUpdate, ChallengeResponse
-from app.core.security import get_current_admin
+from app.schemas.challenge import (
+    ChallengeCreate, 
+    ChallengeUpdate, 
+    ChallengeResponse,
+    ChallengeEvaluateRequest,
+    ChallengeEvaluateResponse
+)
+from app.core.security import get_current_admin, get_optional_user
 from app.core.rate_limit import admin_rate_limiter
+from app.core.config import settings
+import httpx
+import json
 
 router = APIRouter(prefix="/challenges", tags=["Challenges"])
 
@@ -45,6 +54,61 @@ async def get_challenge(challenge_id: str):
     if not challenge:
         raise HTTPException(status_code=404, detail="Challenge not found")
     return challenge
+
+@router.post("/{challenge_id}/evaluate", response_model=ChallengeEvaluateResponse)
+async def evaluate_challenge(
+    challenge_id: str,
+    data: ChallengeEvaluateRequest,
+    user: Optional[dict] = Depends(get_optional_user),
+):
+    """Evaluate a user's prompt submission for a challenge using Ollama."""
+    challenge = get_challenge_by_id(challenge_id)
+    if not challenge:
+        raise HTTPException(status_code=404, detail="Challenge not found")
+        
+    if not getattr(settings, "OLLAMA_BASE_URL", None):
+        # Mock evaluation for fallback
+        return ChallengeEvaluateResponse(
+            score=8,
+            feedback="This is a mock evaluation because Ollama is not configured. Your prompt looks generally good.",
+            improvements=["Consider adding more specific output constraints.", "Define the persona more clearly."]
+        )
+        
+    system_prompt = (
+        "You are an expert Prompt Engineering evaluator. "
+        "The user is trying to solve the following challenge:\n"
+        f"Title: {challenge.title}\n"
+        f"Description: {challenge.description}\n"
+        f"Category: {challenge.category}\n\n"
+        "The user submitted the following prompt:\n"
+        f"{data.user_prompt}\n\n"
+        "Evaluate the prompt on a scale of 1-10. Provide feedback and a list of improvements.\n"
+        "You MUST return ONLY valid JSON in the exact following format:\n"
+        '{"score": <int>, "feedback": "<string>", "improvements": ["<string>", ...]}'
+    )
+    
+    url = f"{settings.OLLAMA_BASE_URL}/api/generate"
+    payload = {
+        "model": "llama3:latest",
+        "prompt": system_prompt,
+        "stream": False,
+        "format": "json"
+    }
+    
+    try:
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            response = await client.post(url, json=payload)
+            response.raise_for_status()
+            result_text = response.json().get("response", "")
+            
+            result_data = json.loads(result_text)
+            return ChallengeEvaluateResponse(
+                score=result_data.get("score", 0),
+                feedback=result_data.get("feedback", "No feedback provided."),
+                improvements=result_data.get("improvements", [])
+            )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to evaluate using Ollama: {str(e)}")
 
 
 @router.post("", response_model=ChallengeResponse, status_code=status.HTTP_201_CREATED)

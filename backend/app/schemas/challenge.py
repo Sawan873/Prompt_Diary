@@ -51,3 +51,11 @@ class ChallengeListResponse(BaseModel):
     """Response schema for challenge listing."""
     challenges: List[ChallengeResponse]
     total: int
+
+class ChallengeEvaluateRequest(BaseModel):
+    user_prompt: str = Field(..., description="The user's prompt submission")
+
+class ChallengeEvaluateResponse(BaseModel):
+    score: int = Field(..., description="Score out of 10")
+    feedback: str = Field(..., description="Feedback text")
+    improvements: List[str] = Field(default_factory=list, description="Suggested improvements")
