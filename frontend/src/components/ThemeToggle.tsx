@@ -42,10 +42,34 @@ export default function ThemeToggle() {
 
   return (
     <button
-      className="theme-toggle"
       onClick={toggle}
       aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
       title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: "38px",
+        height: "38px",
+        borderRadius: "12px",
+        background: "rgba(255, 255, 255, 0.04)",
+        border: "1px solid rgba(148, 163, 184, 0.14)",
+        color: "var(--text-secondary)",
+        cursor: "pointer",
+        transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.color = "var(--text-primary)";
+        e.currentTarget.style.background = "rgba(255, 255, 255, 0.09)";
+        e.currentTarget.style.borderColor = "rgba(148, 163, 184, 0.3)";
+        e.currentTarget.style.transform = "scale(1.05)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.color = "var(--text-secondary)";
+        e.currentTarget.style.background = "rgba(255, 255, 255, 0.04)";
+        e.currentTarget.style.borderColor = "rgba(148, 163, 184, 0.14)";
+        e.currentTarget.style.transform = "scale(1)";
+      }}
     >
       {theme === "dark" ? <SunIcon /> : <MoonIcon />}
     </button>
