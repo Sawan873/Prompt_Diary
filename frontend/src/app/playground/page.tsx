@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { runPrompt, getPlaygroundModels } from "@/lib/api";
+import PromptHistory, { saveToHistory } from "@/components/PromptHistory";
 import {
   ArrowRight,
   Bot,
@@ -16,6 +17,7 @@ import {
   FileInput,
   FileOutput,
   Gauge,
+  History,
   Lightbulb,
   Loader2,
   Play,
@@ -41,6 +43,7 @@ export default function PlaygroundPage() {
   const [output, setOutput] = useState("");
   const [isRunning, setIsRunning] = useState(false);
   const [copiedOutput, setCopiedOutput] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [models, setModels] = useState<ModelInfo[]>([]);
   const [showSettings, setShowSettings] = useState(false);
   const [lastUsage, setLastUsage] = useState<{
@@ -88,6 +91,7 @@ export default function PlaygroundPage() {
 
       if (data?.success) {
         setOutput(data.response);
+        saveToHistory(prompt.trim(), model, data.response);
         setLastUsage({
           input_tokens: data.usage?.input_tokens || 0,
           output_tokens: data.usage?.output_tokens || 0,
@@ -316,6 +320,25 @@ export default function PlaygroundPage() {
           >
             <Eraser size={15} strokeWidth={1.8} />
             Clear
+          </button>
+
+          <button
+            id="toggle-history"
+            onClick={() => setShowHistory(!showHistory)}
+            className="btn-secondary"
+            style={{
+              padding: "8px 16px",
+              fontSize: "0.8rem",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              borderColor: showHistory ? "rgba(124,58,237,0.4)" : undefined,
+              background: showHistory ? "rgba(124,58,237,0.1)" : undefined,
+              color: showHistory ? "#a78bfa" : undefined,
+            }}
+          >
+            <History size={15} strokeWidth={1.8} />
+            History
           </button>
 
           <button
@@ -690,6 +713,16 @@ export default function PlaygroundPage() {
           }
         }
       `}</style>
+
+      {/* History Sidebar Panel */}
+      <PromptHistory
+        isOpen={showHistory}
+        onClose={() => setShowHistory(false)}
+        onReplay={(p) => {
+          setPrompt(p);
+          setShowHistory(false);
+        }}
+      />
     </div>
   );
 }
