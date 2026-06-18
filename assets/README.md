@@ -1,6 +1,6 @@
 # Assets Directory
 
-This directory contains static assets used across the Prompt Dairy platform.
+This directory contains static assets used across the Prompt Diary platform.
 
 ## Structure
 

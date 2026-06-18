@@ -1,5 +1,5 @@
 -- ============================================================
--- Prompt Dairy — Initial Database Schema
+-- Prompt Diary — Initial Database Schema
 -- Run this in Supabase SQL Editor to set up the database
 -- ============================================================
 

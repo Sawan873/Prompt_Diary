@@ -19,6 +19,17 @@ class ArticleCreate(BaseModel):
     tags: Optional[List[str]] = Field(None, description="Tags list")
 
 
+class ArticleUpdate(BaseModel):
+    """Request schema for updating an article."""
+    title: Optional[str] = Field(None, description="Article title")
+    content: Optional[str] = Field(None, description="Article content (Markdown)")
+    excerpt: Optional[str] = Field(None, description="Short excerpt")
+    category: Optional[str] = Field(None, description="Article category")
+    difficulty: Optional[str] = Field(None, description="beginner/intermediate/advanced")
+    tags: Optional[List[str]] = Field(None, description="Tags list")
+    published: Optional[bool] = Field(None, description="Whether the article is published")
+
+
 class ArticleResponse(BaseModel):
     """Response schema for an article."""
     id: UUID

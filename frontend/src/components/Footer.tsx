@@ -14,6 +14,7 @@ export default function Footer() {
         { href: "/roadmaps", label: "Roadmaps" },
         { href: "/challenges", label: "Challenges" },
         { href: "/playground", label: "Playground" },
+        { href: "/marketplace", label: "Marketplace" },
       ],
     },
     {

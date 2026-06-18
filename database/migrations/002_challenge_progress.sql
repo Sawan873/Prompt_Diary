@@ -1,5 +1,5 @@
 -- ============================================================
--- Prompt Dairy — Migration 002: Challenge Progress Table
+-- Prompt Diary — Migration 002: Challenge Progress Table
 -- Run this in Supabase SQL Editor after 001_initial_schema.sql
 -- ============================================================
 

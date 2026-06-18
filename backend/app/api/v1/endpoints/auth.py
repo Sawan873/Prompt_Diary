@@ -17,11 +17,16 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.core.security import get_current_user, get_optional_user
 from app.core.supabase_client import get_supabase_admin
 from app.schemas.user import UserResponse, MessageResponse
+from app.core.rate_limit import auth_rate_limiter
 
 from typing import Optional
 from pydantic import BaseModel
 
-router = APIRouter(prefix="/auth", tags=["Authentication"])
+router = APIRouter(
+    prefix="/auth",
+    tags=["Authentication"],
+    dependencies=[Depends(auth_rate_limiter)]
+)
 
 
 class ProfileUpdate(BaseModel):

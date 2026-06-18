@@ -6,7 +6,10 @@ Falls back to mock data if Supabase is not configured.
 """
 
 from typing import Optional
+import uuid
+from datetime import datetime
 from app.core.config import settings
+from app.schemas.challenge import ChallengeCreate, ChallengeUpdate
 
 
 def _get_supabase():
@@ -67,6 +70,74 @@ def get_challenge_by_id(challenge_id: str) -> Optional[dict]:
         if challenge["id"] == challenge_id:
             return challenge
     return None
+
+
+def create_challenge(challenge_data: ChallengeCreate) -> dict:
+    """Creates a new prompt challenge in the database."""
+    supabase = _get_supabase()
+    
+    challenge_dict = challenge_data.model_dump()
+    challenge_dict["id"] = str(uuid.uuid4())
+    challenge_dict["created_at"] = datetime.utcnow().isoformat()
+    
+    if supabase:
+        try:
+            result = supabase.table("challenges").insert(challenge_dict).execute()
+            if result.data:
+                return result.data[0]
+        except Exception as e:
+            print(f"[ChallengeService] Supabase creation failed: {e}")
+            
+    MOCK_CHALLENGES.insert(0, challenge_dict)
+    return challenge_dict
+
+
+def update_challenge(challenge_id: str, challenge_data: ChallengeUpdate) -> Optional[dict]:
+    """Partially updates an existing challenge."""
+    supabase = _get_supabase()
+    update_fields = {k: v for k, v in challenge_data.model_dump().items() if v is not None}
+    
+    if supabase:
+        try:
+            result = (
+                supabase.table("challenges")
+                .update(update_fields)
+                .eq("id", challenge_id)
+                .execute()
+            )
+            if result.data:
+                return result.data[0]
+        except Exception as e:
+            print(f"[ChallengeService] Supabase update failed: {e}")
+            
+    # Mock update
+    for idx, c in enumerate(MOCK_CHALLENGES):
+        if c["id"] == challenge_id:
+            updated_challenge = {**c, **update_fields}
+            MOCK_CHALLENGES[idx] = updated_challenge
+            return updated_challenge
+            
+    return None
+
+
+def delete_challenge(challenge_id: str) -> bool:
+    """Removes a prompt challenge."""
+    supabase = _get_supabase()
+    
+    if supabase:
+        try:
+            supabase.table("challenges").delete().eq("id", challenge_id).execute()
+            return True
+        except Exception as e:
+            print(f"[ChallengeService] Supabase deletion failed: {e}")
+            
+    # Mock deletion
+    for idx, c in enumerate(MOCK_CHALLENGES):
+        if c["id"] == challenge_id:
+            MOCK_CHALLENGES.pop(idx)
+            return True
+            
+    return False
 
 
 # ---------------------------------------------------------------------------

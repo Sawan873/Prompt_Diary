@@ -17,8 +17,10 @@ The project currently has:
 - Prompt challenges
 - Learning roadmaps
 - System design learning section
-- Prompt playground page
+- Prompt playground with copy output and history
+- Prompt Marketplace (browse and use curated prompt templates)
 - User dashboard and progress APIs
+- API retry logic with exponential backoff
 
 Local development URLs:
 
@@ -183,7 +185,42 @@ POST /api/v1/playground/run
 GET /api/v1/playground/models
 ```
 
-Current playground behavior is basic/simulated unless real LLM API keys are configured.
+Current playground behavior is simulated unless real LLM API keys are configured.
+
+Recent improvements:
+
+- Copy Output button to clipboard
+- "Simulated" badge on output when using fallback
+- Prompt History sidebar (localStorage-based) with replay
+- URL query parameter support (`?prompt=...`) for marketplace integration
+
+### Marketplace
+
+Users can browse curated prompt templates and use them in the Playground.
+
+URLs:
+
+```text
+http://localhost:3000/marketplace
+http://localhost:3000/marketplace/[id]
+```
+
+Marketplace features:
+
+- Hero section with search bar
+- Category filter pills (Text Generation, Code, Marketing, Data, Education, Business, Creative, Image)
+- Sort by popular/newest/alphabetical
+- Prompt detail page with tabbed Prompt/Output view
+- Copy prompt to clipboard
+- "Try in Playground" button (pre-fills prompt in playground)
+- Tags display
+- 12 curated seed prompts as fallback data
+
+Database migration:
+
+```text
+database/migrations/003_marketplace.sql
+```
 
 ### Search
 
@@ -292,6 +329,8 @@ Main tables:
 - `roadmaps`
 - `user_progress`
 - `challenge_progress`
+- `marketplace_prompts`
+- `marketplace_favorites`
 
 Seed data exists in:
 
@@ -588,7 +627,7 @@ Remaining features:
 - Real OpenAI/Gemini model calls
 - Model selector connected to backend
 - Token/cost estimates
-- Prompt history
+- ~~Prompt history~~ ✅ Done (localStorage-based)
 - Save prompt experiments
 - Error handling for provider failures
 
@@ -645,4 +684,6 @@ The most important remaining work is:
 - Dynamic content creation UI
 - Auto-evaluation
 - Human review workflow
+- Real LLM integration (Groq API recommended for free tier)
+- Marketplace backend API endpoints
 - Production deployment hardening

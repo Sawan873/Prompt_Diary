@@ -1,8 +1,8 @@
-# 🏗️ Prompt Dairy — Architecture Document
+# 🏗️ Prompt Diary — Architecture Document
 
 ## System Overview
 
-Prompt Dairy is a full-stack learning platform for Prompt Engineering and AI System Design. The platform follows a **decoupled architecture** with separate frontend and backend services communicating via REST APIs.
+Prompt Diary is a full-stack learning platform for Prompt Engineering and AI System Design. The platform follows a **decoupled architecture** with separate frontend and backend services communicating via REST APIs.
 
 ---
 

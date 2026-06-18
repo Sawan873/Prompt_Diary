@@ -1,3 +1,3 @@
 """
-Prompt Dairy — Backend Application
+Prompt Diary — Backend Application
 """

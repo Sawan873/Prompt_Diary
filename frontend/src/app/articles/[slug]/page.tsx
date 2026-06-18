@@ -564,7 +564,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const article = await resolveDisplayArticle(slug);
-  if (!article) return { title: "Article Not Found — Prompt Dairy" };
+  if (!article) return { title: "Article Not Found — Prompt Diary" };
   return {
     title: `${article.title} — Prompt Diary`,
     description: `Learn about ${article.title}. A ${article.difficulty}-level article on ${article.category}.`,

@@ -7,7 +7,7 @@ Falls back to mock data if Supabase is not configured.
 
 from typing import Optional
 from app.core.config import settings
-from app.schemas.article import ArticleCreate
+from app.schemas.article import ArticleCreate, ArticleUpdate
 from app.services.mdx_service import parse_mdx_article
 import uuid
 
@@ -150,6 +150,54 @@ def create_article_from_mdx(raw_mdx: str, author_id: Optional[str] = None) -> di
     # Mock fallback injection
     MOCK_ARTICLES.insert(0, article_dict)
     return article_dict
+
+
+def update_article(article_id: str, article_data: ArticleUpdate) -> Optional[dict]:
+    """Partially updates an existing article."""
+    supabase = _get_supabase()
+    update_fields = {k: v for k, v in article_data.model_dump().items() if v is not None}
+    
+    if supabase:
+        try:
+            result = (
+                supabase.table("articles")
+                .update(update_fields)
+                .eq("id", article_id)
+                .execute()
+            )
+            if result.data:
+                return result.data[0]
+        except Exception as e:
+            print(f"[ArticleService] Supabase update failed: {e}")
+            
+    # Mock update
+    for idx, a in enumerate(MOCK_ARTICLES):
+        if a["id"] == article_id:
+            updated_article = {**a, **update_fields}
+            MOCK_ARTICLES[idx] = updated_article
+            return updated_article
+            
+    return None
+
+
+def delete_article(article_id: str) -> bool:
+    """Removes an article from the database."""
+    supabase = _get_supabase()
+    
+    if supabase:
+        try:
+            supabase.table("articles").delete().eq("id", article_id).execute()
+            return True
+        except Exception as e:
+            print(f"[ArticleService] Supabase deletion failed: {e}")
+            
+    # Mock deletion
+    for idx, a in enumerate(MOCK_ARTICLES):
+        if a["id"] == article_id:
+            MOCK_ARTICLES.pop(idx)
+            return True
+            
+    return False
 
 
 # ---------------------------------------------------------------------------

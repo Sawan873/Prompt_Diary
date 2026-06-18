@@ -1,6 +1,6 @@
-# Prompt Dairy — Backend API
+# Prompt Diary — Backend API
 
-FastAPI backend for the Prompt Dairy platform.
+FastAPI backend for the Prompt Diary platform.
 
 ## Setup
 

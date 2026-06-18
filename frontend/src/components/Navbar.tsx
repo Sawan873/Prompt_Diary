@@ -5,11 +5,13 @@ import { useState } from "react";
 import { useAuth } from "@/lib/AuthContext";
 import { useRouter } from "next/navigation";
 import Logo from "@/components/Logo";
+import ThemeToggle from "@/components/ThemeToggle";
 import {
   BookOpen,
   Target,
   Map,
   Code2,
+  Store,
   Network,
   Search,
   LayoutDashboard,
@@ -27,6 +29,7 @@ export default function Navbar() {
     { href: "/challenges", label: "Challenges", Icon: Target },
     { href: "/roadmaps", label: "Roadmaps", Icon: Map },
     { href: "/playground", label: "Playground", Icon: Code2 },
+    { href: "/marketplace", label: "Marketplace", Icon: Store },
     { href: "/system-design", label: "System Design", Icon: Network },
     { href: "/search", label: "Search", Icon: Search },
   ];
@@ -143,6 +146,10 @@ export default function Navbar() {
               margin: "0 10px",
             }}
           />
+
+          <ThemeToggle />
+
+          <div style={{ width: "8px" }} />
 
           {/* Auth buttons — conditional on login state */}
           {loading ? (
@@ -277,24 +284,35 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Mobile Menu Toggle */}
-        <button
-          id="mobile-menu-toggle"
-          onClick={() => setMobileOpen(!mobileOpen)}
+        {/* Mobile Actions (Theme Toggle + Menu Toggle) */}
+        <div
           style={{
             display: "none",
-            background: "rgba(255,255,255,0.04)",
-            border: "1px solid rgba(148,163,184,0.16)",
-            borderRadius: "12px",
-            color: "var(--text-primary)",
-            cursor: "pointer",
-            padding: "9px",
+            alignItems: "center",
+            gap: "8px",
           }}
-          className="mobile-toggle"
-          aria-label="Toggle menu"
+          className="mobile-actions"
         >
-          {mobileOpen ? <X size={22} /> : <Menu size={22} />}
-        </button>
+          <ThemeToggle />
+          <button
+            id="mobile-menu-toggle"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            style={{
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(148,163,184,0.16)",
+              borderRadius: "12px",
+              color: "var(--text-primary)",
+              cursor: "pointer",
+              padding: "9px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            aria-label="Toggle menu"
+          >
+            {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}
@@ -404,10 +422,9 @@ export default function Navbar() {
           .desktop-nav {
             display: none !important;
           }
-          .mobile-toggle {
+          .mobile-actions {
             display: flex !important;
             align-items: center;
-            justify-content: center;
           }
         }
         @media (min-width: 769px) {

@@ -1,4 +1,4 @@
-# Prompt Dairy — API Documentation
+# Prompt Diary — API Documentation
 
 ## Base URL
 
@@ -7,7 +7,7 @@
 
 ## Authentication
 
-Prompt Dairy uses **Supabase Auth**. The frontend handles signup/login via the Supabase JS client. The backend verifies JWTs for protected endpoints.
+Prompt Diary uses **Supabase Auth**. The frontend handles signup/login via the Supabase JS client. The backend verifies JWTs for protected endpoints.
 
 **Protected endpoints** require a `Bearer` token in the `Authorization` header:
 ```

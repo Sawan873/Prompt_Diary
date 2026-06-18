@@ -1,4 +1,4 @@
-# 🧠 Prompt Dairy
+# 🧠 Prompt Diary
 
 > A learning + practice ecosystem for **Prompt Engineering, AI Systems, and LLM Workflows**.
 

@@ -9,6 +9,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field
 
 
+# 1. Keep this from your LOCAL changes (HEAD)
 class TopicItem(BaseModel):
     """Detailed topic structure in a learning roadmap path."""
     order: int = Field(..., description="The sequential order number of this topic")
@@ -18,32 +19,33 @@ class TopicItem(BaseModel):
     completed: Optional[bool] = Field(False, description="Whether the current user completed this step")
 
 
-class RoadmapCreate(BaseModel):
-    """Request body to create a new learning roadmap path."""
-    title: str = Field(..., description="Roadmap title")
-    level: str = Field(..., description="Difficulty level (beginner, intermediate, advanced)")
-    description: Optional[str] = Field(None, description="Detailed explanation of the pathway")
-    topics: List[TopicItem] = Field(..., description="List of ordered modules")
-    estimated_hours: Optional[int] = Field(None, description="Total expected hours to complete")
-
-
-class RoadmapUpdate(BaseModel):
-    """Request body to partially update a learning roadmap path."""
-    title: Optional[str] = None
-    level: Optional[str] = None
-    description: Optional[str] = None
-    topics: Optional[List[TopicItem]] = None
-    estimated_hours: Optional[int] = None
-
-
-class RoadmapResponse(BaseModel):
-    """Response schema for a single learning roadmap."""
-    id: UUID
-    title: str
+# 2. Keep these from the REMOTE changes
+class RoadmapBase(BaseModel):
+    """Base schema for a roadmap."""
+    title: str = Field(..., min_length=1)
     level: Optional[str] = None
     description: Optional[str] = None
     topics: List[TopicItem] = []
     estimated_hours: Optional[int] = None
+
+
+class RoadmapCreate(RoadmapBase):
+    """Request schema for creating a roadmap."""
+    pass
+
+
+class RoadmapUpdate(BaseModel):
+    """Request schema for updating a roadmap."""
+    title: Optional[str] = None
+    level: Optional[str] = None
+    description: Optional[str] = None
+    topics: Any = None
+    estimated_hours: Optional[int] = None
+
+
+class RoadmapResponse(RoadmapBase):
+    """Response schema for a roadmap."""
+    id: UUID
     created_at: datetime
     
     # Dynamic fields populated for authenticated requests
@@ -58,4 +60,3 @@ class RoadmapListResponse(BaseModel):
     """Response schema for listing learning roadmaps."""
     roadmaps: List[RoadmapResponse]
     total: int
-

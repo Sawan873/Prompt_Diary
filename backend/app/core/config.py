@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
 
     # App
-    APP_NAME: str = "Prompt Dairy"
+    APP_NAME: str = "Prompt Diary"
     APP_ENV: str = "development"
     FRONTEND_URL: str = "http://localhost:3000"
 

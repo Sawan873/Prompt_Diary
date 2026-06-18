@@ -1,4 +1,4 @@
-# Prompt Dairy — Setup Guide
+# Prompt Diary — Setup Guide
 
 ## Prerequisites
 
@@ -12,8 +12,8 @@
 ## 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-org/prompt-dairy.git
-cd prompt-dairy
+git clone https://github.com/your-org/prompt-diary.git
+cd prompt-diary
 ```
 
 ---
@@ -46,7 +46,7 @@ cp .env.example .env
 
 Edit `.env`:
 ```env
-APP_NAME=Prompt Dairy
+APP_NAME=Prompt Diary
 APP_ENV=development
 FRONTEND_URL=http://localhost:3000
 
@@ -138,15 +138,89 @@ git push origin feature/your-feature
 
 ## 6. Deployment
 
-### Frontend → Vercel
-1. Connect your GitHub repo to Vercel
-2. Set environment variables in Vercel dashboard
-3. Deploy
+The project is deployed using **Render** for both frontend and backend, and **Supabase** for the database.
 
-### Backend → Railway / Fly.io
-1. Connect your GitHub repo
-2. Set environment variables
-3. Deploy with `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+---
+
+### Frontend → Render
+
+The frontend is deployed on Render as a **Web Service**.
+
+- Connect the GitHub repository to Render.
+- Create a new **Web Service** for the frontend.
+- Set the **Root Directory** as `frontend`.
+- Set the **Build Command** as `npm install && npm run build`.
+- Set the **Start Command** as `npm run start`.
+- Add the required environment variable in the Render dashboard:
+
+```env
+NEXT_PUBLIC_API_URL=https://prompt-diary-backend.onrender.com/api/v1
+```
+
+- Deploy the frontend service.
+
+**Frontend Live URL:**  
+https://prompt-diary-frontend.onrender.com
+
+---
+
+### Backend → Render
+
+The backend is deployed on Render as a **Web Service**.
+
+- Connect the GitHub repository to Render.
+- Create a new **Web Service** for the backend.
+- Set the **Root Directory** as `backend`.
+- Set the **Build Command** as `pip install -r requirements.txt`.
+- Set the **Start Command** as:
+
+```bash
+python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
+```
+
+- Add all required environment variables in the Render dashboard.
+- Deploy the backend service.
+
+**Backend Live URL:**  
+https://prompt-diary-backend.onrender.com
+
+**API Base URL:**  
+https://prompt-diary-backend.onrender.com/api/v1
+
+**API Documentation / Swagger:**  
+https://prompt-diary-backend.onrender.com/docs
+
+---
+
+### Important Backend API Endpoints
+
+After deployment, the backend APIs are available at the following endpoints:
+
+- `GET https://prompt-diary-backend.onrender.com/`
+- `GET https://prompt-diary-backend.onrender.com/docs`
+- `GET https://prompt-diary-backend.onrender.com/api/v1/articles`
+- `GET https://prompt-diary-backend.onrender.com/api/v1/articles/system-design`
+- `GET https://prompt-diary-backend.onrender.com/api/v1/roadmaps`
+- `GET https://prompt-diary-backend.onrender.com/api/v1/search`
+
+---
 
 ### Database → Supabase
-Already hosted. Just ensure your environment variables point to the correct project.
+
+The database is hosted on **Supabase**.
+
+- Supabase is used as the hosted PostgreSQL database.
+- The backend connects to Supabase using environment variables.
+- Ensure that all backend environment variables point to the correct Supabase project.
+- No separate database deployment is required because Supabase is already hosted.
+
+---
+
+### Deployment Summary
+
+| Service | Platform | URL |
+|---|---|---|
+| Frontend | Render | https://prompt-diary-frontend.onrender.com |
+| Backend | Render | https://prompt-diary-backend.onrender.com |
+| API Docs | FastAPI Swagger | https://prompt-diary-backend.onrender.com/docs |
+| Database | Supabase | Hosted Supabase Project |

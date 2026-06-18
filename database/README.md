@@ -1,4 +1,4 @@
-# 🗄️ Prompt Dairy — Database
+# 🗄️ Prompt Diary — Database
 
 ## Overview
 
