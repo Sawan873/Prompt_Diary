@@ -616,3 +616,61 @@ export async function adminGetUser(id: string) {
   return fetchAPI(`/admin/users/${id}`, { authenticated: true });
 }
 
+/**
+ * Fetch all articles, including drafts (Admin only).
+ */
+export async function adminGetAllArticles() {
+  return fetchAPI("/admin/articles", { authenticated: true });
+}
+
+/**
+ * Create a new article (Admin only).
+ */
+export async function adminCreateArticle(data: {
+  title: string;
+  content: string;
+  excerpt?: string;
+  category: string;
+  difficulty?: string;
+  tags?: string[];
+}) {
+  return fetchAPI("/articles", {
+    method: "POST",
+    body: data as Record<string, unknown>,
+    authenticated: true,
+  });
+}
+
+/**
+ * Update an existing article (Admin only).
+ */
+export async function adminUpdateArticle(
+  id: string,
+  data: {
+    title?: string;
+    content?: string;
+    excerpt?: string;
+    category?: string;
+    difficulty?: string;
+    tags?: string[];
+    published?: boolean;
+  }
+) {
+  return fetchAPI(`/articles/${id}`, {
+    method: "PUT",
+    body: data as Record<string, unknown>,
+    authenticated: true,
+  });
+}
+
+/**
+ * Delete an article (Admin only).
+ */
+export async function adminDeleteArticle(id: string) {
+  return fetchAPI(`/articles/${id}`, {
+    method: "DELETE",
+    authenticated: true,
+  });
+}
+
+
