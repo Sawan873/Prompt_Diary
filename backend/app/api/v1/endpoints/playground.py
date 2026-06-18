@@ -7,9 +7,10 @@ GET  /playground/models — List available models
 
 import time
 import hashlib
+import httpx
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List
 
 from app.core.config import settings
 from app.core.security import get_optional_user
@@ -171,6 +172,54 @@ def _generate_simulated_response(prompt: str, model: str, temperature: float) ->
         )
 
 
+async def get_ollama_models() -> List[ModelInfo]:
+    """Fetch available models from the local Ollama instance."""
+    if not hasattr(settings, "OLLAMA_BASE_URL") or not settings.OLLAMA_BASE_URL:
+        return []
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            response = await client.get(f"{settings.OLLAMA_BASE_URL}/api/tags")
+            if response.status_code == 200:
+                data = response.json()
+                models = []
+                for m in data.get("models", []):
+                    model_name = m.get("name")
+                    models.append(ModelInfo(
+                        id=model_name,
+                        name=model_name.capitalize(),
+                        provider="Ollama (Local)",
+                        available=True,
+                        description=f"Local open-source model: {model_name}"
+                    ))
+                return models
+    except Exception:
+        pass
+    return []
+
+async def call_ollama(prompt: str, model: str, temperature: float, max_tokens: int, system_prompt: Optional[str] = None) -> str:
+    """Call the local Ollama API to generate a response."""
+    if not hasattr(settings, "OLLAMA_BASE_URL") or not settings.OLLAMA_BASE_URL:
+        raise ValueError("OLLAMA_BASE_URL is not configured")
+        
+    url = f"{settings.OLLAMA_BASE_URL}/api/generate"
+    payload = {
+        "model": model,
+        "prompt": prompt,
+        "temperature": temperature,
+        "stream": False,
+        "options": {
+            "num_predict": max_tokens
+        }
+    }
+    if system_prompt:
+        payload["system"] = system_prompt
+        
+    async with httpx.AsyncClient(timeout=120.0) as client:
+        response = await client.post(url, json=payload)
+        response.raise_for_status()
+        return response.json().get("response", "")
+
+
 @router.get("/models")
 async def list_models():
     """
@@ -178,9 +227,13 @@ async def list_models():
 
     Models marked as `available: true` have API keys configured.
     """
+    base_models = [m.model_dump() for m in AVAILABLE_MODELS]
+    ollama_models = await get_ollama_models()
+    all_models = base_models + [m.model_dump() for m in ollama_models]
+    
     return {
-        "models": [m.model_dump() for m in AVAILABLE_MODELS],
-        "total": len(AVAILABLE_MODELS),
+        "models": all_models,
+        "total": len(all_models),
     }
 
 
@@ -199,17 +252,43 @@ async def run_prompt(
     but their usage may be rate-limited in the future.
     """
     start_time = time.time()
+    simulated = False
+    response_text = ""
 
-    # TODO: Phase 4 — integrate real LLM APIs
-    # if settings.OPENAI_API_KEY and data.model.startswith("gpt"):
-    #     response = await call_openai(data.prompt, data.model, ...)
-    # elif settings.GEMINI_API_KEY and data.model == "gemini-pro":
-    #     response = await call_gemini(data.prompt, ...)
+    # Check if the requested model is an Ollama model
+    ollama_models = await get_ollama_models()
+    ollama_model_ids = [m.id for m in ollama_models]
 
-    # For now, generate a simulated response
-    response_text = _generate_simulated_response(
-        data.prompt, data.model, data.temperature
-    )
+    if getattr(settings, "OLLAMA_BASE_URL", None) and data.model in ollama_model_ids:
+        try:
+            response_text = await call_ollama(
+                prompt=data.prompt,
+                model=data.model,
+                temperature=data.temperature,
+                max_tokens=data.max_tokens,
+                system_prompt=data.system_prompt
+            )
+        except Exception as e:
+            response_text = f"Error calling Ollama: {str(e)}\n\nFalling back to simulated response..."
+            simulated = True
+    elif settings.OPENAI_API_KEY and data.model.startswith("gpt"):
+        # TODO: Phase 4 — integrate real OpenAI API
+        pass
+    elif settings.GEMINI_API_KEY and data.model == "gemini-pro":
+        # TODO: Phase 4 — integrate real Gemini API
+        pass
+
+    if not response_text or simulated:
+        # Fallback to simulated response
+        if not response_text:
+            response_text = _generate_simulated_response(
+                data.prompt, data.model, data.temperature
+            )
+        else:
+            response_text += "\n\n" + _generate_simulated_response(
+                data.prompt, data.model, data.temperature
+            )
+        simulated = True
 
     elapsed = time.time() - start_time
     input_tokens = len(data.prompt.split())
@@ -219,12 +298,12 @@ async def run_prompt(
         "success": True,
         "response": response_text,
         "model": data.model,
-        "simulated": True,
+        "simulated": simulated,
         "usage": {
             "input_tokens": input_tokens,
             "output_tokens": output_tokens,
             "total_tokens": input_tokens + output_tokens,
         },
         "latency_ms": round(elapsed * 1000, 1),
-        "note": "This is a simulated response. Configure LLM API keys for real model integration.",
+        "note": "This is a simulated response. Configure LLM API keys for real model integration." if simulated else "Generated by Ollama",
     }
