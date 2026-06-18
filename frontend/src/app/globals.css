@@ -998,3 +998,44 @@ samp {
 [data-theme="light"] .section-divider {
   opacity: 0.35;
 }
+
+[data-theme="light"] .marketplace-card {
+  border-color: rgba(124, 58, 237, 0.12) !important;
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.06),
+    0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .marketplace-card::before {
+  background:
+    linear-gradient(90deg, rgba(124, 58, 237, 0.04), transparent 38%),
+    radial-gradient(circle at 18% 22%, rgba(124, 58, 237, 0.05), transparent 34%),
+    radial-gradient(circle at 86% 18%, rgba(236, 72, 153, 0.05), transparent 35%);
+}
+
+[data-theme="light"] .marketplace-card:hover {
+  border-color: rgba(124, 58, 237, 0.35) !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+  box-shadow:
+    0 0 0 1px rgba(124, 58, 237, 0.08),
+    0 0 25px rgba(124, 58, 237, 0.06),
+    0 12px 40px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .category-pill {
+  border-color: rgba(0, 0, 0, 0.08);
+  background: rgba(0, 0, 0, 0.03);
+  color: #4b5563;
+}
+
+[data-theme="light"] .category-pill:hover {
+  border-color: rgba(124, 58, 237, 0.25);
+  background: rgba(124, 58, 237, 0.06);
+  color: #7c3aed;
+}
+
+[data-theme="light"] .category-pill-active {
+  border-color: rgba(0, 140, 255, 0.4) !important;
+  background: rgba(0, 140, 255, 0.08) !important;
+  color: #2563eb !important;
+}
