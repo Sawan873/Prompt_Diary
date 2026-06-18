@@ -57,6 +57,21 @@ class AdminUserListResponse(BaseModel):
     users: List[AdminUserResponse]
 
 
+class UserProgressStats(BaseModel):
+    """Aggregate progress metrics for a user."""
+    articles_completed: int = Field(..., description="Number of articles read")
+    challenges_completed: int = Field(..., description="Number of challenges solved")
+    total_points: int = Field(..., description="Total points accumulated")
+    level: str = Field(..., description="Calculated user level title")
+
+
+class AdminUserDetailResponse(BaseModel):
+    """Detailed user profile and learning progress response."""
+    success: bool = True
+    user: AdminUserResponse
+    stats: UserProgressStats
+
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -265,4 +280,155 @@ async def list_platform_users(search: Optional[str] = None):
         ]
 
     return AdminUserListResponse(users=mock_users)
+
+
+def _calculate_level(points: int) -> str:
+    """Calculate user level based on total points."""
+    if points >= 200:
+        return "Expert"
+    elif points >= 100:
+        return "Advanced"
+    elif points >= 50:
+        return "Intermediate"
+    elif points >= 10:
+        return "Beginner"
+    return "Newcomer"
+
+
+@router.get("/users/{user_id}", response_model=AdminUserDetailResponse)
+async def get_user_detail(user_id: str):
+    """
+    Get detailed user profile and their progress (Admin only).
+    """
+    supabase = _get_supabase()
+
+    if supabase:
+        try:
+            # 1. Fetch user email via Auth Admin API
+            email = ""
+            try:
+                auth_user = supabase.auth.admin.get_user_by_id(user_id)
+                if auth_user and hasattr(auth_user, "user") and auth_user.user:
+                    email = auth_user.user.email or ""
+                elif isinstance(auth_user, dict) and "user" in auth_user:
+                    email = auth_user.get("user", {}).get("email") or ""
+            except Exception as auth_err:
+                print(f"[AdminService] Supabase auth fetch user failed: {auth_err}")
+
+            # 2. Fetch profile from database
+            profile_result = (
+                supabase.table("profiles")
+                .select("*")
+                .eq("id", user_id)
+                .single()
+                .execute()
+            )
+            profile = profile_result.data
+            if not profile:
+                raise HTTPException(status_code=404, detail="User profile not found")
+
+            # 3. Fetch progress aggregates
+            article_result = (
+                supabase.table("user_progress")
+                .select("id", count="exact")
+                .eq("user_id", user_id)
+                .eq("completed", True)
+                .execute()
+            )
+
+            challenge_result = (
+                supabase.table("challenge_progress")
+                .select("score", count="exact")
+                .eq("user_id", user_id)
+                .eq("completed", True)
+                .execute()
+            )
+
+            articles_completed = article_result.count or 0
+            challenges_count = challenge_result.count or 0
+            challenges_data = challenge_result.data or []
+            total_points = sum(c.get("score", 0) for c in challenges_data)
+
+            return AdminUserDetailResponse(
+                user=AdminUserResponse(
+                    id=str(user_id),
+                    email=email,
+                    username=profile.get("username"),
+                    display_name=profile.get("display_name"),
+                    is_admin=profile.get("is_admin", False),
+                    created_at=profile.get("created_at"),
+                ),
+                stats=UserProgressStats(
+                    articles_completed=articles_completed,
+                    challenges_completed=challenges_count,
+                    total_points=total_points,
+                    level=_calculate_level(total_points),
+                )
+            )
+
+        except HTTPException as he:
+            raise he
+        except Exception as e:
+            print(f"[AdminService] Supabase user detail failed, using mock: {e}")
+
+    # Fallback when Supabase is not configured or fails
+    mock_users = {
+        "mock-user-1111-1111-111111111111": {
+            "user": AdminUserResponse(
+                id="mock-user-1111-1111-111111111111",
+                email="user@example.com",
+                username="regular_user",
+                display_name="Regular User",
+                is_admin=False,
+                created_at="2025-01-15T00:00:00Z",
+            ),
+            "stats": UserProgressStats(
+                articles_completed=3,
+                challenges_completed=2,
+                total_points=30,
+                level="Beginner",
+            ),
+        },
+        "mock-admin-2222-2222-222222222222": {
+            "user": AdminUserResponse(
+                id="mock-admin-2222-2222-222222222222",
+                email="admin@example.com",
+                username="admin_user",
+                display_name="Admin User",
+                is_admin=True,
+                created_at="2025-01-01T00:00:00Z",
+            ),
+            "stats": UserProgressStats(
+                articles_completed=5,
+                challenges_completed=4,
+                total_points=80,
+                level="Intermediate",
+            ),
+        },
+    }
+
+    if user_id in mock_users:
+        return AdminUserDetailResponse(
+            user=mock_users[user_id]["user"],
+            stats=mock_users[user_id]["stats"],
+        )
+
+    # Generic mock user fallback
+    return AdminUserDetailResponse(
+        user=AdminUserResponse(
+            id=user_id,
+            email="fallback@example.com",
+            username="fallback_user",
+            display_name="Fallback User",
+            is_admin=False,
+            created_at="2025-01-01T00:00:00Z",
+        ),
+        stats=UserProgressStats(
+            articles_completed=0,
+            challenges_completed=0,
+            total_points=0,
+            level="Newcomer",
+        ),
+    )
+
 
