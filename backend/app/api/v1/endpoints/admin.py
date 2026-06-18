@@ -7,7 +7,7 @@ GET /admin/stats  — Platform-wide statistics (articles, challenges, roadmaps, 
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List
 
 from app.core.security import get_current_admin
 from app.core.config import settings
@@ -39,6 +39,22 @@ class PlatformStatsResponse(BaseModel):
     """Response wrapper for the platform stats endpoint."""
     success: bool = True
     stats: PlatformStats
+
+
+class AdminUserResponse(BaseModel):
+    """Admin-facing user response schema."""
+    id: str
+    email: str
+    username: Optional[str] = None
+    display_name: Optional[str] = None
+    is_admin: bool = False
+    created_at: Optional[str] = None
+
+
+class AdminUserListResponse(BaseModel):
+    """Response wrapper for admin user list endpoint."""
+    success: bool = True
+    users: List[AdminUserResponse]
 
 
 # ---------------------------------------------------------------------------
@@ -144,3 +160,109 @@ async def get_platform_stats():
             total_users=0,
         ),
     )
+
+
+@router.get("/users", response_model=AdminUserListResponse)
+async def list_platform_users(search: Optional[str] = None):
+    """
+    List all user profiles (Admin only).
+
+    Supports optional search filter matching username, display name, or email.
+    """
+    supabase = _get_supabase()
+
+    if supabase:
+        try:
+            # 1. Fetch auth users via Supabase Auth Admin API (if possible)
+            # This is necessary because emails are stored in auth.users, not profiles
+            auth_users = []
+            try:
+                users_list = supabase.auth.admin.list_users()
+                if hasattr(users_list, "users"):
+                    auth_users = users_list.users
+                elif isinstance(users_list, list):
+                    auth_users = users_list
+            except Exception as auth_err:
+                print(f"[AdminService] Supabase auth list failed: {auth_err}")
+
+            # Map user ID to email
+            email_map = {}
+            for u in auth_users:
+                try:
+                    uid = getattr(u, "id", None) or u.get("id")
+                    email = getattr(u, "email", None) or u.get("email")
+                    if uid and email:
+                        email_map[str(uid)] = email
+                except Exception:
+                    pass
+
+            # 2. Fetch all profiles from public.profiles
+            profiles_query = supabase.table("profiles").select("*")
+            profiles_result = profiles_query.execute()
+            profiles_list = profiles_result.data or []
+
+            # 3. Merge profiles and auth emails, then apply filter if requested
+            users = []
+            for p in profiles_list:
+                user_id = p.get("id")
+                email = email_map.get(str(user_id)) or ""
+
+                if search:
+                    search_lower = search.lower()
+                    username = (p.get("username") or "").lower()
+                    display_name = (p.get("display_name") or "").lower()
+                    email_lower = email.lower()
+                    if (
+                        search_lower not in username
+                        and search_lower not in display_name
+                        and search_lower not in email_lower
+                    ):
+                        continue
+
+                users.append(
+                    AdminUserResponse(
+                        id=str(user_id),
+                        email=email,
+                        username=p.get("username"),
+                        display_name=p.get("display_name"),
+                        is_admin=p.get("is_admin", False),
+                        created_at=p.get("created_at"),
+                    )
+                )
+
+            return AdminUserListResponse(users=users)
+
+        except Exception as e:
+            print(f"[AdminService] Supabase users query failed, using mock: {e}")
+
+    # Fallback when Supabase is not configured or fails
+    mock_users = [
+        AdminUserResponse(
+            id="mock-user-1111-1111-111111111111",
+            email="user@example.com",
+            username="regular_user",
+            display_name="Regular User",
+            is_admin=False,
+            created_at="2025-01-15T00:00:00Z",
+        ),
+        AdminUserResponse(
+            id="mock-admin-2222-2222-222222222222",
+            email="admin@example.com",
+            username="admin_user",
+            display_name="Admin User",
+            is_admin=True,
+            created_at="2025-01-01T00:00:00Z",
+        ),
+    ]
+
+    if search:
+        search_lower = search.lower()
+        mock_users = [
+            u for u in mock_users
+            if search_lower in (u.username or "").lower()
+            or search_lower in (u.display_name or "").lower()
+            or search_lower in (u.email or "").lower()
+        ]
+
+    return AdminUserListResponse(users=mock_users)
+
