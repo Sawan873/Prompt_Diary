@@ -190,12 +190,15 @@ export default function Navbar() {
           <Logo size={34} showText={true} textSize="1.25rem" />
         </Link>
 
-        {/* Desktop Navigation */}
+        {/* Desktop Navigation Links — Centered */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
             gap: "6px",
+            justifyContent: "center",
+            flex: 1,
+            margin: "0 24px",
           }}
           className="desktop-nav"
         >
@@ -237,19 +240,20 @@ export default function Navbar() {
               </Link>
             );
           })}
+        </div>
 
-          <div
-            style={{
-              width: "1px",
-              height: "26px",
-              background: "var(--border-subtle)",
-              margin: "0 10px",
-            }}
-          />
-
+        {/* Desktop Controls (Theme Toggle & Settings dropdown) */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "14px",
+          }}
+          className="desktop-nav"
+        >
           <ThemeToggle />
 
-          <div style={{ width: "8px" }} />
+          <div style={{ width: "2px" }} />
 
           {/* Auth buttons — conditional on login state */}
           {loading ? (
