@@ -16,6 +16,7 @@ class ChallengeCreate(BaseModel):
     difficulty: str = Field(..., description="easy, medium, hard")
     category: str = Field(..., description="summarization, extraction, reasoning, role-playing, chaining")
     starter_prompt: Optional[str] = Field(None, description="Starter prompt for the user")
+    expected_output: Optional[str] = Field(None, description="Expected output reference")
     hints: Optional[List[str]] = Field(None, description="Hints list")
     points: int = Field(..., description="Points awarded for completion")
 
@@ -27,6 +28,7 @@ class ChallengeUpdate(BaseModel):
     difficulty: Optional[str] = Field(None, description="easy, medium, hard")
     category: Optional[str] = Field(None, description="summarization, extraction, reasoning, role-playing, chaining")
     starter_prompt: Optional[str] = Field(None, description="Starter prompt for the user")
+    expected_output: Optional[str] = Field(None, description="Expected output reference")
     hints: Optional[List[str]] = Field(None, description="Hints list")
     points: Optional[int] = Field(None, description="Points awarded for completion")
 
@@ -39,6 +41,7 @@ class ChallengeResponse(BaseModel):
     difficulty: Optional[str] = None
     category: Optional[str] = None
     starter_prompt: Optional[str] = None
+    expected_output: Optional[str] = None
     hints: Optional[List[str]] = None
     points: int
     created_at: datetime
