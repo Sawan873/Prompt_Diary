@@ -13,6 +13,8 @@ import {
   PenLine,
   Send,
   Loader2,
+  Plus,
+  Trash2
 } from "lucide-react";
 import { evaluateChallenge, markChallengeCompleted } from "@/lib/api";
 
@@ -23,7 +25,8 @@ interface Hint {
 interface ChallengeAttemptProps {
   challengeId: string;
   title: string;
-  exampleContext: string;
+  problemContext: string;
+  inputInstructions: string;
   expectedOutput: string;
   hints: Hint[];
   points: number;
@@ -33,16 +36,17 @@ interface ChallengeAttemptProps {
 export default function ChallengeAttempt({
   challengeId,
   title,
-  exampleContext,
+  problemContext,
+  inputInstructions,
   expectedOutput,
   hints,
   points,
   difficulty,
 }: ChallengeAttemptProps) {
   const [prompt, setPrompt] = useState("");
+  const [charCount, setCharCount] = useState(0);
   const [hintsOpen, setHintsOpen] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [charCount, setCharCount] = useState(0);
   const [evaluating, setEvaluating] = useState(false);
   const [evaluation, setEvaluation] = useState<{ score: number; feedback: string; improvements: string[] } | null>(null);
 
@@ -52,13 +56,17 @@ export default function ChallengeAttempt({
     hard: "#f87171",
   };
 
+  const currentDifficultyColor = difficultyColor[difficulty] || "#a78bfa";
+
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setPrompt(e.target.value);
-    setCharCount(e.target.value.length);
+    const text = e.target.value;
+    setPrompt(text);
+    setCharCount(text.length);
   };
 
   const handleSubmit = async () => {
-    if (prompt.trim().length < 10) return;
+    if (charCount < 10) return;
+    
     setEvaluating(true);
     setSubmitted(false);
     setEvaluation(null);
@@ -89,11 +97,9 @@ export default function ChallengeAttempt({
     setEvaluation(null);
   };
 
-  const currentDifficultyColor = difficultyColor[difficulty] || "#a78bfa";
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-      {/* Context / Input */}
+      {/* Problem Context */}
       <div
         className="glass-card"
         style={{
@@ -116,7 +122,7 @@ export default function ChallengeAttempt({
           }}
         >
           <FileText size={16} strokeWidth={1.8} />
-          Context / Input
+          Problem Context
         </h2>
 
         <div
@@ -132,7 +138,50 @@ export default function ChallengeAttempt({
             whiteSpace: "pre-wrap",
           }}
         >
-          {exampleContext}
+          {problemContext}
+        </div>
+      </div>
+
+      {/* Input Instructions */}
+      <div
+        className="glass-card"
+        style={{
+          padding: "24px 28px",
+          border: "1px solid rgba(124,58,237,0.16)",
+          boxShadow: "0 18px 55px rgba(0,0,0,0.18)",
+        }}
+      >
+        <h2
+          style={{
+            fontSize: "0.78rem",
+            fontWeight: 700,
+            textTransform: "uppercase",
+            letterSpacing: "0.08em",
+            color: "var(--text-muted)",
+            marginBottom: "14px",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+          }}
+        >
+          <PenLine size={16} strokeWidth={1.8} />
+          Input Instructions
+        </h2>
+
+        <div
+          style={{
+            background: "linear-gradient(135deg, rgba(124,58,237,0.08), rgba(0,0,0,0.2))",
+            borderRadius: "12px",
+            padding: "16px 20px",
+            border: "1px solid rgba(124,58,237,0.18)",
+            fontFamily: "var(--font-geist-mono), monospace",
+            fontSize: "0.83rem",
+            lineHeight: 1.75,
+            color: "#e2e8f0",
+            whiteSpace: "pre-wrap",
+          }}
+        >
+          {inputInstructions}
         </div>
       </div>
 
@@ -281,10 +330,10 @@ export default function ChallengeAttempt({
         style={{
           padding: "24px 28px",
           border: `1px solid ${
-            prompt.length > 10 ? "rgba(124,58,237,0.34)" : "rgba(255,255,255,0.08)"
+            charCount > 10 ? "rgba(124,58,237,0.34)" : "rgba(255,255,255,0.08)"
           }`,
           boxShadow:
-            prompt.length > 10
+            charCount > 10
               ? "0 0 35px rgba(124,58,237,0.08), 0 18px 55px rgba(0,0,0,0.2)"
               : "0 18px 55px rgba(0,0,0,0.16)",
         }}
@@ -457,39 +506,40 @@ export default function ChallengeAttempt({
             </div>
           </div>
         ) : (
-          <>
-            <textarea
-              value={prompt}
-              onChange={handleChange}
-              placeholder={`Write your prompt here...\n\nExample: "You are an expert summarizer. Given the following text, extract exactly 3 key bullet points..."`}
-              style={{
-                width: "100%",
-                minHeight: "190px",
-                background:
-                  "linear-gradient(135deg, rgba(0,0,0,0.34), rgba(15,23,42,0.18))",
-                border: `1px solid ${
-                  prompt.length > 10
-                    ? "rgba(124,58,237,0.46)"
-                    : "rgba(255,255,255,0.08)"
-                }`,
-                borderRadius: "12px",
-                padding: "16px",
-                color: "var(--text-primary)",
-                fontFamily: "var(--font-geist-mono), monospace",
-                fontSize: "0.875rem",
-                lineHeight: 1.7,
-                resize: "vertical",
-                outline: "none",
-                transition: "border-color 0.2s ease, box-shadow 0.2s ease",
-                boxSizing: "border-box",
-                boxShadow:
-                  prompt.length > 10 ? "0 0 0 3px rgba(124,58,237,0.08)" : "none",
-              }}
-            />
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            <div style={{ position: "relative" }}>
+              <textarea
+                value={prompt}
+                onChange={handleChange}
+                placeholder={"Write your prompt here...\n\nExample: \"You are an expert summarizer...\""}
+                style={{
+                  width: "100%",
+                  minHeight: "140px",
+                  background:
+                    "linear-gradient(135deg, rgba(0,0,0,0.34), rgba(15,23,42,0.18))",
+                  border: `1px solid ${
+                    charCount > 10
+                      ? "rgba(124,58,237,0.46)"
+                      : "rgba(255,255,255,0.08)"
+                  }`,
+                  borderRadius: "12px",
+                  padding: "16px",
+                  color: "var(--text-primary)",
+                  fontFamily: "var(--font-geist-mono), monospace",
+                  fontSize: "0.875rem",
+                  lineHeight: 1.7,
+                  resize: "vertical",
+                  outline: "none",
+                  transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+                  boxSizing: "border-box",
+                  boxShadow:
+                    charCount > 10 ? "0 0 0 3px rgba(124,58,237,0.08)" : "none",
+                }}
+              />
+            </div>
 
             <div
               style={{
-                marginTop: "16px",
                 display: "flex",
                 gap: "12px",
                 justifyContent: "space-between",
@@ -507,15 +557,14 @@ export default function ChallengeAttempt({
                 }}
               >
                 <ClipboardList size={15} strokeWidth={1.8} />
-                Minimum 10 characters required
+                Minimum 10 characters required (currently {charCount})
               </div>
 
               <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-                {prompt.length > 0 && (
+                {charCount > 0 && (
                   <button
                     onClick={() => {
                       setPrompt("");
-                      setCharCount(0);
                     }}
                     style={{
                       padding: "10px 20px",
@@ -537,13 +586,13 @@ export default function ChallengeAttempt({
 
                 <button
                   onClick={handleSubmit}
-                  disabled={prompt.trim().length < 10 || evaluating}
+                  disabled={charCount < 10 || evaluating}
                   className="btn-primary"
                   style={{
                     padding: "10px 24px",
                     fontSize: "0.9rem",
-                    opacity: (prompt.trim().length < 10 || evaluating) ? 0.5 : 1,
-                    cursor: (prompt.trim().length < 10 || evaluating) ? "not-allowed" : "pointer",
+                    opacity: (charCount < 10 || evaluating) ? 0.5 : 1,
+                    cursor: (charCount < 10 || evaluating) ? "not-allowed" : "pointer",
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "8px",
@@ -554,7 +603,7 @@ export default function ChallengeAttempt({
                 </button>
               </div>
             </div>
-          </>
+          </div>
         )}
       </div>
     </div>

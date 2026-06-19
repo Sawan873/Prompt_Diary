@@ -35,10 +35,10 @@ function mapApiChallenge(challenge: ApiChallenge): UiChallenge {
     difficulty,
     category: challenge.category?.trim() || "general",
     points: challenge.points ?? 10,
-    exampleContext:
-      challenge.starter_prompt?.trim() ||
+    problemContext: challenge.starter_prompt?.trim() || "No context provided.",
+    inputInstructions:
       challenge.description ||
-      "Use the description above as context for your prompt.",
+      "Write a prompt to solve this challenge constraints.",
     expectedOutput:
       challenge.expected_output?.trim() ||
       "Produce output that satisfies the challenge constraints.",
@@ -232,23 +232,11 @@ export default async function ChallengeDetailPage({
             fontWeight: 800,
             letterSpacing: "-0.025em",
             lineHeight: 1.2,
-            marginBottom: "16px",
+            marginBottom: "20px",
           }}
         >
           {challenge.title}
         </h1>
-
-        <p
-          style={{
-            color: "var(--text-secondary)",
-            fontSize: "1rem",
-            lineHeight: 1.75,
-            maxWidth: "700px",
-            marginBottom: "20px",
-          }}
-        >
-          {challenge.description}
-        </p>
 
         <div
           style={{
@@ -292,7 +280,8 @@ export default async function ChallengeDetailPage({
       <ChallengeAttempt
         challengeId={id}
         title={challenge.title}
-        exampleContext={challenge.exampleContext}
+        problemContext={challenge.problemContext}
+        inputInstructions={challenge.inputInstructions}
         expectedOutput={challenge.expectedOutput}
         hints={challenge.hints}
         points={challenge.points}
