@@ -70,6 +70,23 @@ export async function serverListSystemDesignArticles(): Promise<{
   return apiGet<{ articles: ApiArticle[]; total: number }>("/articles/system-design");
 }
 
+export async function serverGetArticleRecommendations(slug: string): Promise<{
+  related_articles: ApiArticle[];
+  recommended_templates: Array<{
+    id: string;
+    title: string;
+    description: string;
+    tags: string[];
+    use_count: number;
+    rating?: number;
+  }>;
+} | null> {
+  return apiGet<{
+    related_articles: ApiArticle[];
+    recommended_templates: any[];
+  }>(`/articles/slug/${encodeURIComponent(slug)}/recommendations`);
+}
+
 // ─── Challenges ─────────────────────────────────────────────────────────────
 
 export type ApiChallenge = {
