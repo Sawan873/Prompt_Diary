@@ -52,49 +52,12 @@ AVAILABLE_MODELS = [
         available=bool(getattr(settings, "OPENROUTER_API_KEY", None)),
         description="Cloud-hosted free Mistral 7B Instruct model",
     ),
-    ModelInfo(
-        id="gpt-4",
-        name="GPT-4",
-        provider="OpenAI",
-        available=bool(settings.OPENAI_API_KEY),
-        description="Most capable OpenAI model for complex tasks",
-    ),
-    ModelInfo(
-        id="gpt-3.5-turbo",
-        name="GPT-3.5 Turbo",
-        provider="OpenAI",
-        available=bool(settings.OPENAI_API_KEY),
-        description="Fast and cost-effective for simpler tasks",
-    ),
-    ModelInfo(
-        id="gemini-pro",
-        name="Gemini Pro",
-        provider="Google",
-        available=bool(settings.GEMINI_API_KEY),
-        description="Google's advanced multimodal model",
-    ),
-    ModelInfo(
-        id="claude-3",
-        name="Claude 3",
-        provider="Anthropic",
-        available=False,
-        description="Anthropic's thoughtful AI assistant",
-    ),
-    ModelInfo(
-        id="llama-3",
-        name="Llama 3",
-        provider="Meta (via HuggingFace)",
-        available=False,
-        description="Open-source model from Meta AI",
-    ),
 ]
 
 
 def _generate_simulated_response(prompt: str, model: str, temperature: float) -> str:
     """
     Generate a deterministic simulated response for playground testing.
-
-    In Phase 4+, this will be replaced with actual LLM API calls.
     """
     # Create a deterministic but varied response based on prompt content
     prompt_lower = prompt.lower()
@@ -186,54 +149,6 @@ def _generate_simulated_response(prompt: str, model: str, temperature: float) ->
         )
 
 
-async def get_ollama_models() -> List[ModelInfo]:
-    """Fetch available models from the local Ollama instance."""
-    if not hasattr(settings, "OLLAMA_BASE_URL") or not settings.OLLAMA_BASE_URL:
-        return []
-    try:
-        async with httpx.AsyncClient(timeout=5.0) as client:
-            response = await client.get(f"{settings.OLLAMA_BASE_URL}/api/tags")
-            if response.status_code == 200:
-                data = response.json()
-                models = []
-                for m in data.get("models", []):
-                    model_name = m.get("name")
-                    models.append(ModelInfo(
-                        id=model_name,
-                        name=model_name.capitalize(),
-                        provider="Ollama (Local)",
-                        available=True,
-                        description=f"Local open-source model: {model_name}"
-                    ))
-                return models
-    except Exception:
-        pass
-    return []
-
-async def call_ollama(prompt: str, model: str, temperature: float, max_tokens: int, system_prompt: Optional[str] = None) -> str:
-    """Call the local Ollama API to generate a response."""
-    if not hasattr(settings, "OLLAMA_BASE_URL") or not settings.OLLAMA_BASE_URL:
-        raise ValueError("OLLAMA_BASE_URL is not configured")
-        
-    url = f"{settings.OLLAMA_BASE_URL}/api/generate"
-    payload = {
-        "model": model,
-        "prompt": prompt,
-        "temperature": temperature,
-        "stream": False,
-        "options": {
-            "num_predict": max_tokens
-        }
-    }
-    if system_prompt:
-        payload["system"] = system_prompt
-        
-    async with httpx.AsyncClient(timeout=120.0) as client:
-        response = await client.post(url, json=payload)
-        response.raise_for_status()
-        return response.json().get("response", "")
-
-
 async def call_openrouter(
     prompt: str,
     model_id: str,
@@ -279,16 +194,11 @@ async def call_openrouter(
 async def list_models():
     """
     List all available models for the playground.
-
-    Models marked as `available: true` have API keys configured.
     """
     base_models = [m.model_dump() for m in AVAILABLE_MODELS]
-    ollama_models = await get_ollama_models()
-    all_models = base_models + [m.model_dump() for m in ollama_models]
-    
     return {
-        "models": all_models,
-        "total": len(all_models),
+        "models": base_models,
+        "total": len(base_models),
     }
 
 
@@ -299,21 +209,11 @@ async def run_prompt(
 ):
     """
     Execute a prompt against a model.
-
-    Currently returns simulated responses. When LLM API keys are configured,
-    this will call the actual model APIs.
-
-    Authentication is optional — anonymous users can try the playground,
-    but their usage may be rate-limited in the future.
     """
     start_time = time.time()
     simulated = False
     response_text = ""
     is_openrouter = False
-
-    # Check if the requested model is an Ollama model
-    ollama_models = await get_ollama_models()
-    ollama_model_ids = [m.id for m in ollama_models]
 
     if getattr(settings, "OPENROUTER_API_KEY", None) and data.model in ["llama-3-free", "mistral-7b-free"]:
         model_map = {
@@ -334,24 +234,6 @@ async def run_prompt(
             except Exception as e:
                 response_text = f"Error calling OpenRouter: {str(e)}\n\nFalling back to simulated response..."
                 simulated = True
-    elif getattr(settings, "OLLAMA_BASE_URL", None) and data.model in ollama_model_ids:
-        try:
-            response_text = await call_ollama(
-                prompt=data.prompt,
-                model=data.model,
-                temperature=data.temperature,
-                max_tokens=data.max_tokens,
-                system_prompt=data.system_prompt
-            )
-        except Exception as e:
-            response_text = f"Error calling Ollama: {str(e)}\n\nFalling back to simulated response..."
-            simulated = True
-    elif settings.OPENAI_API_KEY and data.model.startswith("gpt"):
-        # TODO: Phase 4 — integrate real OpenAI API
-        pass
-    elif settings.GEMINI_API_KEY and data.model == "gemini-pro":
-        # TODO: Phase 4 — integrate real Gemini API
-        pass
 
     if not response_text or simulated:
         # Fallback to simulated response
@@ -371,8 +253,6 @@ async def run_prompt(
 
     if is_openrouter:
         note_text = "Generated by cloud-hosted open-source model via OpenRouter"
-    elif not simulated:
-        note_text = "Generated by Ollama"
     else:
         note_text = "This is a simulated response. Configure LLM API keys for real model integration."
 
