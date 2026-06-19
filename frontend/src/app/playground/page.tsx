@@ -38,7 +38,7 @@ function PlaygroundContent() {
   const searchParams = useSearchParams();
   const [prompt, setPrompt] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
-  const [model, setModel] = useState("gpt-4");
+  const [model, setModel] = useState("llama-3-free");
   const [temperature, setTemperature] = useState(0.7);
   const [output, setOutput] = useState("");
   const [isRunning, setIsRunning] = useState(false);
@@ -225,11 +225,8 @@ function PlaygroundContent() {
                 ))
               ) : (
                 <>
-                  <option value="gpt-4">GPT-4</option>
-                  <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-                  <option value="gemini-pro">Gemini Pro</option>
-                  <option value="claude-3">Claude 3</option>
-                  <option value="llama-3">Llama 3</option>
+                  <option value="llama-3-free">Llama 3 8B (Free Cloud)</option>
+                  <option value="mistral-7b-free">Mistral 7B (Free Cloud)</option>
                 </>
               )}
             </select>
@@ -701,8 +698,7 @@ function PlaygroundContent() {
           </strong>{" "}
           The playground generates context-aware simulated responses. Try prompts
           about summarization, JSON extraction, code generation, or explanations
-          for varied outputs. Real LLM integration with OpenAI, Gemini, and
-          HuggingFace can be added in Phase 4.
+          for varied outputs. Real LLM integration is powered by cloud-hosted open-source models via OpenRouter.
         </span>
       </div>
 
