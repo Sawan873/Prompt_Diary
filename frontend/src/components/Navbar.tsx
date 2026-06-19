@@ -177,7 +177,7 @@ export default function Navbar() {
       >
         {/* Logo */}
         <Link
-          href="/"
+          href={user ? "/dashboard" : "/"}
           id="nav-logo"
           style={{
             display: "flex",

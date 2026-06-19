@@ -209,7 +209,6 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-        <button id="dashboard-logout" onClick={handleSignOut} className="btn-secondary" style={{ padding: "8px 20px", fontSize: "0.85rem" }}>Sign Out</button>
       </div>
 
       {/* Streak + XP Progress Row */}
