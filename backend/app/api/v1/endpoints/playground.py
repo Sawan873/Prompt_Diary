@@ -39,18 +39,18 @@ class ModelInfo(BaseModel):
 # Available models registry
 AVAILABLE_MODELS = [
     ModelInfo(
-        id="llama-3-free",
-        name="Llama 3 8B (Free Cloud)",
+        id="liquid-lfm-free",
+        name="Liquid LFM 1.2B (Free Cloud)",
         provider="OpenRouter",
         available=bool(getattr(settings, "OPENROUTER_API_KEY", None)),
-        description="Cloud-hosted free Llama 3 8B Instruct model",
+        description="Fast and stable 1.2B parameter instruction model",
     ),
     ModelInfo(
-        id="mistral-7b-free",
-        name="Mistral 7B (Free Cloud)",
+        id="cohere-north-free",
+        name="Cohere North Mini (Free Cloud)",
         provider="OpenRouter",
         available=bool(getattr(settings, "OPENROUTER_API_KEY", None)),
-        description="Cloud-hosted free Mistral 7B Instruct model",
+        description="Efficient and stable code-oriented mini model",
     ),
 ]
 
@@ -215,10 +215,10 @@ async def run_prompt(
     response_text = ""
     is_openrouter = False
 
-    if getattr(settings, "OPENROUTER_API_KEY", None) and data.model in ["llama-3-free", "mistral-7b-free"]:
+    if getattr(settings, "OPENROUTER_API_KEY", None) and data.model in ["liquid-lfm-free", "cohere-north-free"]:
         model_map = {
-            "llama-3-free": "meta-llama/llama-3-8b-instruct:free",
-            "mistral-7b-free": "mistralai/mistral-7b-instruct:free",
+            "liquid-lfm-free": "liquid/lfm-2.5-1.2b-instruct:free",
+            "cohere-north-free": "cohere/north-mini-code:free",
         }
         openrouter_model_id = model_map.get(data.model)
         if openrouter_model_id:
