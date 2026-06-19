@@ -37,23 +37,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session: currentSession } }: { data: { session: Session | null } }) => {
-      setSession(currentSession);
-      setUser(currentSession?.user ?? null);
-      setLoading(false);
-    });
+    // Get initial session with error handling
+    supabase.auth.getSession()
+      .then(({ data: { session: currentSession } }: { data: { session: Session | null } }) => {
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
+        setLoading(false);
+      })
+      .catch((err: any) => {
+        console.error("Failed to get initial session:", err);
+        setLoading(false);
+      });
 
-    // Listen for auth state changes (login, logout, token refresh)
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event: string, session: Session | null) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    // Listen for auth state changes with safety
+    let subscription: any = null;
+    try {
+      const { data } = supabase.auth.onAuthStateChange((_event: string, session: Session | null) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+      });
+      subscription = data?.subscription;
+    } catch (err) {
+      console.error("Failed to set up auth state change listener:", err);
       setLoading(false);
-    });
+    }
 
-    return () => subscription.unsubscribe();
+    return () => {
+      if (subscription) {
+        subscription.unsubscribe();
+      }
+    };
   }, []);
 
   const signOut = async () => {
