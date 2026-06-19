@@ -8,7 +8,10 @@ GET  /playground/models — List available models
 import time
 import hashlib
 import httpx
+import json
+import asyncio
 from fastapi import APIRouter, Depends
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from typing import Optional, List
 
@@ -269,4 +272,105 @@ async def run_prompt(
         "latency_ms": round(elapsed * 1000, 1),
         "note": note_text,
     }
+
+
+async def stream_openrouter(
+    prompt: str,
+    model_id: str,
+    temperature: float,
+    max_tokens: int,
+    system_prompt: Optional[str] = None,
+):
+    url = "https://openrouter.ai/api/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {settings.OPENROUTER_API_KEY}",
+        "Content-Type": "application/json",
+        "HTTP-Referer": "http://localhost:3000",
+        "X-Title": "Prompt Diary",
+    }
+    messages = []
+    if system_prompt:
+        messages.append({"role": "system", "content": system_prompt})
+    messages.append({"role": "user", "content": prompt})
+
+    payload = {
+        "model": model_id,
+        "messages": messages,
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+        "stream": True,
+    }
+
+    async with httpx.AsyncClient(timeout=60.0) as client:
+        try:
+            async with client.stream("POST", url, json=payload, headers=headers) as response:
+                response.raise_for_status()
+                async for line in response.aiter_lines():
+                    if not line:
+                        continue
+                    if line.startswith("data: "):
+                        data_str = line[6:].strip()
+                        if data_str == "[DONE]":
+                            break
+                        try:
+                            data_json = json.loads(data_str)
+                            choices = data_json.get("choices", [])
+                            if choices:
+                                delta = choices[0].get("delta", {})
+                                content = delta.get("content", "")
+                                if content:
+                                    yield f"data: {json.dumps({'content': content})}\n\n"
+                        except Exception:
+                            pass
+        except Exception as e:
+            yield f"data: {json.dumps({'error': str(e)})}\n\n"
+
+
+async def stream_simulated(prompt: str, model: str, temperature: float):
+    response_text = _generate_simulated_response(prompt, model, temperature)
+    words = response_text.split(" ")
+    for i, word in enumerate(words):
+        space = " " if i > 0 else ""
+        yield f"data: {json.dumps({'content': space + word})}\n\n"
+        await asyncio.sleep(0.03)
+
+
+@router.post("/run-stream")
+async def run_prompt_stream(
+    data: PromptRunRequest,
+    user: Optional[dict] = Depends(get_optional_user),
+):
+    """
+    Stream prompt generation results back to the client.
+    """
+    model_map = {
+        "liquid-lfm-free": "liquid/lfm-2.5-1.2b-instruct:free",
+        "cohere-north-free": "cohere/north-mini-code:free",
+    }
+    
+    use_stream_openrouter = False
+    openrouter_model_id = None
+    
+    if getattr(settings, "OPENROUTER_API_KEY", None):
+        openrouter_model_id = model_map.get(data.model)
+        if openrouter_model_id:
+            use_stream_openrouter = True
+            
+    if use_stream_openrouter:
+        return StreamingResponse(
+            stream_openrouter(
+                prompt=data.prompt,
+                model_id=openrouter_model_id,
+                temperature=data.temperature,
+                max_tokens=data.max_tokens,
+                system_prompt=data.system_prompt,
+            ),
+            media_type="text/event-stream"
+        )
+    else:
+        return StreamingResponse(
+            stream_simulated(data.prompt, data.model, data.temperature),
+            media_type="text/event-stream"
+        )
+
 
