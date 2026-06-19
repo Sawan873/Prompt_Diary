@@ -152,6 +152,7 @@ MOCK_CHALLENGES = [
         "difficulty": "easy",
         "category": "summarization",
         "starter_prompt": "Summarize the following article...",
+        "expected_output": "- [Key point 1: main concept]\n- [Key point 2: important detail]\n- [Key point 3: takeaway or implication]",
         "hints": [
             "Specify the number of bullet points",
             "Ask for key takeaways, not just a shorter version",
@@ -167,6 +168,7 @@ MOCK_CHALLENGES = [
         "difficulty": "medium",
         "category": "extraction",
         "starter_prompt": "Extract the following information from this review...",
+        "expected_output": "{\n  \"product\": \"Sony WH-1000XM5\",\n  \"rating\": 5,\n  \"pros\": [\"noise cancellation\", \"sound quality\", \"battery life\"],\n  \"cons\": [\"ear cushions get warm\", \"expensive\"]\n}",
         "hints": [
             "Define the exact JSON schema you expect",
             "Provide an example of the output format",
@@ -182,6 +184,7 @@ MOCK_CHALLENGES = [
         "difficulty": "medium",
         "category": "reasoning",
         "starter_prompt": "Solve the following problem step by step...",
+        "expected_output": "Step 1: Calculate total cookies per type\nStep 2: Calculate cookies sold\nStep 3: Calculate revenue per type\nStep 4: Sum all revenues",
         "hints": [
             "Use Chain-of-Thought prompting",
             "Ask the model to 'think step by step'",
@@ -197,6 +200,7 @@ MOCK_CHALLENGES = [
         "difficulty": "hard",
         "category": "role-playing",
         "starter_prompt": "You are a senior software engineer...",
+        "expected_output": "A senior code review covering naming, readability, edge cases, performance, and a suggested refactor.",
         "hints": [
             "Define the persona clearly with expertise areas",
             "Set the tone and communication style",
@@ -212,6 +216,7 @@ MOCK_CHALLENGES = [
         "difficulty": "hard",
         "category": "chaining",
         "starter_prompt": "Step 1: Analyze the following business problem...",
+        "expected_output": "Prompt 1: Problem analysis\nPrompt 2: Solution generation using Prompt 1 output\nPrompt 3: Ranking using Prompt 2 output",
         "hints": [
             "Each prompt should have a clear, focused objective",
             "Define the output format for each step",
