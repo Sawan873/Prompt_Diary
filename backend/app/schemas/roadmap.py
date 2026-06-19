@@ -9,7 +9,6 @@ from uuid import UUID
 from pydantic import BaseModel, Field
 
 
-# 1. Keep this from your LOCAL changes (HEAD)
 class TopicItem(BaseModel):
     """Detailed topic structure in a learning roadmap path."""
     order: int = Field(..., description="The sequential order number of this topic")
@@ -19,7 +18,6 @@ class TopicItem(BaseModel):
     completed: Optional[bool] = Field(False, description="Whether the current user completed this step")
 
 
-# 2. Keep these from the REMOTE changes
 class RoadmapBase(BaseModel):
     """Base schema for a roadmap."""
     title: str = Field(..., min_length=1)
