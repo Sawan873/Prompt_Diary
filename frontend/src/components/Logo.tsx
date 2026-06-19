@@ -140,6 +140,7 @@ export default function Logo({
             fontSize: textSize,
             fontWeight: 800,
             letterSpacing: "-0.025em",
+            whiteSpace: "nowrap",
           }}
           className="gradient-text"
         >
