@@ -10,7 +10,7 @@ from pydantic import BaseModel, EmailStr, Field
 
 
 class UserSignup(BaseModel):
-    """Request schema for user registration."""
+    """Request Schema for user registration."""
     email: str = Field(..., description="User email address")
     password: str = Field(..., min_length=6, description="Password (min 6 chars)")
     username: Optional[str] = Field(None, description="Optional username")
