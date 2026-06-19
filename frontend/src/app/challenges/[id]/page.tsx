@@ -10,7 +10,8 @@ type UiChallenge = {
   difficulty: "easy" | "medium" | "hard";
   category: string;
   points: number;
-  exampleContext: string;
+  problemContext: string;
+  inputInstructions: string;
   expectedOutput: string;
   hints: { text: string }[];
 };
