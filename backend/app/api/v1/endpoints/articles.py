@@ -151,3 +151,37 @@ async def delete_existing_article(
         raise HTTPException(status_code=404, detail="Article not found or deletion failed")
     return None
 
+
+from pydantic import BaseModel
+from app.services.rag_service import query_rag_pipeline
+from app.services.recommendation_service import get_related_articles, get_recommended_templates_for_article
+
+class ArticleQARequest(BaseModel):
+    query: str
+
+@router.post("/qa")
+async def ask_article_rag(payload: ArticleQARequest):
+    """
+    Query the RAG pipeline with user's question, retrieving context from articles.
+    """
+    try:
+        return await query_rag_pipeline(payload.query)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/slug/{slug}/recommendations")
+async def get_article_recommendations(slug: str):
+    """
+    Retrieve related articles and prompt templates for a given article slug.
+    """
+    try:
+        related = get_related_articles(slug)
+        templates = get_recommended_templates_for_article(slug)
+        return {
+            "related_articles": related,
+            "recommended_templates": templates
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
