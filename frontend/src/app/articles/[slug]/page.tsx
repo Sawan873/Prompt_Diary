@@ -10,7 +10,7 @@ import {
   Tag,
 } from "lucide-react";
 import ArticleReadingProgress from "@/components/ArticleReadingProgress";
-import { serverGetArticleBySlug, serverListArticles } from "@/lib/server-api";
+import { serverGetArticleBySlug, serverListArticles, serverGetArticleRecommendations } from "@/lib/server-api";
 
 // ─── Offline fallback (when API is down) ─────────────────────────────────────
 
@@ -636,7 +636,11 @@ export default async function ArticleDetailPage({
     );
   }
 
-  const related = await buildRelated(slug, article.category);
+  const recommendations = await serverGetArticleRecommendations(slug);
+  const relatedArticles = recommendations?.related_articles?.length
+    ? recommendations.related_articles
+    : await buildRelated(slug, article.category);
+  const recommendedTemplates = recommendations?.recommended_templates ?? [];
 
   const readingTime = getReadingTime(article.content);
   const diffColor = getDifficultyColor(article.difficulty);
@@ -816,9 +820,10 @@ export default async function ArticleDetailPage({
           ))}
         </div>
 
-        {/* ── Related Articles ── */}
-        {related.length > 0 && (
-          <section style={{ marginBottom: "40px" }}>
+        {/* ── Related Articles & Templates Grid ── */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", marginBottom: "40px" }} className="playground-grid">
+          {/* Related Articles Column */}
+          <div>
             <h2
               style={{
                 fontWeight: 700,
@@ -831,39 +836,88 @@ export default async function ArticleDetailPage({
             >
               Related Articles
             </h2>
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              {related.map((rel) => (
-                <Link
-                  key={rel.slug}
-                  href={`/articles/${rel.slug}`}
-                  className="glass-card"
-                  style={{
-                    padding: "16px 20px",
-                    textDecoration: "none",
-                    color: "inherit",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    gap: "12px",
-                  }}
-                >
-                  <span style={{ fontSize: "0.9rem", fontWeight: 500 }}>
-                    {rel.title}
-                  </span>
-                  <span
+            {relatedArticles.length > 0 ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                {relatedArticles.map((rel) => (
+                  <Link
+                    key={rel.slug}
+                    href={`/articles/${rel.slug}`}
+                    className="glass-card"
                     style={{
-                      color: "var(--text-muted)",
-                      flexShrink: 0,
-                      display: "inline-flex",
+                      padding: "16px 20px",
+                      textDecoration: "none",
+                      color: "inherit",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      gap: "12px",
                     }}
                   >
-                    <ArrowRight size={16} />
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
+                    <span style={{ fontSize: "0.9rem", fontWeight: 500 }}>
+                      {rel.title}
+                    </span>
+                    <span style={{ color: "var(--text-muted)", flexShrink: 0, display: "inline-flex" }}>
+                      <ArrowRight size={16} />
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>No related articles found.</p>
+            )}
+          </div>
+
+          {/* Recommended Prompt Templates Column */}
+          <div>
+            <h2
+              style={{
+                fontWeight: 700,
+                marginBottom: "16px",
+                color: "var(--text-secondary)",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                fontSize: "0.78rem",
+              }}
+            >
+              Recommended Templates
+            </h2>
+            {recommendedTemplates.length > 0 ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                {recommendedTemplates.map((template) => (
+                  <Link
+                    key={template.id}
+                    href={`/marketplace/${template.id}`}
+                    className="glass-card"
+                    style={{
+                      padding: "16px 20px",
+                      textDecoration: "none",
+                      color: "inherit",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      gap: "12px",
+                      border: "1px solid rgba(0, 229, 255, 0.1)"
+                    }}
+                  >
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: "0.9rem", fontWeight: 600, color: "#67e8f9", marginBottom: "4px" }}>
+                        {template.title}
+                      </div>
+                      <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical" }}>
+                        {template.description}
+                      </p>
+                    </div>
+                    <span style={{ color: "var(--text-muted)", flexShrink: 0, display: "inline-flex" }}>
+                      <ArrowRight size={16} />
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>No recommended templates found.</p>
+            )}
+          </div>
+        </div>
 
         {/* ── Back Button ── */}
         <Link
