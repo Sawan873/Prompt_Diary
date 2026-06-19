@@ -90,6 +90,7 @@ export default function Navbar() {
   }, []);
 
   const navLinks = [
+    { href: "/dashboard", label: "Dashboard", Icon: LayoutDashboard },
     { href: "/articles", label: "Articles", Icon: BookOpen },
     { href: "/challenges", label: "Challenges", Icon: Target },
     { href: "/roadmaps", label: "Roadmaps", Icon: Map },
@@ -293,7 +294,8 @@ export default function Navbar() {
                   borderRadius: "50%",
                 }}
                 id="nav-user-menu"
-                aria-label="User menu"
+                aria-label="User Settings"
+                title="User Settings"
               >
                 {avatarUrl ? (
                   <img
@@ -361,8 +363,11 @@ export default function Navbar() {
                     zIndex: 50,
                   }}
                 >
-                  {/* User profile header */}
+                  {/* User Settings Header */}
                   <div style={{ padding: "4px 8px 12px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                    <div style={{ fontWeight: 800, fontSize: "0.82rem", color: "#00e5ff", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "4px" }}>
+                      User Settings
+                    </div>
                     <div style={{ fontWeight: 700, fontSize: "0.95rem", color: "#fff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                       {displayName}
                     </div>
@@ -396,28 +401,6 @@ export default function Navbar() {
                         Admin Panel
                       </Link>
                     )}
-
-                    <Link
-                      href="/dashboard"
-                      id="dropdown-dashboard"
-                      onClick={() => setDropdownOpen(false)}
-                      className="dropdown-item"
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "10px",
-                        padding: "10px 12px",
-                        borderRadius: "10px",
-                        color: "var(--text-secondary)",
-                        textDecoration: "none",
-                        fontSize: "0.85rem",
-                        fontWeight: 600,
-                        transition: "all 0.2s ease",
-                      }}
-                    >
-                      <LayoutDashboard size={16} />
-                      My Dashboard
-                    </Link>
 
                     <button
                       id="dropdown-settings"
@@ -604,19 +587,6 @@ export default function Navbar() {
                   </Link>
                 )}
                 <div style={{ display: "flex", gap: "8px", width: "100%" }}>
-                  <Link
-                    href="/dashboard"
-                    className="btn-secondary"
-                    onClick={() => setMobileOpen(false)}
-                    style={{
-                      flex: 1,
-                      justifyContent: "center",
-                      padding: "10px",
-                      textAlign: "center",
-                    }}
-                  >
-                    Dashboard
-                  </Link>
                   <button
                     onClick={() => {
                       setMobileOpen(false);
