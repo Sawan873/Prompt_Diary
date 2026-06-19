@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowRight, FileText, Inbox } from "lucide-react";
+import { ArrowRight, FileText, Inbox, Sparkles, MessageSquare, Loader2, Send, Check } from "lucide-react";
+import { API_BASE_URL } from "@/lib/api";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -43,14 +44,200 @@ export default function ArticlesClient({
   categories,
 }: ArticlesClientProps) {
   const [activeCategory, setActiveCategory] = useState("all");
+  
+  // RAG states
+  const [isQaOpen, setIsQaOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [answer, setAnswer] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [isSourced, setIsSourced] = useState(false);
 
   const filtered =
     activeCategory === "all"
       ? articles
       : articles.filter((a) => a.category === activeCategory);
 
+  const handleAskRag = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!query.trim()) return;
+
+    setIsSearching(true);
+    setAnswer("");
+    setIsSourced(false);
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/articles/qa`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query: query.trim() }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to get answer");
+      }
+
+      const data = await res.json();
+      setAnswer(data.answer);
+      setIsSourced(data.sourced);
+    } catch (err) {
+      setAnswer("Failed to reach Prompt Diary Q&A Assistant. Please verify backend is running.");
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
   return (
     <>
+      {/* ── RAG Chat Assistant Panel ── */}
+      <div
+        className="glass-card"
+        style={{
+          padding: "24px",
+          marginBottom: "36px",
+          border: isQaOpen ? "1px solid rgba(0, 229, 255, 0.25)" : "1px solid rgba(255, 255, 255, 0.08)",
+          background: isQaOpen 
+            ? "linear-gradient(135deg, rgba(15,23,42,0.4), rgba(0,0,0,0.5))"
+            : "linear-gradient(135deg, rgba(255,255,255,0.01), rgba(0,0,0,0.2))",
+          boxShadow: isQaOpen ? "0 10px 30px rgba(0, 229, 255, 0.04)" : "none",
+          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        }}
+      >
+        <div
+          onClick={() => setIsQaOpen(!isQaOpen)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            cursor: "pointer",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div
+              style={{
+                width: "36px",
+                height: "36px",
+                borderRadius: "10px",
+                background: "rgba(0, 229, 255, 0.12)",
+                border: "1px solid rgba(0, 229, 255, 0.2)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#67e8f9",
+              }}
+            >
+              <Sparkles size={16} />
+            </div>
+            <div>
+              <h3 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0 }}>
+                Ask Prompt Diary Q&A Assistant
+              </h3>
+              <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", margin: "2px 0 0 0" }}>
+                Answers user questions dynamically from the articles database
+              </p>
+            </div>
+          </div>
+          
+          <button
+            className="btn-secondary"
+            style={{
+              padding: "6px 14px",
+              fontSize: "0.8rem",
+              borderRadius: "8px",
+            }}
+          >
+            {isQaOpen ? "Collapse" : "Ask AI"}
+          </button>
+        </div>
+
+        {isQaOpen && (
+          <div className="animate-slide-down" style={{ marginTop: "20px", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "20px" }}>
+            <form onSubmit={handleAskRag} style={{ display: "flex", gap: "10px", marginBottom: "16px" }}>
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Ask about Prompt Engineering (e.g. What is Chain-of-Thought prompting?)"
+                style={{
+                  flex: 1,
+                  padding: "10px 14px",
+                  borderRadius: "10px",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  background: "rgba(0,0,0,0.3)",
+                  color: "var(--text-primary)",
+                  fontSize: "0.88rem",
+                  outline: "none",
+                }}
+              />
+              <button
+                type="submit"
+                disabled={isSearching || !query.trim()}
+                className="btn-primary"
+                style={{
+                  padding: "10px 16px",
+                  borderRadius: "10px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "6px",
+                  opacity: isSearching || !query.trim() ? 0.6 : 1,
+                }}
+              >
+                {isSearching ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />}
+                Ask
+              </button>
+            </form>
+
+            {/* Answer Display */}
+            {(isSearching || answer) && (
+              <div
+                style={{
+                  padding: "16px 20px",
+                  borderRadius: "10px",
+                  background: "rgba(0,0,0,0.2)",
+                  border: "1px solid rgba(0, 229, 255, 0.08)",
+                  fontFamily: "var(--font-geist-sans), sans-serif",
+                  fontSize: "0.88rem",
+                  lineHeight: 1.65,
+                }}
+              >
+                {isSearching ? (
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px", color: "var(--text-secondary)" }}>
+                    <Loader2 size={16} className="animate-spin" color="#00e5ff" />
+                    <span>Searching database and generating answer...</span>
+                  </div>
+                ) : (
+                  <div>
+                    <div style={{ color: "var(--text-primary)", whiteSpace: "pre-wrap" }}>
+                      {answer}
+                    </div>
+                    {isSourced && (
+                      <div
+                        style={{
+                          marginTop: "12px",
+                          fontSize: "0.72rem",
+                          color: "#34d399",
+                          fontWeight: 700,
+                          textTransform: "uppercase",
+                          letterSpacing: "0.04em",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
+                        <Check size={12} />
+                        Grounded in articles database
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* ── Category Filter Bar ── */}
       <div
         style={{
@@ -283,7 +470,7 @@ export default function ArticlesClient({
                       gap: "8px",
                       marginTop: "15px",
                       flexWrap: "wrap",
-                    }}
+                     }}
                   >
                     {article.tags.map((tag) => (
                       <span
