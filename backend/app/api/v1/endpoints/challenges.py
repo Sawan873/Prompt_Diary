@@ -89,7 +89,7 @@ async def evaluate_challenge(
             "X-Title": "Prompt Diary",
         }
         payload = {
-            "model": "meta-llama/llama-3-8b-instruct:free",
+            "model": "liquid/lfm-2.5-1.2b-instruct:free",
             "messages": [{"role": "user", "content": system_prompt}],
             "temperature": 0.3,
         }
