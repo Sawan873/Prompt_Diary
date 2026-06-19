@@ -12,9 +12,7 @@ import {
   PartyPopper,
   PenLine,
   Send,
-  Loader2,
-  Plus,
-  Trash2
+  Loader2
 } from "lucide-react";
 import { evaluateChallenge, markChallengeCompleted } from "@/lib/api";
 
