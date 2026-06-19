@@ -114,37 +114,12 @@ async def evaluate_challenge(
                         improvements=parsed_result.get("improvements", [])
                     )
         except Exception as e:
-            # Fall back to other options if OpenRouter fails
             print(f"OpenRouter evaluation failed: {e}")
             
-    # 2. Try Ollama (Local)
-    if getattr(settings, "OLLAMA_BASE_URL", None):
-        url = f"{settings.OLLAMA_BASE_URL}/api/generate"
-        payload = {
-            "model": "llama3:latest",
-            "prompt": system_prompt,
-            "stream": False,
-            "format": "json"
-        }
-        try:
-            async with httpx.AsyncClient(timeout=120.0) as client:
-                response = await client.post(url, json=payload)
-                response.raise_for_status()
-                result_text = response.json().get("response", "")
-                
-                result_data = json.loads(result_text)
-                return ChallengeEvaluateResponse(
-                    score=result_data.get("score", 0),
-                    feedback=result_data.get("feedback", "No feedback provided."),
-                    improvements=result_data.get("improvements", [])
-                )
-        except Exception as e:
-            print(f"Ollama evaluation failed: {e}")
-            
-    # 3. Fallback to mock evaluation
+    # 2. Fallback to mock evaluation
     return ChallengeEvaluateResponse(
         score=8,
-        feedback="This is a mock evaluation because neither OpenRouter nor Ollama are configured or reachable. Your prompt looks generally good.",
+        feedback="This is a mock evaluation because OpenRouter is not configured or reachable. Your prompt looks generally good.",
         improvements=["Consider adding more specific output constraints.", "Define the persona more clearly."]
     )
 
