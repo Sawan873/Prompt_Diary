@@ -38,7 +38,7 @@ function PlaygroundContent() {
   const searchParams = useSearchParams();
   const [prompt, setPrompt] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
-  const [model, setModel] = useState("llama-3-free");
+  const [model, setModel] = useState("liquid-lfm-free");
   const [temperature, setTemperature] = useState(0.7);
   const [output, setOutput] = useState("");
   const [isRunning, setIsRunning] = useState(false);
@@ -225,8 +225,8 @@ function PlaygroundContent() {
                 ))
               ) : (
                 <>
-                  <option value="llama-3-free">Llama 3 8B (Free Cloud)</option>
-                  <option value="mistral-7b-free">Mistral 7B (Free Cloud)</option>
+                  <option value="liquid-lfm-free">Liquid LFM 1.2B (Free Cloud)</option>
+                  <option value="cohere-north-free">Cohere North Mini (Free Cloud)</option>
                 </>
               )}
             </select>
