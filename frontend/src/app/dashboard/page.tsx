@@ -12,11 +12,48 @@ const ModuleIcon = ({ path, viewBox = "0 0 24 24" }: { path: React.ReactNode; vi
 );
 
 const modules = [
-  { title: "Learning Articles",  href: "/articles",      icon: <ModuleIcon path={<><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></>} />, desc: "Read in-depth guides" },
-  { title: "Prompt Challenges",  href: "/challenges",    icon: <ModuleIcon path={<><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></>} />, desc: "Practice prompts" },
-  { title: "Prompt Playground",  href: "/playground",    icon: <ModuleIcon path={<><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></>} />, desc: "Test your prompts" },
-  { title: "Learning Roadmaps",  href: "/roadmaps",      icon: <ModuleIcon path={<><path d="M3 17l4-4 4 4 4-8 4 4"/><path d="M21 21H3"/></>} />, desc: "Structured paths" },
-  { title: "System Design",      href: "/system-design", icon: <ModuleIcon path={<><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></>} />, desc: "AI architectures" },
+  {
+    title: "Learning Articles",
+    href: "/articles",
+    icon: <ModuleIcon path={<><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></>} />,
+    desc: "Dive into 50+ curated guides and tutorials. Master the fundamentals, prompting techniques, and security patterns of prompt engineering from beginner to advanced levels.",
+    color: "#7c3aed"
+  },
+  {
+    title: "Prompt Challenges",
+    href: "/challenges",
+    icon: <ModuleIcon path={<><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></>} />,
+    desc: "Test your skills with interactive prompt writing tasks. Write prompts matching strict context requirements and expected formats, and get graded by our auto-evaluator.",
+    color: "#3b82f6"
+  },
+  {
+    title: "Prompt Playground",
+    href: "/playground",
+    icon: <ModuleIcon path={<><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></>} />,
+    desc: "A fully sandboxed environment to write prompts, test multiple AI models, adjust parameters like temperature and max tokens, and test system prompts live.",
+    color: "#a855f6"
+  },
+  {
+    title: "Learning Roadmaps",
+    href: "/roadmaps",
+    icon: <ModuleIcon path={<><path d="M3 17l4-4 4 4 4-8 4 4"/><path d="M21 21H3"/></>} />,
+    desc: "Follow structured step-by-step pathways designed to guide you systematically from beginner techniques to advanced system architecture design.",
+    color: "#06b6d4"
+  },
+  {
+    title: "System Design",
+    href: "/system-design",
+    icon: <ModuleIcon path={<><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></>} />,
+    desc: "Explore production-ready AI architectures. Deep dive into Retrieval-Augmented Generation (RAG) structures, pgvector, and multi-agent coordination.",
+    color: "#00e5ff"
+  },
+  {
+    title: "Prompt Marketplace",
+    href: "/marketplace",
+    icon: <ModuleIcon path={<><rect x="3" y="3" width="7" height="9" /><rect x="14" y="3" width="7" height="5" /><rect x="14" y="12" width="7" height="9" /><rect x="3" y="16" width="7" height="5" /></>} viewBox="0 0 24 24" />,
+    desc: "Browse a curated community catalog of prompt templates. Filter by category or model, find optimized prompts for business, math, or coding, and share yours.",
+    color: "#f59e0b"
+  }
 ];
 
 interface UserStatsData {
@@ -258,16 +295,34 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Modules Grid */}
-      <p style={{ color: "var(--text-secondary)", fontSize: "1.05rem", marginBottom: "24px" }}>
-        Choose a module to continue your learning journey.
+      {/* Platform Summary / Modules Grid */}
+      <h2 style={{ fontSize: "1.2rem", fontWeight: 700, marginBottom: "8px" }}>Platform Modules</h2>
+      <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", marginBottom: "24px" }}>
+        Explore summaries of each of the core sections and modules that make up the Prompt Diary platform.
       </p>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "14px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "20px" }}>
         {modules.map((module) => (
-          <Link key={module.title} href={module.href} className="glass-card" style={{ textDecoration: "none", color: "inherit", padding: "24px 20px", display: "flex", flexDirection: "column", gap: "8px" }}>
-            <span style={{ display: "flex", color: "var(--text-secondary)" }}>{module.icon}</span>
-            <span style={{ fontWeight: 600, fontSize: "0.95rem" }}>{module.title}</span>
-            <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>{module.desc}</span>
+          <Link
+            key={module.title}
+            href={module.href}
+            className="glass-card"
+            style={{
+              textDecoration: "none",
+              color: "inherit",
+              padding: "24px 20px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "12px",
+              borderTop: `3px solid ${module.color}`,
+              transition: "transform 0.2s ease, border-color 0.2s ease",
+            }}
+          >
+            <span style={{ display: "flex", color: module.color }}>{module.icon}</span>
+            <span style={{ fontWeight: 700, fontSize: "1.05rem" }}>{module.title}</span>
+            <span style={{ fontSize: "0.82rem", color: "var(--text-muted)", lineHeight: "1.5" }}>{module.desc}</span>
+            <span style={{ fontSize: "0.8rem", fontWeight: 600, color: module.color, marginTop: "auto", display: "flex", alignItems: "center", gap: "4px" }}>
+              Explore Module →
+            </span>
           </Link>
         ))}
       </div>
