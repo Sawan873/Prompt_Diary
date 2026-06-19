@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: Optional[str] = None
     GEMINI_API_KEY: Optional[str] = None
     OLLAMA_BASE_URL: str = "http://localhost:11434"
+    OPENROUTER_API_KEY: Optional[str] = None
 
     class Config:
         env_file = ".env"
