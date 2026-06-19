@@ -29,9 +29,6 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
     # LLM APIs (Phase 4)
-    OPENAI_API_KEY: Optional[str] = None
-    GEMINI_API_KEY: Optional[str] = None
-    OLLAMA_BASE_URL: str = "http://localhost:11434"
     OPENROUTER_API_KEY: Optional[str] = None
 
     class Config:
